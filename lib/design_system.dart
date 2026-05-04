@@ -4,7 +4,7 @@ import "package:flutter/material.dart";
 ///
 /// This file is intentionally dependency-free. It keeps the visual language
 /// consistent without introducing a state-management or UI package.
-abstract final class DsColors {
+abstract final class VigilColors {
   static const Color ink = Color(0xFF080F26);
   static const Color inkElevated = Color(0xFF101D40);
   static const Color primary = Color(0xFF1E66E1);
@@ -23,7 +23,7 @@ abstract final class DsColors {
   static const List<Color> appBackdrop = [Color(0xFF060D22), Color(0xFF142354), Color(0xFF1A2E6B)];
 }
 
-abstract final class DsSpace {
+abstract final class VigilSpace {
   static const double xxs = 4;
   static const double xs = 8;
   static const double sm = 10;
@@ -34,7 +34,7 @@ abstract final class DsSpace {
   static const double page = 16;
 }
 
-abstract final class DsRadius {
+abstract final class VigilRadius {
   static const double chip = 6;
   static const double input = 14;
   static const double card = 16;
@@ -48,45 +48,45 @@ abstract final class DsRadius {
   static const BorderRadius appFrameRadius = BorderRadius.all(Radius.circular(appFrame));
 }
 
-abstract final class DsStroke {
-  static const BorderSide subtle = BorderSide(color: DsColors.border, width: 1.5);
-  static const BorderSide strong = BorderSide(color: DsColors.borderStrong, width: 1.5);
-  static const BorderSide primary = BorderSide(color: DsColors.primary, width: 1.5);
+abstract final class VigilStroke {
+  static const BorderSide subtle = BorderSide(color: VigilColors.border, width: 1.5);
+  static const BorderSide strong = BorderSide(color: VigilColors.borderStrong, width: 1.5);
+  static const BorderSide primary = BorderSide(color: VigilColors.primary, width: 1.5);
 }
 
-abstract final class DsShadow {
+abstract final class VigilShadow {
   static final List<BoxShadow> primaryLift = List.unmodifiable([
     BoxShadow(
-      color: DsColors.primary.withValues(alpha: 0.28),
+      color: VigilColors.primary.withValues(alpha: 0.28),
       blurRadius: 24,
       offset: const Offset(0, 8),
     ),
   ]);
 }
 
-abstract final class DsGradients {
+abstract final class VigilGradients {
   static const LinearGradient appBackdrop = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: DsColors.appBackdrop,
+    colors: VigilColors.appBackdrop,
   );
 
   static const LinearGradient primaryAction = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [DsColors.primary, DsColors.primaryPressed],
+    colors: [VigilColors.primary, VigilColors.primaryPressed],
   );
 }
 
-abstract final class DsType {
+abstract final class VigilType {
   static const String fontFamily = "Roboto";
 
-  static TextStyle title({Color color = DsColors.textPrimary, double size = 20}) {
+  static TextStyle title({Color color = VigilColors.textPrimary, double size = 20}) {
     return TextStyle(color: color, fontSize: size, fontWeight: FontWeight.w900, height: 1.12);
   }
 
   static TextStyle body({
-    Color color = DsColors.textPrimary,
+    Color color = VigilColors.textPrimary,
     FontWeight weight = FontWeight.w600,
     double size = 14,
   }) {
@@ -94,7 +94,7 @@ abstract final class DsType {
   }
 
   static TextStyle small({
-    Color color = DsColors.textMuted,
+    Color color = VigilColors.textMuted,
     FontWeight weight = FontWeight.w600,
     double size = 11,
   }) {
@@ -102,60 +102,60 @@ abstract final class DsType {
   }
 }
 
-abstract final class DsTheme {
+abstract final class VigilTheme {
   static ThemeData light() {
     final ColorScheme scheme = ColorScheme.fromSeed(
-      seedColor: DsColors.primary,
-      primary: DsColors.primary,
-      surface: DsColors.surface,
+      seedColor: VigilColors.primary,
+      primary: VigilColors.primary,
+      surface: VigilColors.surface,
     );
     return ThemeData(
       colorScheme: scheme,
-      fontFamily: DsType.fontFamily,
-      scaffoldBackgroundColor: DsColors.canvas,
+      fontFamily: VigilType.fontFamily,
+      scaffoldBackgroundColor: VigilColors.canvas,
       useMaterial3: true,
-      textSelectionTheme: const TextSelectionThemeData(cursorColor: DsColors.primary),
+      textSelectionTheme: const TextSelectionThemeData(cursorColor: VigilColors.primary),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: DsColors.primary,
-          foregroundColor: DsColors.surface,
-          shape: RoundedRectangleBorder(borderRadius: DsRadius.cardRadius),
-          textStyle: DsType.body(color: DsColors.surface, weight: FontWeight.w800),
+          backgroundColor: VigilColors.primary,
+          foregroundColor: VigilColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
+          textStyle: VigilType.body(color: VigilColors.surface, weight: FontWeight.w800),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: DsColors.textPrimary,
-          side: DsStroke.strong,
-          shape: RoundedRectangleBorder(borderRadius: DsRadius.cardRadius),
-          textStyle: DsType.body(weight: FontWeight.w700),
+          foregroundColor: VigilColors.textPrimary,
+          side: VigilStroke.strong,
+          shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
+          textStyle: VigilType.body(weight: FontWeight.w700),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: DsColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: DsSpace.lg, vertical: DsSpace.md),
+        fillColor: VigilColors.surface,
+        contentPadding: const EdgeInsets.symmetric(horizontal: VigilSpace.lg, vertical: VigilSpace.md),
         enabledBorder: OutlineInputBorder(
-          borderSide: DsStroke.subtle,
-          borderRadius: DsRadius.inputRadius,
+          borderSide: VigilStroke.subtle,
+          borderRadius: VigilRadius.inputRadius,
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: DsStroke.primary,
-          borderRadius: DsRadius.inputRadius,
+          borderSide: VigilStroke.primary,
+          borderRadius: VigilRadius.inputRadius,
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: DsColors.ink,
-        contentTextStyle: DsType.body(color: DsColors.surface),
+        backgroundColor: VigilColors.ink,
+        contentTextStyle: VigilType.body(color: VigilColors.surface),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: DsRadius.inputRadius),
+        shape: RoundedRectangleBorder(borderRadius: VigilRadius.inputRadius),
       ),
     );
   }
 }
 
-class DsSurface extends StatelessWidget {
-  const DsSurface({
+class VigilSurface extends StatelessWidget {
+  const VigilSurface({
     required this.child,
     super.key,
     this.selected = false,
@@ -174,10 +174,10 @@ class DsSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final BorderRadius resolvedRadius = radius ?? DsRadius.cardRadius;
+    final BorderRadius resolvedRadius = radius ?? VigilRadius.cardRadius;
     final Color resolvedBackground =
-        background ?? (selected ? DsColors.primarySoft : DsColors.surface);
-    final BorderSide side = selected ? DsStroke.primary : DsStroke.subtle;
+        background ?? (selected ? VigilColors.primarySoft : VigilColors.surface);
+    final BorderSide side = selected ? VigilStroke.primary : VigilStroke.subtle;
     final Widget content = DecoratedBox(
       decoration: BoxDecoration(
         color: resolvedBackground,
@@ -196,8 +196,8 @@ class DsSurface extends StatelessWidget {
   }
 }
 
-class DsIconBox extends StatelessWidget {
-  const DsIconBox({
+class VigilIconBox extends StatelessWidget {
+  const VigilIconBox({
     required this.icon,
     required this.color,
     required this.background,
@@ -224,8 +224,8 @@ class DsIconBox extends StatelessWidget {
   }
 }
 
-class DsPill extends StatelessWidget {
-  const DsPill({required this.label, required this.color, required this.background, super.key});
+class VigilPill extends StatelessWidget {
+  const VigilPill({required this.label, required this.color, required this.background, super.key});
 
   final String label;
   final Color color;
@@ -234,12 +234,12 @@ class DsPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: BoxDecoration(color: background, borderRadius: DsRadius.chipRadius),
+      decoration: BoxDecoration(color: background, borderRadius: VigilRadius.chipRadius),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: DsSpace.xs, vertical: DsSpace.xxs),
+        padding: const EdgeInsets.symmetric(horizontal: VigilSpace.xs, vertical: VigilSpace.xxs),
         child: Text(
           label,
-          style: DsType.small(color: color, size: 10, weight: FontWeight.w900),
+          style: VigilType.small(color: color, size: 10, weight: FontWeight.w900),
         ),
       ),
     );
