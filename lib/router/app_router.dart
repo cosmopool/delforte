@@ -29,7 +29,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
   Widget build(BuildContext context) {
     return switch (_currentRoute) {
       HomeRoute() => HomePage(store: store, router: this),
-      QuoteFlowRoute(:final QuoteStep step, :final int? selectedClientId) => _buildQuoteFlow(step, selectedClientId),
+      QuoteFlowRoute(:final QuoteStep step, :final int? selectedClientId) => _buildQuoteFlow(
+        step,
+        selectedClientId,
+      ),
       QuotesListRoute() => QuotesListPage(store: store, router: this),
       TemplatesRoute() => TemplatesPage(store: store, router: this),
     };
@@ -47,21 +50,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         router: this,
         selectedClientId: selectedClientId,
       ),
-      QuoteStep.items => ItemsPage(
-        store: store,
-        router: this,
-        selectedClientId: selectedClientId,
-      ),
+      QuoteStep.items => ItemsPage(store: store, router: this, selectedClientId: selectedClientId),
       QuoteStep.review => ReviewPage(
         store: store,
         router: this,
         selectedClientId: selectedClientId,
       ),
-      QuoteStep.send => SendPage(
-        store: store,
-        router: this,
-        selectedClientId: selectedClientId,
-      ),
+      QuoteStep.send => SendPage(store: store, router: this, selectedClientId: selectedClientId),
     };
   }
 
@@ -69,5 +64,27 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
   Future<void> setNewRoutePath(AppRoute configuration) async {
     _currentRoute = configuration;
     notifyListeners();
+  }
+
+  @override
+  Future<bool> popRoute() {
+    switch (_currentRoute) {
+      case HomeRoute():
+        return Future.value(false);
+      case QuoteFlowRoute(:final QuoteStep step, :final int? selectedClientId):
+        final QuoteStep? previous = step.previous;
+        if (previous == null) {
+          _currentRoute = const HomeRoute();
+        } else {
+          _currentRoute = QuoteFlowRoute(previous, selectedClientId: selectedClientId);
+        }
+        notifyListeners();
+        return Future.value(true);
+      case QuotesListRoute():
+      case TemplatesRoute():
+        _currentRoute = const HomeRoute();
+        notifyListeners();
+        return Future.value(true);
+    }
   }
 }

@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/store.dart";
 import "package:flutter/material.dart";
 
@@ -241,7 +242,7 @@ class _QuoteHomeState extends State<QuoteHome> {
 
     return Column(
       children: [
-        _FlowHeader(
+        FlowHeader(
           title: "Select Client",
           stepIndex: 0,
           onBack: () => setState(() => _screen = AppScreen.home),
@@ -331,7 +332,7 @@ class _QuoteHomeState extends State<QuoteHome> {
 
     return Column(
       children: [
-        _FlowHeader(
+        FlowHeader(
           title: isService ? "Services" : "Equipment",
           stepIndex: isService ? 1 : 2,
           total: isService ? _draftTotalFor(quoteLineService) : _draftTotalFor(quoteLineItem),
@@ -390,7 +391,7 @@ class _QuoteHomeState extends State<QuoteHome> {
 
     return Column(
       children: [
-        _FlowHeader(
+        FlowHeader(
           title: "Review",
           stepIndex: 3,
           continueLabel: "Looks Good",
@@ -465,7 +466,7 @@ class _QuoteHomeState extends State<QuoteHome> {
     final int itemCount = _draftCountFor(quoteLineItem);
     return Column(
       children: [
-        _FlowHeader(
+        FlowHeader(
           title: "Send Quote",
           stepIndex: 4,
           onBack: () => setState(() => _screen = AppScreen.review),
@@ -529,7 +530,7 @@ class _QuoteHomeState extends State<QuoteHome> {
 
     return Column(
       children: [
-        _FlowHeader(title: "Quotes", onBack: () => setState(() => _screen = AppScreen.home)),
+        FlowHeader(title: "Quotes", onBack: () => setState(() => _screen = AppScreen.home)),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -598,7 +599,7 @@ class _QuoteHomeState extends State<QuoteHome> {
 
     return Column(
       children: [
-        _FlowHeader(title: "Templates", onBack: () => setState(() => _screen = AppScreen.home)),
+        FlowHeader(title: "Templates", onBack: () => setState(() => _screen = AppScreen.home)),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -838,141 +839,6 @@ class _QuoteHomeState extends State<QuoteHome> {
   void _showSnack(String message) {
     if (message.isEmpty || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-}
-
-class _FlowHeader extends StatelessWidget {
-  const _FlowHeader({
-    required this.title,
-    this.stepIndex,
-    this.total,
-    this.totalLabel,
-    this.continueLabel = "Continue",
-    this.onBack,
-    this.onContinue,
-  });
-
-  static const List<String> _steps = ["Client", "Services", "Items", "Review", "Send"];
-
-  final String title;
-  final int? stepIndex;
-  final int? total;
-  final String? totalLabel;
-  final String continueLabel;
-  final VoidCallback? onBack;
-  final VoidCallback? onContinue;
-
-  @override
-  Widget build(BuildContext context) {
-    final int? current = stepIndex;
-    return ColoredBox(
-      color: VigilColors.ink,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-            child: Row(
-              children: [
-                if (onBack != null) ...[
-                  _HeaderIconButton(
-                    icon: Icons.arrow_back_rounded,
-                    tooltip: "Back",
-                    onPressed: onBack,
-                  ),
-                  const SizedBox(width: 10),
-                ],
-                Expanded(
-                  child: Text(title, style: VigilType.title(color: VigilColors.surface, size: 19)),
-                ),
-                if (onContinue != null)
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: VigilColors.primary,
-                      foregroundColor: VigilColors.surface,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    ),
-                    onPressed: onContinue,
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                    label: Text(continueLabel),
-                  ),
-              ],
-            ),
-          ),
-          if (current != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      for (var i = 0; i < _steps.length; i++)
-                        Expanded(
-                          child: Container(
-                            height: 3,
-                            margin: EdgeInsets.only(right: i == _steps.length - 1 ? 0 : 5),
-                            decoration: BoxDecoration(
-                              color: i < current
-                                  ? VigilColors.primary
-                                  : i == current
-                                  ? const Color(0xFF5499EE)
-                                  : Colors.white.withValues(alpha: 0.13),
-                              borderRadius: BorderRadius.circular(VigilRadius.chip),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 7),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      for (var i = 0; i < _steps.length; i++)
-                        Text(
-                          _steps[i],
-                          style: VigilType.small(
-                            color: i == current
-                                ? Colors.white.withValues(alpha: 0.95)
-                                : i < current
-                                ? Colors.white.withValues(alpha: 0.50)
-                                : Colors.white.withValues(alpha: 0.25),
-                            size: 10,
-                            weight: i == current ? FontWeight.w700 : FontWeight.w400,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          if (total != null && totalLabel != null)
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 14),
-              color: Colors.white.withValues(alpha: 0.06),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    totalLabel!,
-                    style: VigilType.small(
-                      color: Colors.white.withValues(alpha: 0.45),
-                      size: 12,
-                      weight: FontWeight.w600,
-                    ),
-                  ),
-                  Text(
-                    _formatMoney(total!),
-                    style: VigilType.body(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      size: 15,
-                      weight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
   }
 }
 
@@ -1704,29 +1570,6 @@ class _InitialsAvatar extends StatelessWidget {
         text,
         style: VigilType.small(color: VigilColors.surface, size: 13, weight: FontWeight.w900),
       ),
-    );
-  }
-}
-
-class _HeaderIconButton extends StatelessWidget {
-  const _HeaderIconButton({required this.icon, required this.tooltip, required this.onPressed});
-
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      style: IconButton.styleFrom(
-        backgroundColor: Colors.white.withValues(alpha: 0.08),
-        foregroundColor: Colors.white.withValues(alpha: 0.80),
-        fixedSize: const Size(34, 34),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
-      ),
-      icon: Icon(icon, size: 17),
     );
   }
 }

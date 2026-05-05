@@ -1,4 +1,7 @@
 import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/empty_panel.dart";
+import "package:delforte/design_system/widgets/quote_card_widget.dart";
+import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store.dart";
@@ -91,14 +94,14 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               if (store.quotes.count == 0)
-                const _EmptyPanel(
+                const EmptyPanel(
                   icon: Icons.receipt_long_rounded,
                   title: "No saved quotes yet",
                   subtitle: "Create a quote and save it from the review flow.",
                 )
               else
                 for (var i = 0; i < store.quotes.count && i < 3; i++)
-                  _QuoteCard(
+                  QuoteCard(
                     clientName: _clientNameById(store.quotes.clientIdAt(i)),
                     meta: _dateLabel(store.quotes.timestampAt(i)),
                     total: _formatMoney(store.quotes.totalCentsAt(i)),
@@ -196,7 +199,10 @@ class _NewQuoteCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("New Quote", style: VigilType.title(color: VigilColors.surface, size: 19)),
+                      Text(
+                        "New Quote",
+                        style: VigilType.title(color: VigilColors.surface, size: 19),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         "Build a quote step by step",
@@ -242,18 +248,30 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _TapCard(
+    const Color color = VigilColors.textMuted;
+    const FontWeight weight = FontWeight.w700;
+    return TapCard(
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            VigilIconBox(icon: icon, color: VigilColors.textSecondary, background: VigilColors.canvas),
+            VigilIconBox(
+              icon: icon,
+              color: VigilColors.textSecondary,
+              background: VigilColors.canvas,
+            ),
             const SizedBox(height: 10),
-            Text(label, style: _bodyStyle(weight: FontWeight.w700)),
+            Text(
+              label,
+              style: VigilType.body(color: VigilColors.textPrimary, size: 14, weight: weight),
+            ),
             const SizedBox(height: 3),
-            Text(subtitle, style: _smallStyle(color: VigilColors.textMuted)),
+            Text(
+              subtitle,
+              style: VigilType.small(color: color, size: 11, weight: FontWeight.w600),
+            ),
           ],
         ),
       ),
@@ -270,141 +288,17 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const FontWeight weight = FontWeight.w800;
     return Row(
       children: [
         Expanded(
-          child: Text(title, style: _bodyStyle(weight: FontWeight.w800)),
+          child: Text(
+            title,
+            style: VigilType.body(color: VigilColors.textPrimary, size: 14, weight: weight),
+          ),
         ),
         TextButton(onPressed: onAction, child: Text(action)),
       ],
     );
   }
-}
-
-class _EmptyPanel extends StatelessWidget {
-  const _EmptyPanel({required this.icon, required this.title, required this.subtitle});
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: VigilColors.border, width: 1.5),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Icon(icon, color: VigilColors.textMuted),
-            const SizedBox(height: 8),
-            Text(title, style: _bodyStyle(weight: FontWeight.w800)),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: _smallStyle(color: VigilColors.textMuted),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuoteCard extends StatelessWidget {
-  const _QuoteCard({
-    required this.clientName,
-    required this.meta,
-    required this.total,
-    required this.status,
-    required this.statusColor,
-    required this.statusBg,
-  });
-
-  final String clientName;
-  final String meta;
-  final String total;
-  final String status;
-  final Color statusColor;
-  final Color statusBg;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: VigilColors.border, width: 1.5),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(clientName, style: _bodyStyle(weight: FontWeight.w700)),
-                  ),
-                  Text(
-                    total,
-                    style: _smallStyle(
-                      color: VigilColors.textPrimary,
-                      weight: FontWeight.w800,
-                      size: 13,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(meta, style: _smallStyle(color: VigilColors.textMuted)),
-                  ),
-                  VigilPill(label: status.toUpperCase(), color: statusColor, background: statusBg),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TapCard extends StatelessWidget {
-  const _TapCard({required this.child, required this.onTap, this.selected = false});
-
-  final Widget child;
-  final VoidCallback onTap;
-  final bool selected;
-
-  @override
-  Widget build(BuildContext context) {
-    return VigilSurface(selected: selected, onTap: onTap, child: child);
-  }
-}
-
-TextStyle _bodyStyle({
-  Color color = VigilColors.textPrimary,
-  FontWeight weight = FontWeight.w600,
-  double size = 14,
-}) {
-  return VigilType.body(color: color, size: size, weight: weight);
-}
-
-TextStyle _smallStyle({
-  Color color = VigilColors.textMuted,
-  FontWeight weight = FontWeight.w600,
-  double size = 11,
-}) {
-  return VigilType.small(color: color, size: size, weight: weight);
 }
