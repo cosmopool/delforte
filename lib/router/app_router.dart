@@ -1,3 +1,4 @@
+import "package:delforte/pages/catalog_create_page.dart";
 import "package:delforte/pages/client_select_page.dart";
 import "package:delforte/pages/home_page.dart";
 import "package:delforte/pages/items_page.dart";
@@ -32,6 +33,22 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
       QuoteFlowRoute(:final QuoteStep step, :final int? selectedClientId) => _buildQuoteFlow(
         step,
         selectedClientId,
+      ),
+      CatalogCreateRoute(:final bool isService, :final int? selectedClientId) => CatalogCreatePage(
+        store: store,
+        isService: isService,
+        onBack: () => goTo(
+          QuoteFlowRoute(
+            isService ? QuoteStep.services : QuoteStep.items,
+            selectedClientId: selectedClientId,
+          ),
+        ),
+        onSaved: () => goTo(
+          QuoteFlowRoute(
+            isService ? QuoteStep.services : QuoteStep.items,
+            selectedClientId: selectedClientId,
+          ),
+        ),
       ),
       QuotesListRoute() => QuotesListPage(store: store, router: this),
       TemplatesRoute() => TemplatesPage(router: this),
@@ -78,6 +95,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         } else {
           _currentRoute = QuoteFlowRoute(previous, selectedClientId: selectedClientId);
         }
+        notifyListeners();
+        return Future.value(true);
+      case CatalogCreateRoute(:final bool isService, :final int? selectedClientId):
+        _currentRoute = QuoteFlowRoute(
+          isService ? QuoteStep.services : QuoteStep.items,
+          selectedClientId: selectedClientId,
+        );
         notifyListeners();
         return Future.value(true);
       case QuotesListRoute():

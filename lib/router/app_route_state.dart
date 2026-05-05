@@ -1,4 +1,3 @@
-
 sealed class AppRoute {
   const AppRoute();
 }
@@ -10,6 +9,12 @@ class HomeRoute extends AppRoute {
 class QuoteFlowRoute extends AppRoute {
   const QuoteFlowRoute(this.step, {this.selectedClientId});
   final QuoteStep step;
+  final int? selectedClientId;
+}
+
+class CatalogCreateRoute extends AppRoute {
+  const CatalogCreateRoute({required this.isService, this.selectedClientId});
+  final bool isService;
   final int? selectedClientId;
 }
 

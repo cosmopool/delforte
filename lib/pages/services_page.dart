@@ -1,7 +1,6 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/add_card_widget.dart";
 import "package:delforte/design_system/widgets/catalog_card_widget.dart";
-import "package:delforte/design_system/widgets/dialog_field_widget.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
 import "package:delforte/router/app_route_state.dart";
@@ -101,7 +100,12 @@ class _ServicesPageState extends State<ServicesPage> {
                   onIncrease: () => _changeDraftQuantity(widget.store.services.idAt(index), 1),
                   onRemove: () => _removeDraftLine(widget.store.services.idAt(index)),
                 ),
-              AddCard(label: "Add new service", onTap: _showCatalogDialog),
+              AddCard(
+                label: "Add new service",
+                onTap: () => widget.router.goTo(
+                  CatalogCreateRoute(isService: true, selectedClientId: widget.selectedClientId),
+                ),
+              ),
             ],
           ),
         ),
@@ -144,48 +148,6 @@ class _ServicesPageState extends State<ServicesPage> {
     }
   }
 
-  Future<void> _showCatalogDialog() async {
-    final TextEditingController name = TextEditingController();
-    final TextEditingController description = TextEditingController();
-    final TextEditingController price = TextEditingController();
-    final bool? saved = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text("Add Service"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DialogField(controller: name, label: "Name"),
-                DialogField(controller: description, label: "Description"),
-                DialogField(controller: price, label: "Price", keyboardType: TextInputType.number),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text("Cancel"),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text("Save"),
-            ),
-          ],
-        );
-      },
-    );
-    if (saved == true) {
-      final int cents = _parseMoneyCents(price.text);
-      final bool ok = widget.store.addService(name.text.trim(), description.text.trim(), cents);
-      if (!ok) _showSnack(widget.store.latestErrorMessage());
-    }
-    name.dispose();
-    description.dispose();
-    price.dispose();
-  }
-
   void _showSnack(String message) {
     if (message.isEmpty || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -212,12 +174,5 @@ class _ServicesPageState extends State<ServicesPage> {
       if (remaining > 1 && remaining % 3 == 1) buffer.write(".");
     }
     return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
-  }
-
-  int _parseMoneyCents(String value) {
-    final String normalized = value.trim().replaceAll(".", "").replaceAll(",", ".");
-    final double parsed = double.tryParse(normalized) ?? 0;
-    if (parsed <= 0) return 0;
-    return (parsed * 100).round();
   }
 }
