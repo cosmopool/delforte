@@ -1,10 +1,22 @@
 import "package:delforte/design_system.dart";
 import "package:flutter/material.dart";
 
+/// A widget that displays a label-value pair in a compact format.
+///
+/// This widget shows a label in uppercase followed by a value,
+/// styled as a small card with a canvas background and border.
+/// Useful for displaying summary information in a grid or list.
 class FieldSummary extends StatelessWidget {
+  /// Creates a field summary widget.
+  ///
+  /// [label] is the label text displayed in uppercase.
+  /// [value] is the value text displayed below the label.
   const FieldSummary({required this.label, required this.value, super.key});
 
+  /// The label text displayed in uppercase.
   final String label;
+
+  /// The value text displayed below the label.
   final String value;
 
   @override

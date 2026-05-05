@@ -5,11 +5,26 @@ import "package:flutter/material.dart";
 
 export "package:delforte/design_system/widgets/line_row_widget.dart" show DraftLineView;
 
+/// A panel widget that groups and displays a list of line items.
+///
+/// This widget displays a title with an edit button and shows a list
+/// of draft line views. When the list is empty, it displays a
+/// "No lines added" message. Each line is rendered using [LineRow].
 class LineGroup extends StatelessWidget {
+  /// Creates a line group widget.
+  ///
+  /// [title] is the group title displayed in the panel header.
+  /// [lines] is the list of draft line views to display.
+  /// [onEdit] is the callback when the edit button is pressed.
   const LineGroup({required this.title, required this.lines, required this.onEdit, super.key});
 
+  /// The group title displayed in the panel header.
   final String title;
+
+  /// The list of draft line views to display.
   final List<DraftLineView> lines;
+
+  /// The callback when the edit button is pressed.
   final VoidCallback onEdit;
 
   @override

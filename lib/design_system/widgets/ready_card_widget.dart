@@ -1,11 +1,26 @@
 import "package:delforte/design_system.dart";
 import "package:flutter/material.dart";
 
+/// A card widget displaying a success or completion state.
+///
+/// This widget shows a check icon, title, subtitle, and a list of
+/// chips. It uses a success-themed color scheme with a rounded
+/// white container. Useful for indicating completed actions or states.
 class ReadyCard extends StatelessWidget {
+  /// Creates a ready card widget.
+  ///
+  /// [title] is the primary title text.
+  /// [subtitle] is the secondary descriptive text.
+  /// [chips] is the list of chip labels to display.
   const ReadyCard({required this.title, required this.subtitle, required this.chips, super.key});
 
+  /// The primary title text.
   final String title;
+
+  /// The secondary descriptive text.
   final String subtitle;
+
+  /// The list of chip labels to display.
   final List<String> chips;
 
   @override

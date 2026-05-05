@@ -1,7 +1,17 @@
 import "package:delforte/design_system.dart";
 import "package:flutter/material.dart";
 
+/// An icon button widget styled for use in flow headers.
+///
+/// This button uses a semi-transparent white background and
+/// foreground color, with a fixed size and rounded corners.
+/// Designed for use in the [FlowHeader] widget.
 class HeaderIconButton extends StatelessWidget {
+  /// Creates a header icon button.
+  ///
+  /// [icon] is the icon to display.
+  /// [tooltip] is the tooltip text for the button.
+  /// [onPressed] is the callback when the button is pressed.
   const HeaderIconButton({
     required this.icon,
     required this.tooltip,
@@ -9,8 +19,13 @@ class HeaderIconButton extends StatelessWidget {
     super.key,
   });
 
+  /// The icon to display.
   final IconData icon;
+
+  /// The tooltip text for the button.
   final String tooltip;
+
+  /// The callback when the button is pressed.
   final VoidCallback? onPressed;
 
   @override
@@ -29,7 +44,21 @@ class HeaderIconButton extends StatelessWidget {
   }
 }
 
+/// A header widget for multi-step flows or navigation screens.
+///
+/// This widget displays a title with optional back and continue buttons.
+/// It uses an ink background color and supports step indicators.
+/// The header is designed for use in multi-step workflows.
 class FlowHeader extends StatelessWidget {
+  /// Creates a flow header widget.
+  ///
+  /// [title] is the header title text.
+  /// [onBack] is the optional callback for the back button.
+  /// [stepIndex] is the optional current step index.
+  /// [total] is the optional total number of steps.
+  /// [totalLabel] is the optional label for the total.
+  /// [continueLabel] is the text for the continue button (defaults to "Continue").
+  /// [onContinue] is the optional callback for the continue button.
   const FlowHeader({
     required this.title,
     super.key,
@@ -41,12 +70,25 @@ class FlowHeader extends StatelessWidget {
     this.onContinue,
   });
 
+  /// The header title text.
   final String title;
+
+  /// The optional current step index.
   final int? stepIndex;
+
+  /// The optional total number of steps.
   final int? total;
+
+  /// The optional label for the total.
   final String? totalLabel;
+
+  /// The text for the continue button.
   final String continueLabel;
+
+  /// The optional callback for the back button.
   final VoidCallback? onBack;
+
+  /// The optional callback for the continue button.
   final VoidCallback? onContinue;
 
   @override

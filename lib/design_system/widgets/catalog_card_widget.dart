@@ -4,7 +4,25 @@ import "package:delforte/design_system/widgets/round_button_widget.dart";
 import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:flutter/material.dart";
 
+/// A card widget for displaying catalog items with expandable details.
+///
+/// This card shows an item's name, description, price, and icon. When expanded,
+/// it displays additional controls for adjusting quantity or removing the item.
+/// The card supports selection state and provides callbacks for all user interactions.
 class CatalogCard extends StatelessWidget {
+  /// Creates a catalog card widget.
+  ///
+  /// [name] is the item name displayed in the card.
+  /// [description] is the optional item description.
+  /// [price] is the item price as a string.
+  /// [icon] is the icon displayed for the item.
+  /// [expanded] indicates whether the card is currently expanded.
+  /// [selectedQuantity] is the current quantity selected (0 if not selected).
+  /// [onToggle] is called when the card is tapped to toggle expansion.
+  /// [onAdd] is called when the add button is pressed.
+  /// [onDecrease] is called when the decrease button is pressed.
+  /// [onIncrease] is called when the increase button is pressed.
+  /// [onRemove] is called when the remove button is pressed.
   const CatalogCard({
     required this.name,
     required this.description,
@@ -20,16 +38,37 @@ class CatalogCard extends StatelessWidget {
     super.key,
   });
 
+  /// The item name displayed in the card.
   final String name;
+
+  /// The optional item description.
   final String description;
+
+  /// The item price as a string.
   final String price;
+
+  /// The icon displayed for the item.
   final IconData icon;
+
+  /// Whether the card is currently expanded.
   final bool expanded;
+
+  /// The current quantity selected (0 if not selected).
   final int selectedQuantity;
+
+  /// Called when the card is tapped to toggle expansion.
   final VoidCallback onToggle;
+
+  /// Called when the add button is pressed.
   final VoidCallback onAdd;
+
+  /// Called when the decrease button is pressed.
   final VoidCallback onDecrease;
+
+  /// Called when the increase button is pressed.
   final VoidCallback onIncrease;
+
+  /// Called when the remove button is pressed.
   final VoidCallback onRemove;
 
   @override
