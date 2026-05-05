@@ -88,7 +88,6 @@ class _QuoteHomeState extends State<QuoteHome> {
     _serviceSearch.dispose();
     _itemSearch.dispose();
     _quoteSearch.dispose();
-    _templateSearch.dispose();
     _store.dispose();
     super.dispose();
   }
