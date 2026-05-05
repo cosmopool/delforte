@@ -1,10 +1,18 @@
 import "package:delforte/design_system.dart";
 import "package:flutter/material.dart";
 
+class DraftLineView {
+  const DraftLineView({required this.name, required this.quantity, required this.subtotal});
+
+  final String name;
+  final int quantity;
+  final String subtotal;
+}
+
 class LineRow extends StatelessWidget {
   const LineRow({required this.line, required this.showDivider, super.key});
 
-  final _DraftLineView line;
+  final DraftLineView line;
   final bool showDivider;
 
   @override

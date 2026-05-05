@@ -138,11 +138,11 @@ class ReviewPage extends StatelessWidget {
     router.goTo(QuoteFlowRoute(QuoteStep.send, selectedClientId: selectedClientId));
   }
 
-  List<_DraftLineView> _draftLines(int type) {
+  List<DraftLineView> _draftLines(int type) {
     return [
       for (var i = 0; i < store.draft.count; i++)
         if (store.draft.types[i] == type)
-          _DraftLineView(
+          DraftLineView(
             name: store.nameFor(type, store.draft.refIds[i]),
             quantity: store.draft.quantities[i],
             subtotal: _formatMoney(store.draft.subtotalCents[i]),

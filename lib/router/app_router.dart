@@ -34,7 +34,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         selectedClientId,
       ),
       QuotesListRoute() => QuotesListPage(store: store, router: this),
-      TemplatesRoute() => TemplatesPage(store: store, router: this),
+      TemplatesRoute() => TemplatesPage(router: this),
     };
   }
 

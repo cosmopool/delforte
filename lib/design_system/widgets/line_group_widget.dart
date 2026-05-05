@@ -3,13 +3,7 @@ import "package:delforte/design_system/widgets/line_row_widget.dart";
 import "package:delforte/design_system/widgets/panel_widget.dart";
 import "package:flutter/material.dart";
 
-class DraftLineView {
-  const DraftLineView({required this.name, required this.quantity, required this.subtotal});
-
-  final String name;
-  final int quantity;
-  final String subtotal;
-}
+export "package:delforte/design_system/widgets/line_row_widget.dart" show DraftLineView;
 
 class LineGroup extends StatelessWidget {
   const LineGroup({required this.title, required this.lines, required this.onEdit, super.key});

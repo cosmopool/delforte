@@ -23,7 +23,11 @@ class AddCard extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             label,
-            style: _bodyStyle(color: VigilColors.textSecondary, weight: FontWeight.w600),
+            style: VigilType.body(
+              color: VigilColors.textSecondary,
+              size: 14,
+              weight: FontWeight.w600,
+            ),
           ),
         ],
       ),
