@@ -9,7 +9,7 @@ void main() {
   runApp(const MainApp());
 }
 
-enum AppScreen { home, clients, services, items, review, send, quotes, templates }
+enum AppScreen { home, clients, services, items, review, send, quotes }
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -38,7 +38,6 @@ class _QuoteHomeState extends State<QuoteHome> {
   final TextEditingController _serviceSearch = TextEditingController();
   final TextEditingController _itemSearch = TextEditingController();
   final TextEditingController _quoteSearch = TextEditingController();
-  final TextEditingController _templateSearch = TextEditingController();
 
   AppScreen _screen = AppScreen.home;
   bool _opening = true;
@@ -150,7 +149,6 @@ class _QuoteHomeState extends State<QuoteHome> {
       AppScreen.review => _reviewScreen(),
       AppScreen.send => _sendScreen(),
       AppScreen.quotes => _quotesScreen(),
-      AppScreen.templates => _templatesScreen(),
     };
   }
 
@@ -178,26 +176,11 @@ class _QuoteHomeState extends State<QuoteHome> {
               ),
               Transform.translate(
                 offset: const Offset(0, -6),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _ActionTile(
-                        label: "Continue",
-                        subtitle: "Resume a draft",
-                        icon: Icons.edit_note_rounded,
-                        onTap: () => setState(() => _screen = AppScreen.clients),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _ActionTile(
-                        label: "Templates",
-                        subtitle: "Start from preset",
-                        icon: Icons.layers_rounded,
-                        onTap: () => setState(() => _screen = AppScreen.templates),
-                      ),
-                    ),
-                  ],
+                child: _ActionTile(
+                  label: "Continue",
+                  subtitle: "Resume a draft",
+                  icon: Icons.edit_note_rounded,
+                  onTap: () => setState(() => _screen = AppScreen.clients),
                 ),
               ),
               const SizedBox(height: 12),
@@ -283,7 +266,10 @@ class _QuoteHomeState extends State<QuoteHome> {
           onTap: () => setState(() => _selectedClientId = id),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              border: Border.all(color: selected ? VigilColors.primary : VigilColors.border, width: 1.5),
+              border: Border.all(
+                color: selected ? VigilColors.primary : VigilColors.border,
+                width: 1.5,
+              ),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
@@ -564,61 +550,6 @@ class _QuoteHomeState extends State<QuoteHome> {
     );
   }
 
-  Widget _templatesScreen() {
-    final List<_QuoteTemplate> templates = [
-      const _QuoteTemplate(
-        name: "CCTV Basic",
-        description: "4 cameras, one DVR, and installation labor",
-        icon: Icons.videocam_rounded,
-        itemNames: ["IP Camera 4MP"],
-        serviceNames: ["CCTV Installation"],
-      ),
-      const _QuoteTemplate(
-        name: "Gate + Motor",
-        description: "Motor kit, control panel, and gate installation",
-        icon: Icons.garage_rounded,
-        itemNames: ["Gate Motor Kit", "Control Panel Pro"],
-        serviceNames: ["Gate Motor Install"],
-      ),
-      const _QuoteTemplate(
-        name: "Full Security",
-        description: "Cameras, alarm setup, gate motor, and panel",
-        icon: Icons.security_rounded,
-        itemNames: ["IP Camera 4MP", "Gate Motor Kit", "Control Panel Pro"],
-        serviceNames: ["CCTV Installation", "Alarm System Setup", "Gate Motor Install"],
-      ),
-    ];
-    final String query = _templateSearch.text.trim().toLowerCase();
-    final List<_QuoteTemplate> filtered = [
-      for (final _QuoteTemplate template in templates)
-        if (query.isEmpty ||
-            template.name.toLowerCase().contains(query) ||
-            template.description.toLowerCase().contains(query))
-          template,
-    ];
-
-    return Column(
-      children: [
-        FlowHeader(title: "Templates", onBack: () => setState(() => _screen = AppScreen.home)),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _SearchField(
-                controller: _templateSearch,
-                hintText: "Search templates...",
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 10),
-              for (final _QuoteTemplate template in filtered)
-                _TemplateCard(template: template, onUse: () => _useTemplate(template)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   bool get _canSaveQuote => _selectedClientId != null && _store.draft.count > 0;
 
   void _saveAndContinue() {
@@ -712,31 +643,6 @@ class _QuoteHomeState extends State<QuoteHome> {
     if (value.contains("gate") || value.contains("motor")) return Icons.garage_rounded;
     if (value.contains("panel")) return Icons.electrical_services_rounded;
     return isService ? Icons.handyman_rounded : Icons.inventory_2_rounded;
-  }
-
-  void _useTemplate(_QuoteTemplate template) {
-    _store.clearDraft();
-    for (final String name in template.serviceNames) {
-      final int id = _catalogIdByName(_store.services, name);
-      if (id > 0) _store.addDraftLine(quoteLineService, id, 1);
-    }
-    for (final String name in template.itemNames) {
-      final int id = _catalogIdByName(_store.items, name);
-      if (id > 0) _store.addDraftLine(quoteLineItem, id, name.contains("IP Camera") ? 4 : 1);
-    }
-    setState(() {
-      _selectedClientId = null;
-      _quoteSaved = false;
-      _savedTotalCents = null;
-      _screen = AppScreen.clients;
-    });
-  }
-
-  int _catalogIdByName(ItemData data, String name) {
-    for (var i = 0; i < data.count; i++) {
-      if (data.nameAt(i) == name) return data.idAt(i);
-    }
-    return 0;
   }
 
   Future<void> _showClientDialog() async {
@@ -895,7 +801,10 @@ class _NewQuoteCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("New Quote", style: VigilType.title(color: VigilColors.surface, size: 19)),
+                      Text(
+                        "New Quote",
+                        style: VigilType.title(color: VigilColors.surface, size: 19),
+                      ),
                       const SizedBox(height: 4),
                       Text(
                         "Build a quote step by step",
@@ -948,7 +857,11 @@ class _ActionTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            VigilIconBox(icon: icon, color: VigilColors.textSecondary, background: VigilColors.canvas),
+            VigilIconBox(
+              icon: icon,
+              color: VigilColors.textSecondary,
+              background: VigilColors.canvas,
+            ),
             const SizedBox(height: 10),
             Text(label, style: _bodyStyle(weight: FontWeight.w700)),
             const SizedBox(height: 3),
@@ -1264,57 +1177,14 @@ class _ReadyCard extends StatelessWidget {
               runSpacing: 8,
               children: [
                 for (final String chip in chips)
-                  VigilPill(label: chip, color: VigilColors.primary, background: VigilColors.primarySoft),
+                  VigilPill(
+                    label: chip,
+                    color: VigilColors.primary,
+                    background: VigilColors.primarySoft,
+                  ),
               ],
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TemplateCard extends StatelessWidget {
-  const _TemplateCard({required this.template, required this.onUse});
-
-  final _QuoteTemplate template;
-  final VoidCallback onUse;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: _TapCard(
-        onTap: onUse,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
-          child: Row(
-            children: [
-              VigilIconBox(
-                icon: template.icon,
-                color: VigilColors.primary,
-                background: VigilColors.primarySoft,
-                size: 42,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(template.name, style: _bodyStyle(weight: FontWeight.w700)),
-                    const SizedBox(height: 3),
-                    Text(
-                      template.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: _smallStyle(color: VigilColors.textMuted),
-                    ),
-                  ],
-                ),
-              ),
-              FilledButton(onPressed: onUse, child: const Text("Use")),
-            ],
-          ),
         ),
       ),
     );
@@ -1700,22 +1570,6 @@ class _DraftLineView {
   final String name;
   final int quantity;
   final String subtotal;
-}
-
-class _QuoteTemplate {
-  const _QuoteTemplate({
-    required this.name,
-    required this.description,
-    required this.icon,
-    required this.itemNames,
-    required this.serviceNames,
-  });
-
-  final String name;
-  final String description;
-  final IconData icon;
-  final List<String> itemNames;
-  final List<String> serviceNames;
 }
 
 TextStyle _titleStyle({Color color = VigilColors.textPrimary, double size = 20}) {

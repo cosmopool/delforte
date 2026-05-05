@@ -64,26 +64,11 @@ class HomePage extends StatelessWidget {
               ),
               Transform.translate(
                 offset: const Offset(0, -6),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _ActionTile(
-                        label: "Continue",
-                        subtitle: "Resume a draft",
-                        icon: Icons.edit_note_rounded,
-                        onTap: () => router.goTo(const QuoteFlowRoute(QuoteStep.client)),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _ActionTile(
-                        label: "Templates",
-                        subtitle: "Start from preset",
-                        icon: Icons.layers_rounded,
-                        onTap: () => router.goTo(const TemplatesRoute()),
-                      ),
-                    ),
-                  ],
+                child: _ActionTile(
+                  label: "Continue",
+                  subtitle: "Resume a draft",
+                  icon: Icons.edit_note_rounded,
+                  onTap: () => router.goTo(const QuoteFlowRoute(QuoteStep.client)),
                 ),
               ),
               const SizedBox(height: 12),
