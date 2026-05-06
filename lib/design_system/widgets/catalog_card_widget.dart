@@ -150,10 +150,6 @@ class CatalogCard extends StatelessWidget {
                         child: FieldSummary(label: "Unit Price", value: price),
                       ),
                       const SizedBox(width: 8),
-                      Expanded(
-                        child: FieldSummary(label: "Qty", value: selectedQuantity.toString()),
-                      ),
-                      const SizedBox(width: 8),
                       if (selected)
                         Row(
                           children: [
