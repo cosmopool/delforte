@@ -4,7 +4,7 @@ import "package:delforte/design_system/widgets/quote_card_widget.dart";
 import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class HomePage extends StatelessWidget {
@@ -68,7 +68,12 @@ class HomePage extends StatelessWidget {
                   label: "Continue",
                   subtitle: "Resume a draft",
                   icon: Icons.edit_note_rounded,
-                  onTap: () => router.goTo(const QuoteFlowRoute(QuoteStep.client)),
+                  onTap: () => router.goTo(
+                    QuoteFlowRoute(
+                      QuoteStep.client,
+                      selectedClientId: store.draft.clientId == 0 ? null : store.draft.clientId,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

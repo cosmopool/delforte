@@ -1,0 +1,130 @@
+import "dart:typed_data";
+
+import "package:delforte/store/quote_store.dart";
+
+/// Struct-of-arrays buffer for catalog item or service rows.
+class ItemData {
+  /// Creates a fixed-size catalog buffer with [capacity] rows.
+  ///
+  /// Use when allocating the hot catalog arrays before loading SQLite rows.
+  ///
+  /// ```dart
+  /// final ItemData items = ItemData(maxLimit);
+  /// ```
+  ItemData(int capacity)
+    : ids = Int64List(capacity),
+      priceCents = Int64List(capacity),
+      names = List<String>.filled(capacity, "", growable: false),
+      descriptions = List<String>.filled(capacity, "", growable: false);
+
+  /// SQLite row ids.
+  final Int64List ids;
+
+  /// Unit prices stored as integer cents.
+  final Int64List priceCents;
+
+  /// Catalog names.
+  final List<String> names;
+
+  /// Catalog descriptions.
+  final List<String> descriptions;
+
+  /// Number of active rows.
+  int count = 0;
+
+  /// Returns the id at [index], or `0` when [index] is invalid.
+  int idAt(int index) {
+    if (index < 0 || index >= count) return 0;
+    return ids[index];
+  }
+
+  /// Returns the price in cents at [index], or `0` when [index] is invalid.
+  ///
+  /// Use when displaying catalog prices without floating-point money.
+  ///
+  /// ```dart
+  /// final int cents = store.items.priceCentsAt(index);
+  /// ```
+  int priceCentsAt(int index) {
+    if (index < 0 || index >= count) return 0;
+    return priceCents[index];
+  }
+
+  /// Returns the name at [index], or `""` when [index] is invalid.
+  String nameAt(int index) {
+    if (index < 0 || index >= count) return "";
+    return names[index];
+  }
+
+  /// Returns the description at [index], or `""` when [index] is invalid.
+  ///
+  /// Use when showing catalog detail text.
+  ///
+  /// ```dart
+  /// final String description = store.items.descriptionAt(index);
+  /// ```
+  String descriptionAt(int index) {
+    if (index < 0 || index >= count) return "";
+    return descriptions[index];
+  }
+
+  /// Returns the index for [id], or `-1` when it is not present.
+  int indexOfId(int id) {
+    for (var i = 0; i < count && i < maxLimit; i++) {
+      if (ids[i] == id) return i;
+    }
+    return -1;
+  }
+
+  /// Appends a row and returns whether it fit in the buffer.
+  ///
+  /// Use after SQLite has accepted a new catalog row.
+  ///
+  /// ```dart
+  /// final bool ok = store.items.append(id, "Camera", "4MP", 42000);
+  /// ```
+  bool append(int id, String name, String description, int cents) {
+    if (count >= ids.length || count >= maxLimit) return false;
+    ids[count] = id;
+    names[count] = name;
+    descriptions[count] = description;
+    priceCents[count] = cents;
+    count++;
+    return true;
+  }
+
+  /// Updates the row with [id] and returns whether it existed.
+  ///
+  /// Use after SQLite has accepted a catalog update.
+  ///
+  /// ```dart
+  /// final bool ok = store.items.update(id, "Camera Pro", "8MP", 50000);
+  /// ```
+  bool update(int id, String name, String description, int cents) {
+    final int index = indexOfId(id);
+    if (index < 0) return false;
+    ids[index] = id;
+    names[index] = name;
+    descriptions[index] = description;
+    priceCents[index] = cents;
+    return true;
+  }
+
+  /// Deletes the row with [id] by swap-removing it.
+  bool deleteById(int id) {
+    final int index = indexOfId(id);
+    if (index < 0) return false;
+    assert(index < count);
+    final int last = count - 1;
+    ids[index] = ids[last];
+    names[index] = names[last];
+    descriptions[index] = descriptions[last];
+    priceCents[index] = priceCents[last];
+    ids[last] = 0;
+    names[last] = "";
+    descriptions[last] = "";
+    priceCents[last] = 0;
+    count--;
+    return true;
+  }
+}

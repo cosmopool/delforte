@@ -6,7 +6,7 @@ import "package:delforte/design_system/widgets/initials_avatar_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class ClientSelectPage extends StatefulWidget {
@@ -79,9 +79,12 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
           onBack: () => widget.router.goTo(const HomeRoute()),
           onContinue: _selectedClientId == null
               ? null
-              : () => widget.router.goTo(
-                  QuoteFlowRoute(QuoteStep.services, selectedClientId: _selectedClientId),
-                ),
+              : () {
+                  widget.store.draft.clientId = _selectedClientId!;
+                  widget.router.goTo(
+                    QuoteFlowRoute(QuoteStep.services, selectedClientId: _selectedClientId),
+                  );
+                },
         ),
         Expanded(
           child: ListView(

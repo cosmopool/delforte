@@ -5,7 +5,7 @@ import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class ItemsPage extends StatefulWidget {
@@ -74,39 +74,47 @@ class _ItemsPageState extends State<ItemsPage> {
           ),
         ),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              SearchField(
-                controller: _searchController,
-                hintText: "Search to add equipment...",
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 10),
-              for (final int index in indexes)
-                CatalogCard(
-                  name: widget.store.items.nameAt(index),
-                  description: widget.store.items.descriptionAt(index),
-                  price: _formatMoney(widget.store.items.priceCentsAt(index)),
-                  icon: _catalogIcon(widget.store.items.nameAt(index)),
-                  expanded: _expandedId == widget.store.items.idAt(index),
-                  selectedQuantity: _draftQuantity(widget.store.items.idAt(index)),
-                  onToggle: () => setState(() {
-                    final int id = widget.store.items.idAt(index);
-                    _expandedId = _expandedId == id ? null : id;
-                  }),
-                  onAdd: () => _addDraftLine(widget.store.items.idAt(index)),
-                  onDecrease: () => _changeDraftQuantity(widget.store.items.idAt(index), -1),
-                  onIncrease: () => _changeDraftQuantity(widget.store.items.idAt(index), 1),
-                  onRemove: () => _removeDraftLine(widget.store.items.idAt(index)),
-                ),
-              AddCard(
-                label: "Add new equipment",
-                onTap: () => widget.router.goTo(
-                  CatalogCreateRoute(isService: false, selectedClientId: widget.selectedClientId),
-                ),
-              ),
-            ],
+          child: ListenableBuilder(
+            listenable: widget.store.quoteDraftNotifier,
+            builder: (BuildContext context, Widget? _) {
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  SearchField(
+                    controller: _searchController,
+                    hintText: "Search to add equipment...",
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 10),
+                  for (final int index in indexes)
+                    CatalogCard(
+                      name: widget.store.items.nameAt(index),
+                      description: widget.store.items.descriptionAt(index),
+                      price: _formatMoney(widget.store.items.priceCentsAt(index)),
+                      icon: _catalogIcon(widget.store.items.nameAt(index)),
+                      expanded: _expandedId == widget.store.items.idAt(index),
+                      selectedQuantity: _draftQuantity(widget.store.items.idAt(index)),
+                      onToggle: () => setState(() {
+                        final int id = widget.store.items.idAt(index);
+                        _expandedId = _expandedId == id ? null : id;
+                      }),
+                      onAdd: () => _addDraftLine(widget.store.items.idAt(index)),
+                      onDecrease: () => _changeDraftQuantity(widget.store.items.idAt(index), -1),
+                      onIncrease: () => _changeDraftQuantity(widget.store.items.idAt(index), 1),
+                      onRemove: () => _removeDraftLine(widget.store.items.idAt(index)),
+                    ),
+                  AddCard(
+                    label: "Add new equipment",
+                    onTap: () => widget.router.goTo(
+                      CatalogCreateRoute(
+                        isService: false,
+                        selectedClientId: widget.selectedClientId,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ],
