@@ -8,6 +8,7 @@ import "package:delforte/pages/review_page.dart";
 import "package:delforte/pages/send_page.dart";
 import "package:delforte/pages/service_create_page.dart";
 import "package:delforte/pages/services_page.dart";
+import "package:delforte/pages/settings_page.dart";
 import "package:delforte/pages/templates_page.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/store/quote_store.dart";
@@ -53,6 +54,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
       ),
       QuotesListRoute() => QuotesListPage(store: store, router: this),
       TemplatesRoute() => TemplatesPage(router: this),
+      SettingsRoute() => SettingsPage(store: store, router: this),
     };
   }
 
@@ -112,6 +114,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         return Future.value(true);
       case QuotesListRoute():
       case TemplatesRoute():
+      case SettingsRoute():
         _currentRoute = const HomeRoute();
         notifyListeners();
         return Future.value(true);

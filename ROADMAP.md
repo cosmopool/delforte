@@ -1,4 +1,4 @@
-[ ] create settings page
+[x] create settings page
 [ ] implement `id` in quote
 [ ] fix `search` text field hint color
 [ ] `search` should filter and display `any` existent `clients`/`services`/`items` -not only added ones.

@@ -35,6 +35,10 @@ class TemplatesRoute extends AppRoute {
   const TemplatesRoute();
 }
 
+class SettingsRoute extends AppRoute {
+  const SettingsRoute();
+}
+
 enum QuoteStep { client, services, items, review, send }
 
 extension QuoteStepX on QuoteStep {

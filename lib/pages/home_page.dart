@@ -29,7 +29,9 @@ class HomePage extends StatelessWidget {
         return AppShell(
           body: Column(
             children: [
-              const _BrandHeader(),
+              _BrandHeader(
+                onSettings: () => router.goTo(const SettingsRoute()),
+              ),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),
@@ -123,25 +125,42 @@ class HomePage extends StatelessWidget {
 }
 
 class _BrandHeader extends StatelessWidget {
-  const _BrandHeader();
+  const _BrandHeader({required this.onSettings});
+
+  final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
       color: VigilColors.ink,
-      child: const Padding(
-        padding: EdgeInsets.fromLTRB(20, 20, 20, 34),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            "Delforte",
-            style: TextStyle(
-              color: VigilColors.surface,
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              height: 1.12,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 34),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Delforte",
+              style: TextStyle(
+                color: VigilColors.surface,
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                height: 1.12,
+              ),
             ),
-          ),
+            IconButton(
+              onPressed: onSettings,
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.white.withValues(alpha: 0.07),
+                foregroundColor: Colors.white.withValues(alpha: 0.60),
+                fixedSize: const Size(36, 36),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                ),
+              ),
+              icon: const Icon(Icons.settings_rounded, size: 18),
+            ),
+          ],
         ),
       ),
     );
