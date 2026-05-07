@@ -25,6 +25,8 @@ class MainApp extends StatelessWidget {
   }
 }
 
+enum StoreState { opening, opened, error }
+
 class AppMainWidget extends StatefulWidget {
   const AppMainWidget({super.key});
 
@@ -36,8 +38,7 @@ class _AppMainWidgetState extends State<AppMainWidget> {
   final QuoteStore _store = QuoteStore();
   late final AppRouterDelegate _router = AppRouterDelegate(store: _store);
 
-  bool _opening = true;
-  bool _opened = false;
+  StoreState _storeState = .opening;
 
   @override
   void initState() {
@@ -49,10 +50,7 @@ class _AppMainWidgetState extends State<AppMainWidget> {
     final bool opened = await _store.open();
     if (opened) _seedEmptyStore();
     if (!mounted) return;
-    setState(() {
-      _opened = opened;
-      _opening = false;
-    });
+    setState(() => _storeState = opened ? .opened : .error);
   }
 
   void _seedEmptyStore() {
@@ -82,53 +80,46 @@ class _AppMainWidgetState extends State<AppMainWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_opening) return AppShell(body: const Center(child: CircularProgressIndicator()));
-    if (!_opened) {
-      final String error = _store.latestErrorMessage();
-      return AppShell(
-        body: _OpenError(
-          message: error.isEmpty ? "Could not open the quote database." : error,
-          onRetry: () {
-            setState(() => _opening = true);
-            unawaited(_openStore());
-          },
-        ),
-      );
-    }
-    return Router<AppRoute>(
-      routerDelegate: _router,
-      backButtonDispatcher: RootBackButtonDispatcher(),
-    );
-  }
-}
+    switch (_storeState) {
+      case .opening:
+        return AppShell(body: const Center(child: CircularProgressIndicator()));
 
-class _OpenError extends StatelessWidget {
-  const _OpenError({required this.message, required this.onRetry});
+      case .opened:
+        return Router<AppRoute>(
+          routerDelegate: _router,
+          backButtonDispatcher: RootBackButtonDispatcher(),
+        );
 
-  final String message;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 44),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: VigilColors.textPrimary,
-              fontWeight: FontWeight.w700,
+      case .error:
+        final String error = _store.latestErrorMessage();
+        return AppShell(
+          body: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 44),
+                const SizedBox(height: 12),
+                Text(
+                  error.isEmpty ? "Could not open the quote database." : error,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: VigilColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () {
+                    setState(() => _storeState = .opening);
+                    unawaited(_openStore());
+                  },
+                  child: const Text("Try again"),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 16),
-          FilledButton(onPressed: onRetry, child: const Text("Try again")),
-        ],
-      ),
-    );
+        );
+    }
   }
 }
