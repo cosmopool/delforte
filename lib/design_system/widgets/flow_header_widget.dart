@@ -124,7 +124,11 @@ class FlowHeader extends StatelessWidget {
             child: Row(
               children: [
                 if (onBack != null) ...[
-                  HeaderIconButton(icon: Icons.arrow_back_rounded, tooltip: "Back", onPressed: onBack),
+                  HeaderIconButton(
+                    icon: Icons.arrow_back_rounded,
+                    tooltip: "Back",
+                    onPressed: onBack,
+                  ),
                   const SizedBox(width: 10),
                 ],
                 Expanded(
@@ -188,41 +192,39 @@ class FlowHeader extends StatelessWidget {
           children: [
             for (int i = 0; i < _steps.length; i++) ...[
               Expanded(
-                child: Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: i < stepIndex
-                        ? VigilColors.primary
-                        : i == stepIndex
+                child: Column(
+                  children: [
+                    Container(
+                      height: 3,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color: i < stepIndex
+                            ? VigilColors.primary
+                            : i == stepIndex
                             ? const Color(0xFF5499EE)
                             : Colors.white.withValues(alpha: 0.13),
-                  ),
+                      ),
+                    ),
+                    const SizedBox(height: 7),
+                    Text(
+                      _steps[i],
+                      style: TextStyle(
+                        fontFamily: VigilType.fontFamily,
+                        fontSize: 10,
+                        fontWeight: i == stepIndex ? FontWeight.w600 : FontWeight.w400,
+                        color: i == stepIndex
+                            ? Colors.white.withValues(alpha: 0.95)
+                            : i < stepIndex
+                            ? Colors.white.withValues(alpha: 0.50)
+                            : Colors.white.withValues(alpha: 0.25),
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               if (i < _steps.length - 1) const SizedBox(width: 5),
             ],
-          ],
-        ),
-        const SizedBox(height: 7),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            for (int i = 0; i < _steps.length; i++)
-              Text(
-                _steps[i],
-                style: TextStyle(
-                  fontFamily: VigilType.fontFamily,
-                  fontSize: 10,
-                  fontWeight: i == stepIndex ? FontWeight.w600 : FontWeight.w400,
-                  color: i == stepIndex
-                      ? Colors.white.withValues(alpha: 0.95)
-                      : i < stepIndex
-                          ? Colors.white.withValues(alpha: 0.50)
-                          : Colors.white.withValues(alpha: 0.25),
-                  letterSpacing: 0.3,
-                ),
-              ),
           ],
         ),
       ],
