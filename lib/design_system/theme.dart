@@ -4,6 +4,7 @@ import "package:delforte/design_system/space.dart";
 import "package:delforte/design_system/stroke.dart";
 import "package:delforte/design_system/type.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 abstract final class VigilTheme {
   static ThemeData light() {
@@ -18,6 +19,13 @@ abstract final class VigilTheme {
       scaffoldBackgroundColor: VigilColors.canvas,
       useMaterial3: true,
       textSelectionTheme: const TextSelectionThemeData(cursorColor: VigilColors.primary),
+      appBarTheme: const AppBarTheme(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: VigilColors.primary,

@@ -6,6 +6,7 @@ import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 void main() {
   runApp(const MainApp());
@@ -20,6 +21,14 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Delforte",
       theme: VigilTheme.light(),
+      builder: (context, child) {
+        final SystemUiOverlayStyle? overlayStyle = Theme.of(context).appBarTheme.systemOverlayStyle;
+        if (overlayStyle == null) return child!;
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: overlayStyle,
+          child: child!,
+        );
+      },
       home: const AppMainWidget(),
     );
   }
