@@ -12,9 +12,18 @@ class QuoteFlowRoute extends AppRoute {
   final int? selectedClientId;
 }
 
-class CatalogCreateRoute extends AppRoute {
-  const CatalogCreateRoute({required this.isService, this.selectedClientId});
-  final bool isService;
+class ClientCreateRoute extends AppRoute {
+  const ClientCreateRoute({this.selectedClientId});
+  final int? selectedClientId;
+}
+
+class ServiceCreateRoute extends AppRoute {
+  const ServiceCreateRoute({this.selectedClientId});
+  final int? selectedClientId;
+}
+
+class ItemCreateRoute extends AppRoute {
+  const ItemCreateRoute({this.selectedClientId});
   final int? selectedClientId;
 }
 

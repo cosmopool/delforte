@@ -1,7 +1,6 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/add_card_widget.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
-import "package:delforte/design_system/widgets/dialog_field_widget.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/initials_avatar_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
@@ -80,7 +79,12 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                 ),
                 const SizedBox(height: 10),
                 for (final int index in indexes) _clientCard(index),
-                AddCard(label: "Add new client", onTap: _showClientDialog),
+                AddCard(
+                  label: "Add new client",
+                  onTap: () => widget.router.goTo(
+                    ClientCreateRoute(selectedClientId: _selectedClientId),
+                  ),
+                ),
               ],
             ),
           ),
@@ -147,70 +151,6 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
         ),
       ),
     );
-  }
-
-  Future<void> _showClientDialog() async {
-    final TextEditingController name = TextEditingController();
-    final TextEditingController phone = TextEditingController();
-    final TextEditingController email = TextEditingController();
-    final TextEditingController address = TextEditingController();
-    final TextEditingController city = TextEditingController();
-    final bool? saved = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text("Add Client"),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DialogField(controller: name, label: "Name"),
-                DialogField(controller: phone, label: "Phone"),
-                DialogField(controller: email, label: "Email"),
-                DialogField(controller: address, label: "Address"),
-                DialogField(controller: city, label: "City"),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text("Cancel"),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text("Save"),
-            ),
-          ],
-        );
-      },
-    );
-    if (saved == true) {
-      final bool ok = widget.store.addClient(
-        name.text.trim(),
-        phone.text.trim(),
-        email.text.trim(),
-        address.text.trim(),
-        city.text.trim(),
-      );
-      if (ok) {
-        setState(
-          () => _selectedClientId = widget.store.clients.idAt(widget.store.clients.count - 1),
-        );
-      } else {
-        _showSnack(widget.store.latestErrorMessage());
-      }
-    }
-    name.dispose();
-    phone.dispose();
-    email.dispose();
-    address.dispose();
-    city.dispose();
-  }
-
-  void _showSnack(String message) {
-    if (message.isEmpty || !mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   String _initials(String value) {

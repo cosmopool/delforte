@@ -88,8 +88,7 @@ class _ItemsPageState extends State<ItemsPage> {
                     AddCard(
                       label: "Add new equipment",
                       onTap: () => widget.router.goTo(
-                        CatalogCreateRoute(
-                          isService: false,
+                        ItemCreateRoute(
                           selectedClientId: widget.selectedClientId,
                         ),
                       ),

@@ -94,8 +94,7 @@ class _ServicesPageState extends State<ServicesPage> {
                   AddCard(
                     label: "Add new service",
                     onTap: () => widget.router.goTo(
-                      CatalogCreateRoute(
-                        isService: true,
+                      ServiceCreateRoute(
                         selectedClientId: widget.selectedClientId,
                       ),
                     ),
