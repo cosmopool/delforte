@@ -1,5 +1,6 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/add_card_widget.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/catalog_card_widget.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
@@ -40,21 +41,8 @@ class _ServicesPageState extends State<ServicesPage> {
           i,
     ];
 
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: ClipRRect(
-                borderRadius: VigilRadius.appFrameRadius,
-                child: ColoredBox(color: VigilColors.canvas, child: _buildBody(indexes)),
-              ),
-            ),
-          ),
-        ),
-      ),
+    return AppShell(
+      body: ColoredBox(color: VigilColors.canvas, child: _buildBody(indexes)),
     );
   }
 

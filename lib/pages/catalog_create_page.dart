@@ -1,11 +1,10 @@
-import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/panel_widget.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/secondary_button_widget.dart";
 import "package:delforte/store/item_data.dart";
 import "package:delforte/store/quote_store.dart";
-import "package:delforte/store/store_errors.dart";
 import "package:flutter/material.dart";
 
 class CatalogCreatePage extends StatelessWidget {
@@ -24,29 +23,8 @@ class CatalogCreatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: ClipRRect(
-                borderRadius: VigilRadius.appFrameRadius,
-                child: ColoredBox(
-                  color: VigilColors.canvas,
-                  child: CatalogCreateBody(
-                    store: store,
-                    isService: isService,
-                    onBack: onBack,
-                    onSaved: onSaved,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    return AppShell(
+      body: CatalogCreateBody(store: store, isService: isService, onBack: onBack, onSaved: onSaved),
     );
   }
 }

@@ -1,4 +1,5 @@
 import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/quote_card_widget.dart";
@@ -37,58 +38,41 @@ class _QuotesListPageState extends State<QuotesListPage> {
           i,
     ];
 
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: ClipRRect(
-                borderRadius: VigilRadius.appFrameRadius,
-                child: ColoredBox(color: VigilColors.canvas, child: _buildBody(indexes)),
-              ),
+    return AppShell(
+      body: Column(
+        children: [
+          FlowHeader(title: "Quotes", onBack: () => widget.router.goTo(const HomeRoute())),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                SearchField(
+                  controller: _searchController,
+                  hintText: "Search quotes...",
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: 10),
+                if (indexes.isEmpty)
+                  const EmptyPanel(
+                    icon: Icons.receipt_long_rounded,
+                    title: "No quotes found",
+                    subtitle: "Saved quotes will appear here.",
+                  )
+                else
+                  for (final int index in indexes)
+                    QuoteCard(
+                      clientName: _clientNameById(widget.store.quotes.clientIdAt(index)),
+                      meta: _dateLabel(widget.store.quotes.timestampAt(index)),
+                      total: _formatMoney(widget.store.quotes.totalCentsAt(index)),
+                      status: "Saved",
+                      statusColor: VigilColors.success,
+                      statusBg: VigilColors.successSoft,
+                    ),
+              ],
             ),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildBody(List<int> indexes) {
-    return Column(
-      children: [
-        FlowHeader(title: "Quotes", onBack: () => widget.router.goTo(const HomeRoute())),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              SearchField(
-                controller: _searchController,
-                hintText: "Search quotes...",
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 10),
-              if (indexes.isEmpty)
-                const EmptyPanel(
-                  icon: Icons.receipt_long_rounded,
-                  title: "No quotes found",
-                  subtitle: "Saved quotes will appear here.",
-                )
-              else
-                for (final int index in indexes)
-                  QuoteCard(
-                    clientName: _clientNameById(widget.store.quotes.clientIdAt(index)),
-                    meta: _dateLabel(widget.store.quotes.timestampAt(index)),
-                    total: _formatMoney(widget.store.quotes.totalCentsAt(index)),
-                    status: "Saved",
-                    statusColor: VigilColors.success,
-                    statusBg: VigilColors.successSoft,
-                  ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -19,19 +20,19 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Delforte",
       theme: VigilTheme.light(),
-      home: const AppShell(),
+      home: const AppMainWidget(),
     );
   }
 }
 
-class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+class AppMainWidget extends StatefulWidget {
+  const AppMainWidget({super.key});
 
   @override
-  State<AppShell> createState() => _AppShellState();
+  State<AppMainWidget> createState() => _AppMainWidgetState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppMainWidgetState extends State<AppMainWidget> {
   final QuoteStore _store = QuoteStore();
   late final AppRouterDelegate _router = AppRouterDelegate(store: _store);
 
@@ -81,11 +82,11 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    if (_opening) return _AppFrame(child: const Center(child: CircularProgressIndicator()));
+    if (_opening) return AppShell(body: const Center(child: CircularProgressIndicator()));
     if (!_opened) {
       final String error = _store.latestErrorMessage();
-      return _AppFrame(
-        child: _OpenError(
+      return AppShell(
+        body: _OpenError(
           message: error.isEmpty ? "Could not open the quote database." : error,
           onRetry: () {
             setState(() => _opening = true);
@@ -97,32 +98,6 @@ class _AppShellState extends State<AppShell> {
     return Router<AppRoute>(
       routerDelegate: _router,
       backButtonDispatcher: RootBackButtonDispatcher(),
-    );
-  }
-}
-
-class _AppFrame extends StatelessWidget {
-  const _AppFrame({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: ClipRRect(
-                borderRadius: VigilRadius.appFrameRadius,
-                child: ColoredBox(color: VigilColors.canvas, child: child),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

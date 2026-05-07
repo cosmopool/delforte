@@ -1,5 +1,6 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/add_card_widget.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/dialog_field_widget.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/initials_avatar_widget.dart";
@@ -52,56 +53,39 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
           i,
     ];
 
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: ClipRRect(
-                borderRadius: VigilRadius.appFrameRadius,
-                child: ColoredBox(color: VigilColors.canvas, child: _buildBody(indexes)),
-              ),
+    return AppShell(
+      body: Column(
+        children: [
+          FlowHeader(
+            title: "Select Client",
+            stepIndex: 0,
+            onBack: () => widget.router.goTo(const HomeRoute()),
+            onContinue: _selectedClientId == null
+                ? null
+                : () {
+                    widget.store.draft.clientId = _selectedClientId!;
+                    widget.router.goTo(
+                      QuoteFlowRoute(QuoteStep.services, selectedClientId: _selectedClientId),
+                    );
+                  },
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                SearchField(
+                  controller: _searchController,
+                  hintText: "Search clients...",
+                  onChanged: (_) => setState(() {}),
+                ),
+                const SizedBox(height: 10),
+                for (final int index in indexes) _clientCard(index),
+                AddCard(label: "Add new client", onTap: _showClientDialog),
+              ],
             ),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildBody(List<int> indexes) {
-    return Column(
-      children: [
-        FlowHeader(
-          title: "Select Client",
-          stepIndex: 0,
-          onBack: () => widget.router.goTo(const HomeRoute()),
-          onContinue: _selectedClientId == null
-              ? null
-              : () {
-                  widget.store.draft.clientId = _selectedClientId!;
-                  widget.router.goTo(
-                    QuoteFlowRoute(QuoteStep.services, selectedClientId: _selectedClientId),
-                  );
-                },
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              SearchField(
-                controller: _searchController,
-                hintText: "Search clients...",
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 10),
-              for (final int index in indexes) _clientCard(index),
-              AddCard(label: "Add new client", onTap: _showClientDialog),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

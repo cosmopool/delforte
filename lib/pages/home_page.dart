@@ -1,4 +1,5 @@
 import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
 import "package:delforte/design_system/widgets/quote_card_widget.dart";
 import "package:delforte/design_system/widgets/tap_card_widget.dart";
@@ -25,84 +26,69 @@ class HomePage extends StatelessWidget {
         store.errorsNotifier,
       ]),
       builder: (context, _) {
-        return Scaffold(
-          body: DecoratedBox(
-            decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-            child: SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 430),
-                  child: ClipRRect(
-                    borderRadius: VigilRadius.appFrameRadius,
-                    child: ColoredBox(color: VigilColors.canvas, child: _buildBody()),
-                  ),
+        return AppShell(
+          body: Column(
+            children: [
+              const _BrandHeader(),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),
+                  children: [
+                    Transform.translate(
+                      offset: const Offset(0, -16),
+                      child: _NewQuoteCard(
+                        onTap: () {
+                          store.clearDraft();
+                          router.goTo(const QuoteFlowRoute(QuoteStep.client));
+                        },
+                      ),
+                    ),
+                    Transform.translate(
+                      offset: const Offset(0, -6),
+                      child: _ActionTile(
+                        label: "Continue",
+                        subtitle: "Resume a draft",
+                        icon: Icons.edit_note_rounded,
+                        onTap: () => router.goTo(
+                          QuoteFlowRoute(
+                            QuoteStep.client,
+                            selectedClientId: store.draft.clientId == 0
+                                ? null
+                                : store.draft.clientId,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _SectionTitle(
+                      title: "Recent Quotes",
+                      action: "See all",
+                      onAction: () => router.goTo(const QuotesListRoute()),
+                    ),
+                    const SizedBox(height: 12),
+                    if (store.quotes.count == 0)
+                      const EmptyPanel(
+                        icon: Icons.receipt_long_rounded,
+                        title: "No saved quotes yet",
+                        subtitle: "Create a quote and save it from the review flow.",
+                      )
+                    else
+                      for (var i = 0; i < store.quotes.count && i < 3; i++)
+                        QuoteCard(
+                          clientName: _clientNameById(store.quotes.clientIdAt(i)),
+                          meta: _dateLabel(store.quotes.timestampAt(i)),
+                          total: _formatMoney(store.quotes.totalCentsAt(i)),
+                          status: "Saved",
+                          statusColor: VigilColors.success,
+                          statusBg: VigilColors.successSoft,
+                        ),
+                  ],
                 ),
               ),
-            ),
+            ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildBody() {
-    return Column(
-      children: [
-        const _BrandHeader(),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),
-            children: [
-              Transform.translate(
-                offset: const Offset(0, -16),
-                child: _NewQuoteCard(
-                  onTap: () {
-                    store.clearDraft();
-                    router.goTo(const QuoteFlowRoute(QuoteStep.client));
-                  },
-                ),
-              ),
-              Transform.translate(
-                offset: const Offset(0, -6),
-                child: _ActionTile(
-                  label: "Continue",
-                  subtitle: "Resume a draft",
-                  icon: Icons.edit_note_rounded,
-                  onTap: () => router.goTo(
-                    QuoteFlowRoute(
-                      QuoteStep.client,
-                      selectedClientId: store.draft.clientId == 0 ? null : store.draft.clientId,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              _SectionTitle(
-                title: "Recent Quotes",
-                action: "See all",
-                onAction: () => router.goTo(const QuotesListRoute()),
-              ),
-              const SizedBox(height: 12),
-              if (store.quotes.count == 0)
-                const EmptyPanel(
-                  icon: Icons.receipt_long_rounded,
-                  title: "No saved quotes yet",
-                  subtitle: "Create a quote and save it from the review flow.",
-                )
-              else
-                for (var i = 0; i < store.quotes.count && i < 3; i++)
-                  QuoteCard(
-                    clientName: _clientNameById(store.quotes.clientIdAt(i)),
-                    meta: _dateLabel(store.quotes.timestampAt(i)),
-                    total: _formatMoney(store.quotes.totalCentsAt(i)),
-                    status: "Saved",
-                    statusColor: VigilColors.success,
-                    statusBg: VigilColors.successSoft,
-                  ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

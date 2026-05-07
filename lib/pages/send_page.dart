@@ -1,4 +1,4 @@
-import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/ready_card_widget.dart";
@@ -27,76 +27,56 @@ class _SendPageState extends State<SendPage> {
     final int itemCount = _draftCountFor(quoteLineItem);
     final String clientName = _clientNameById(widget.selectedClientId ?? 0);
 
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: ClipRRect(
-                borderRadius: VigilRadius.appFrameRadius,
-                child: ColoredBox(
-                  color: VigilColors.canvas,
-                  child: _buildBody(total, serviceCount, itemCount, clientName),
-                ),
-              ),
+    return AppShell(
+      body: Column(
+        children: [
+          FlowHeader(
+            title: "Send Quote",
+            stepIndex: 4,
+            onBack: () => widget.router.goTo(
+              QuoteFlowRoute(QuoteStep.review, selectedClientId: widget.selectedClientId),
             ),
           ),
-        ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+              children: [
+                ReadyCard(
+                  title: "Quote Ready",
+                  subtitle: "Saved locally - $clientName - ${_formatMoney(total)}",
+                  chips: ["$serviceCount services", "$itemCount items", _formatMoney(total)],
+                ),
+                const SizedBox(height: 10),
+                PrimaryButton(
+                  label: "Share via WhatsApp",
+                  icon: Icons.share_rounded,
+                  onPressed: () => _showSnack(context, "Sharing is not wired yet."),
+                ),
+                const SizedBox(height: 10),
+                SecondaryButton(
+                  label: "Export PDF",
+                  icon: Icons.picture_as_pdf_rounded,
+                  onPressed: () => _showSnack(context, "PDF export is not wired to the UI yet."),
+                ),
+                const SizedBox(height: 10),
+                SecondaryButton(
+                  label: "Copy Link",
+                  icon: Icons.link_rounded,
+                  onPressed: () =>
+                      _showSnack(context, "Link sharing is not available for local drafts."),
+                ),
+                TextButton(
+                  onPressed: () {
+                    widget.store.clearDraft();
+                    widget.router.goTo(const HomeRoute());
+                  },
+                  child: const Text("Back to Home"),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildBody(int total, int serviceCount, int itemCount, String clientName) {
-    return Column(
-      children: [
-        FlowHeader(
-          title: "Send Quote",
-          stepIndex: 4,
-          onBack: () => widget.router.goTo(
-            QuoteFlowRoute(QuoteStep.review, selectedClientId: widget.selectedClientId),
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-            children: [
-              ReadyCard(
-                title: "Quote Ready",
-                subtitle: "Saved locally - $clientName - ${_formatMoney(total)}",
-                chips: ["$serviceCount services", "$itemCount items", _formatMoney(total)],
-              ),
-              const SizedBox(height: 10),
-              PrimaryButton(
-                label: "Share via WhatsApp",
-                icon: Icons.share_rounded,
-                onPressed: () => _showSnack(context, "Sharing is not wired yet."),
-              ),
-              const SizedBox(height: 10),
-              SecondaryButton(
-                label: "Export PDF",
-                icon: Icons.picture_as_pdf_rounded,
-                onPressed: () => _showSnack(context, "PDF export is not wired to the UI yet."),
-              ),
-              const SizedBox(height: 10),
-              SecondaryButton(
-                label: "Copy Link",
-                icon: Icons.link_rounded,
-                onPressed: () =>
-                    _showSnack(context, "Link sharing is not available for local drafts."),
-              ),
-              TextButton(
-                onPressed: () {
-                  widget.store.clearDraft();
-                  widget.router.goTo(const HomeRoute());
-                },
-                child: const Text("Back to Home"),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
