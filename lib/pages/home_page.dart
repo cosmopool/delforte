@@ -155,52 +155,54 @@ class _NewQuoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
+    return ClipRRect(
       borderRadius: VigilRadius.featureRadius,
-      child: Ink(
-        decoration: BoxDecoration(
-          gradient: VigilGradients.primaryAction,
-          borderRadius: VigilRadius.featureRadius,
-          boxShadow: VigilShadow.primaryLift,
-        ),
-        child: InkWell(
-          borderRadius: VigilRadius.featureRadius,
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "New Quote",
-                        style: VigilType.title(color: VigilColors.surface, size: 19),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Build a quote step by step",
-                        style: VigilType.small(
-                          color: Colors.white.withValues(alpha: 0.70),
-                          size: 12,
-                          weight: FontWeight.w500,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: VigilRadius.featureRadius,
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: VigilGradients.primaryAction,
+            boxShadow: VigilShadow.primaryLift,
+          ),
+          child: InkWell(
+            borderRadius: VigilRadius.featureRadius,
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "New Quote",
+                          style: VigilType.title(color: VigilColors.surface, size: 19),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          "Build a quote step by step",
+                          style: VigilType.small(
+                            color: Colors.white.withValues(alpha: 0.70),
+                            size: 12,
+                            weight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.14),
-                    borderRadius: VigilRadius.cardRadius,
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      borderRadius: VigilRadius.cardRadius,
+                    ),
+                    child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
                   ),
-                  child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
