@@ -267,7 +267,7 @@ class QuoteStore {
     if (quotes.count >= maxLimit) return _fail(errCapReached, "Quote cap reached");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
-    final int createdAt = DateTime.now().millisecondsSinceEpoch;
+    final int createdAt = DateTime.now().toUtc().millisecondsSinceEpoch;
     final int total = draft.computeTotals();
     try {
       db.execute("BEGIN IMMEDIATE");
@@ -530,7 +530,10 @@ PRAGMA user_version = 1;
       final bool ok = quotes.append(
         row["id"] as int,
         row["client_id"] as int,
-        row["created_at"] as int,
+        DateTime.fromMillisecondsSinceEpoch(
+          row["created_at"] as int,
+          isUtc: true,
+        ).toLocal().millisecondsSinceEpoch,
         row["total_cents"] as int,
       );
       if (!ok) return _fail(errCapReached, "Quote load cap reached");
