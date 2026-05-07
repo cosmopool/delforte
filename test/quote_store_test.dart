@@ -1,4 +1,5 @@
 import "dart:io";
+import "dart:typed_data";
 
 import "package:delforte/store/quote_store.dart";
 import "package:delforte/store/store_errors.dart";
@@ -240,6 +241,92 @@ void main() {
       expect(store.saveQuote(store.clients.idAt(0)), isFalse);
       expect(store.quotes.count, 0);
       expect(store.errors.codeAt(store.errors.count - 1), errQuoteEmpty);
+    });
+
+    test("payment method CRUD mirrors SQLite into arrays", () async {
+      final QuoteStore store = QuoteStore(databasePath: path);
+      addTearDown(store.dispose);
+      expect(await store.open(), isTrue);
+
+      var paymentNotifies = 0;
+      store.paymentMethodsNotifier.addListener(() => paymentNotifies++);
+
+      expect(store.addPaymentMethod("PIX"), isTrue);
+      expect(store.addPaymentMethod("Credit Card"), isTrue);
+      expect(store.paymentMethods.count, 2);
+      expect(store.paymentMethods.nameAt(0), "PIX");
+      expect(paymentNotifies, 2);
+
+      final int pixId = store.paymentMethods.idAt(0);
+      expect(store.updatePaymentMethod(pixId, "Bank Transfer (PIX)"), isTrue);
+      final int pixIndex = store.paymentMethods.indexOfId(pixId);
+      expect(store.paymentMethods.nameAt(pixIndex), "Bank Transfer (PIX)");
+      expect(paymentNotifies, 3);
+
+      expect(store.deletePaymentMethod(pixId), isTrue);
+      expect(store.paymentMethods.count, 1);
+      expect(store.paymentMethods.indexOfId(pixId), -1);
+      expect(store.paymentMethods.nameAt(0), "Credit Card");
+    });
+
+    test("singleton settings round-trip on reload", () async {
+      final QuoteStore first = QuoteStore(databasePath: path);
+      expect(await first.open(), isTrue);
+      expect(first.saveBusinessInfo(
+        "Delforte Sistemas",
+        "12.345.678/0001-90",
+        "Rua das Palmeiras, 200",
+        "São Paulo",
+        "SP",
+        "+55 (11) 98888-0000",
+        "contato@delforte.com.br",
+        Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]),
+      ), isTrue);
+      expect(first.saveQuoteDefaults(
+        "Bank Transfer (PIX)",
+        "30 days",
+        "90 days — parts & labour",
+        "Services subject to prior site visit.",
+      ), isTrue);
+      expect(first.savePdfSettings("Navy Blue (default)"), isTrue);
+      first.dispose();
+
+      final QuoteStore second = QuoteStore(databasePath: path);
+      addTearDown(second.dispose);
+      expect(await second.open(), isTrue);
+      expect(second.businessInfo.hasData, isTrue);
+      expect(second.businessInfo.name, "Delforte Sistemas");
+      expect(second.businessInfo.cnpj, "12.345.678/0001-90");
+      expect(second.businessInfo.address, "Rua das Palmeiras, 200");
+      expect(second.businessInfo.city, "São Paulo");
+      expect(second.businessInfo.state, "SP");
+      expect(second.businessInfo.phone, "+55 (11) 98888-0000");
+      expect(second.businessInfo.email, "contato@delforte.com.br");
+      expect(second.businessInfo.logo, Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]));
+      expect(second.quoteDefaults.hasData, isTrue);
+      expect(second.quoteDefaults.paymentMethod, "Bank Transfer (PIX)");
+      expect(second.quoteDefaults.validity, "30 days");
+      expect(second.quoteDefaults.warranty, "90 days — parts & labour");
+      expect(second.quoteDefaults.terms, "Services subject to prior site visit.");
+      expect(second.pdfSettings.hasData, isTrue);
+      expect(second.pdfSettings.accentColour, "Navy Blue (default)");
+    });
+
+    test("payment method errors return false and leave arrays unchanged", () async {
+      final QuoteStore store = QuoteStore(databasePath: path);
+      addTearDown(store.dispose);
+      expect(await store.open(), isTrue);
+
+      expect(store.addPaymentMethod(""), isFalse);
+      expect(store.paymentMethods.count, 0);
+      expect(store.errors.codeAt(store.errors.count - 1), errInvalidInput);
+
+      expect(store.addPaymentMethod("Cash"), isTrue);
+      expect(store.updatePaymentMethod(404, "Missing"), isFalse);
+      expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
+
+      expect(store.deletePaymentMethod(404), isFalse);
+      expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
     });
   });
 }
