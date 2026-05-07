@@ -64,19 +64,26 @@ class _AppMainWidgetState extends State<AppMainWidget> {
 
   void _seedEmptyStore() {
     if (_store.clients.count == 0) {
-      _store.addClient("Residencial Oliveira", "(11) 98888-1010", "", "Rua das Flores, 142");
-      _store.addClient("Comercio Santos", "(11) 97777-2020", "", "Av. Central, 88 - Bloco B");
-      _store.addClient("Casa Joao Silva", "(11) 96666-3030", "", "Estrada do Morro, 55");
+      _store.addClient("Residencial Oliveira", "(11) 98888-1010", "", "Rua das Flores, 142", "");
+      _store.addClient("Comercio Santos", "(11) 97777-2020", "", "Av. Central, 88 - Bloco B", "");
+      _store.addClient("Casa Joao Silva", "(11) 96666-3030", "", "Estrada do Morro, 55", "");
     }
+    if (_store.units.count == 0) {
+      _store.addUnit("h", "Hour");
+      _store.addUnit("un", "Unit");
+      _store.addUnit("m", "Meter");
+    }
+    final int unitHour = _store.units.count > 0 ? _store.units.idAt(0) : 0;
+    final int unitUnit = _store.units.count > 1 ? _store.units.idAt(1) : 0;
     if (_store.services.count == 0) {
-      _store.addService("CCTV Installation", "Camera installation and setup", 60000);
-      _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000);
-      _store.addService("Gate Motor Install", "Gate motor installation labor", 20000);
+      _store.addService("CCTV Installation", "Camera installation and setup", 60000, unitHour);
+      _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000, unitHour);
+      _store.addService("Gate Motor Install", "Gate motor installation labor", 20000, unitHour);
     }
     if (_store.items.count == 0) {
-      _store.addItem("IP Camera 4MP", "Outdoor infrared camera", 35000);
-      _store.addItem("Gate Motor Kit", "Motor, remotes, and rails", 85000);
-      _store.addItem("Control Panel Pro", "Alarm and automation control panel", 95000);
+      _store.addItem("IP Camera 4MP", "Outdoor infrared camera", 35000, unitUnit);
+      _store.addItem("Gate Motor Kit", "Motor, remotes, and rails", 85000, unitUnit);
+      _store.addItem("Control Panel Pro", "Alarm and automation control panel", 95000, unitUnit);
     }
   }
 

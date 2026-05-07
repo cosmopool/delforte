@@ -6,6 +6,7 @@ import "package:delforte/store/item_data.dart";
 import "package:delforte/store/quote_calc_buffer.dart";
 import "package:delforte/store/quote_data.dart";
 import "package:delforte/store/store_errors.dart";
+import "package:delforte/store/unit_data.dart";
 import "package:flutter/foundation.dart";
 import "package:path_provider/path_provider.dart";
 import "package:sqlite3/sqlite3.dart";
@@ -47,6 +48,7 @@ class QuoteStore {
       services = ItemData(maxLimit),
       clients = ClientData(maxLimit),
       quotes = QuoteData(maxLimit),
+      units = UnitData(maxLimit),
       draft = QuoteCalcBuffer(initialCap),
       errors = ErrorLogBuffer(256);
 
@@ -61,6 +63,9 @@ class QuoteStore {
 
   /// Saved quote rows mirrored from SQLite.
   final QuoteData quotes;
+
+  /// Unit rows mirrored from SQLite.
+  final UnitData units;
 
   /// Mutable in-memory draft quote.
   final QuoteCalcBuffer draft;
@@ -82,6 +87,9 @@ class QuoteStore {
 
   /// Notifies when [draft] changes.
   final StoreNotifier quoteDraftNotifier = StoreNotifier();
+
+  /// Notifies when [units] changes.
+  final StoreNotifier unitsNotifier = StoreNotifier();
 
   /// Notifies when [errors] changes.
   final StoreNotifier errorsNotifier = StoreNotifier();
@@ -121,26 +129,28 @@ class QuoteStore {
     itemsNotifier.dispose();
     servicesNotifier.dispose();
     clientsNotifier.dispose();
+    unitsNotifier.dispose();
     quotesNotifier.dispose();
     quoteDraftNotifier.dispose();
     errorsNotifier.dispose();
   }
 
   /// Inserts a client and mirrors it into [clients].
-  bool addClient(String name, String phone, String email, String address) {
+  bool addClient(String name, String phone, String email, String address, String city) {
     if (!_validName(name)) return _fail(errInvalidInput, "Client name required");
     if (clients.count >= maxLimit) return _fail(errCapReached, "Client cap reached");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
     try {
-      db.execute("INSERT INTO clients (name, phone, email, address) VALUES (?, ?, ?, ?)", [
+      db.execute("INSERT INTO clients (name, phone, email, address, city) VALUES (?, ?, ?, ?, ?)", [
         name,
         phone,
         email,
         address,
+        city,
       ]);
       final int id = db.lastInsertRowId;
-      if (!clients.append(id, name, phone, email, address)) {
+      if (!clients.append(id, name, phone, email, address, city)) {
         return _fail(errCapReached, "Client RAM cap reached");
       }
       clientsNotifier.markChanged();
@@ -151,20 +161,21 @@ class QuoteStore {
   }
 
   /// Updates a client by [id] and mirrors it into [clients].
-  bool updateClient(int id, String name, String phone, String email, String address) {
+  bool updateClient(int id, String name, String phone, String email, String address, String city) {
     if (!_validName(name)) return _fail(errInvalidInput, "Client name required");
     if (clients.indexOfId(id) < 0) return _fail(errMissingId, "Client missing");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
     try {
-      db.execute("UPDATE clients SET name = ?, phone = ?, email = ?, address = ? WHERE id = ?", [
+      db.execute("UPDATE clients SET name = ?, phone = ?, email = ?, address = ?, city = ? WHERE id = ?", [
         name,
         phone,
         email,
         address,
+        city,
         id,
       ]);
-      clients.update(id, name, phone, email, address);
+      clients.update(id, name, phone, email, address, city);
       clientsNotifier.markChanged();
       return true;
     } catch (error) {
@@ -188,23 +199,23 @@ class QuoteStore {
   }
 
   /// Inserts an item and mirrors it into [items].
-  bool addItem(String name, String description, int priceCents) {
-    return _addCatalog(false, name, description, priceCents);
+  bool addItem(String name, String description, int priceCents, int unitId) {
+    return _addCatalog(false, name, description, priceCents, unitId);
   }
 
   /// Inserts a service and mirrors it into [services].
-  bool addService(String name, String description, int priceCents) {
-    return _addCatalog(true, name, description, priceCents);
+  bool addService(String name, String description, int priceCents, int unitId) {
+    return _addCatalog(true, name, description, priceCents, unitId);
   }
 
   /// Updates an item by [id].
-  bool updateItem(int id, String name, String description, int priceCents) {
-    return _updateCatalog(false, id, name, description, priceCents);
+  bool updateItem(int id, String name, String description, int priceCents, int unitId) {
+    return _updateCatalog(false, id, name, description, priceCents, unitId);
   }
 
   /// Updates a service by [id].
-  bool updateService(int id, String name, String description, int priceCents) {
-    return _updateCatalog(true, id, name, description, priceCents);
+  bool updateService(int id, String name, String description, int priceCents, int unitId) {
+    return _updateCatalog(true, id, name, description, priceCents, unitId);
   }
 
   /// Deletes an item by [id] and removes matching draft lines.
@@ -332,13 +343,77 @@ class QuoteStore {
     return data.descriptions[index];
   }
 
+  /// Inserts a unit and mirrors it into [units].
+  bool addUnit(String abbreviation, String description) {
+    if (!_validName(abbreviation)) return _fail(errInvalidInput, "Unit abbreviation required");
+    if (units.count >= maxLimit) return _fail(errCapReached, "Unit cap reached");
+    final Database? db = _db;
+    if (db == null) return _fail(errDbOpen, "DB not open");
+    try {
+      db.execute("INSERT INTO units (abbreviation, description) VALUES (?, ?)", [
+        abbreviation,
+        description,
+      ]);
+      final int id = db.lastInsertRowId;
+      if (!units.append(id, abbreviation, description)) {
+        return _fail(errCapReached, "Unit RAM cap reached");
+      }
+      unitsNotifier.markChanged();
+      return true;
+    } catch (error) {
+      return _fail(errSqlWrite, error.toString());
+    }
+  }
+
+  /// Updates a unit by [id] and mirrors it into [units].
+  bool updateUnit(int id, String abbreviation, String description) {
+    if (!_validName(abbreviation)) return _fail(errInvalidInput, "Unit abbreviation required");
+    if (units.indexOfId(id) < 0) return _fail(errMissingId, "Unit missing");
+    final Database? db = _db;
+    if (db == null) return _fail(errDbOpen, "DB not open");
+    try {
+      db.execute("UPDATE units SET abbreviation = ?, description = ? WHERE id = ?", [
+        abbreviation,
+        description,
+        id,
+      ]);
+      units.update(id, abbreviation, description);
+      unitsNotifier.markChanged();
+      return true;
+    } catch (error) {
+      return _fail(errSqlWrite, error.toString());
+    }
+  }
+
+  /// Deletes a unit by [id].
+  bool deleteUnit(int id) {
+    if (units.indexOfId(id) < 0) return _fail(errMissingId, "Unit missing");
+    final Database? db = _db;
+    if (db == null) return _fail(errDbOpen, "DB not open");
+    try {
+      db.execute("DELETE FROM units WHERE id = ?", [id]);
+      units.deleteById(id);
+      unitsNotifier.markChanged();
+      return true;
+    } catch (error) {
+      return _fail(errSqlWrite, error.toString());
+    }
+  }
+
+  /// Returns the unit abbreviation for [unitId], or `""` if missing.
+  String unitAbbreviationFor(int unitId) {
+    final int index = units.indexOfId(unitId);
+    if (index < 0) return "";
+    return units.abbreviationAt(index);
+  }
+
   /// Returns the most recent error message, or `""` when there are no errors.
   String latestErrorMessage() {
     if (errors.count <= 0) return "";
     return errors.messageAt(errors.count - 1);
   }
 
-  bool _addCatalog(bool isService, String name, String description, int priceCents) {
+  bool _addCatalog(bool isService, String name, String description, int priceCents, int unitId) {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
     final ItemData data = isService ? services : items;
@@ -347,13 +422,14 @@ class QuoteStore {
     if (db == null) return _fail(errDbOpen, "DB not open");
     final String table = isService ? "services" : "items";
     try {
-      db.execute("INSERT INTO $table (name, description, price_cents) VALUES (?, ?, ?)", [
+      db.execute("INSERT INTO $table (name, description, price_cents, unit_id) VALUES (?, ?, ?, ?)", [
         name,
         description,
         priceCents,
+        unitId,
       ]);
       final int id = db.lastInsertRowId;
-      if (!data.append(id, name, description, priceCents)) {
+      if (!data.append(id, name, description, priceCents, unitId)) {
         return _fail(errCapReached, "Catalog RAM cap reached");
       }
       (isService ? servicesNotifier : itemsNotifier).markChanged();
@@ -363,7 +439,7 @@ class QuoteStore {
     }
   }
 
-  bool _updateCatalog(bool isService, int id, String name, String description, int priceCents) {
+  bool _updateCatalog(bool isService, int id, String name, String description, int priceCents, int unitId) {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
     final ItemData data = isService ? services : items;
@@ -372,13 +448,14 @@ class QuoteStore {
     if (db == null) return _fail(errDbOpen, "DB not open");
     final String table = isService ? "services" : "items";
     try {
-      db.execute("UPDATE $table SET name = ?, description = ?, price_cents = ? WHERE id = ?", [
+      db.execute("UPDATE $table SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?", [
         name,
         description,
         priceCents,
+        unitId,
         id,
       ]);
-      data.update(id, name, description, priceCents);
+      data.update(id, name, description, priceCents, unitId);
       final int type = isService ? quoteLineService : quoteLineItem;
       final int draftIndex = draft.lineIndex(type, id);
       if (draftIndex >= 0) {
@@ -458,6 +535,21 @@ PRAGMA user_version = 1;
       }
       if (version < 2) {
         db.execute("PRAGMA user_version = 2;");
+        version = 2;
+      }
+      if (version < 3) {
+        db.execute("""
+ALTER TABLE clients ADD COLUMN city TEXT NOT NULL DEFAULT '';
+CREATE TABLE units (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  abbreviation  TEXT NOT NULL,
+  description   TEXT NOT NULL DEFAULT ''
+);
+ALTER TABLE items ADD COLUMN unit_id INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE services ADD COLUMN unit_id INTEGER NOT NULL DEFAULT 0;
+PRAGMA user_version = 3;
+""");
+        version = 3;
       }
       return true;
     } catch (error) {
@@ -468,10 +560,12 @@ PRAGMA user_version = 1;
   bool _load(Database db) {
     try {
       if (!_loadClients(db)) return false;
+      if (!_loadUnits(db)) return false;
       if (!_loadCatalog(db, false)) return false;
       if (!_loadCatalog(db, true)) return false;
       if (!_loadQuotes(db)) return false;
       clientsNotifier.markChanged();
+      unitsNotifier.markChanged();
       itemsNotifier.markChanged();
       servicesNotifier.markChanged();
       quotesNotifier.markChanged();
@@ -483,7 +577,7 @@ PRAGMA user_version = 1;
 
   bool _loadClients(Database db) {
     final ResultSet rows = db.select(
-      "SELECT id, name, phone, email, address FROM clients ORDER BY id DESC",
+      "SELECT id, name, phone, email, address, city FROM clients ORDER BY id DESC",
     );
     if (rows.length > maxLimit) return _fail(errCapReached, "Client DB cap exceeded");
     clients.count = 0;
@@ -494,8 +588,26 @@ PRAGMA user_version = 1;
         row["phone"] as String,
         row["email"] as String,
         row["address"] as String,
+        row["city"] as String,
       );
       if (!ok) return _fail(errCapReached, "Client load cap reached");
+    }
+    return true;
+  }
+
+  bool _loadUnits(Database db) {
+    final ResultSet rows = db.select(
+      "SELECT id, abbreviation, description FROM units ORDER BY id DESC",
+    );
+    if (rows.length > maxLimit) return _fail(errCapReached, "Unit DB cap exceeded");
+    units.count = 0;
+    for (final Row row in rows) {
+      final bool ok = units.append(
+        row["id"] as int,
+        row["abbreviation"] as String,
+        row["description"] as String,
+      );
+      if (!ok) return _fail(errCapReached, "Unit load cap reached");
     }
     return true;
   }
@@ -504,7 +616,7 @@ PRAGMA user_version = 1;
     final String table = isService ? "services" : "items";
     final ItemData data = isService ? services : items;
     final ResultSet rows = db.select(
-      "SELECT id, name, description, price_cents FROM $table ORDER BY id DESC",
+      "SELECT id, name, description, price_cents, unit_id FROM $table ORDER BY id DESC",
     );
     if (rows.length > maxLimit) return _fail(errCapReached, "Catalog DB cap exceeded");
     data.count = 0;
@@ -514,6 +626,7 @@ PRAGMA user_version = 1;
         row["name"] as String,
         row["description"] as String,
         row["price_cents"] as int,
+        row["unit_id"] as int,
       );
       if (!ok) return _fail(errCapReached, "Catalog load cap reached");
     }

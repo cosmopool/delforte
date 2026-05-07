@@ -154,6 +154,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
     final TextEditingController phone = TextEditingController();
     final TextEditingController email = TextEditingController();
     final TextEditingController address = TextEditingController();
+    final TextEditingController city = TextEditingController();
     final bool? saved = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -167,6 +168,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                 DialogField(controller: phone, label: "Phone"),
                 DialogField(controller: email, label: "Email"),
                 DialogField(controller: address, label: "Address"),
+                DialogField(controller: city, label: "City"),
               ],
             ),
           ),
@@ -189,6 +191,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
         phone.text.trim(),
         email.text.trim(),
         address.text.trim(),
+        city.text.trim(),
       );
       if (ok) {
         setState(
@@ -202,6 +205,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
     phone.dispose();
     email.dispose();
     address.dispose();
+    city.dispose();
   }
 
   void _showSnack(String message) {

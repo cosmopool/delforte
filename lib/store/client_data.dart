@@ -11,7 +11,8 @@ class ClientData {
       names = List<String>.filled(capacity, "", growable: false),
       phones = List<String>.filled(capacity, "", growable: false),
       emails = List<String>.filled(capacity, "", growable: false),
-      addresses = List<String>.filled(capacity, "", growable: false);
+      addresses = List<String>.filled(capacity, "", growable: false),
+      cities = List<String>.filled(capacity, "", growable: false);
 
   /// SQLite row ids.
   final Int64List ids;
@@ -27,6 +28,9 @@ class ClientData {
 
   /// Client street or installation addresses.
   final List<String> addresses;
+
+  /// Client cities.
+  final List<String> cities;
 
   /// Number of active rows.
   int count = 0;
@@ -61,6 +65,12 @@ class ClientData {
     return addresses[index];
   }
 
+  /// Returns the city at [index], or `""` when [index] is invalid.
+  String cityAt(int index) {
+    if (index < 0 || index >= count) return "";
+    return cities[index];
+  }
+
   /// Returns the index for [id], or `-1` when it is not present.
   int indexOfId(int id) {
     for (var i = 0; i < count && i < maxLimit; i++) {
@@ -70,19 +80,20 @@ class ClientData {
   }
 
   /// Appends a row and returns whether it fit in the buffer.
-  bool append(int id, String name, String phone, String email, String address) {
+  bool append(int id, String name, String phone, String email, String address, String city) {
     if (count >= ids.length || count >= maxLimit) return false;
     ids[count] = id;
     names[count] = name;
     phones[count] = phone;
     emails[count] = email;
     addresses[count] = address;
+    cities[count] = city;
     count++;
     return true;
   }
 
   /// Updates the row with [id] and returns whether it existed.
-  bool update(int id, String name, String phone, String email, String address) {
+  bool update(int id, String name, String phone, String email, String address, String city) {
     final int index = indexOfId(id);
     if (index < 0) return false;
     ids[index] = id;
@@ -90,6 +101,7 @@ class ClientData {
     phones[index] = phone;
     emails[index] = email;
     addresses[index] = address;
+    cities[index] = city;
     return true;
   }
 
@@ -104,11 +116,13 @@ class ClientData {
     phones[index] = phones[last];
     emails[index] = emails[last];
     addresses[index] = addresses[last];
+    cities[index] = cities[last];
     ids[last] = 0;
     names[last] = "";
     phones[last] = "";
     emails[last] = "";
     addresses[last] = "";
+    cities[last] = "";
     count--;
     return true;
   }

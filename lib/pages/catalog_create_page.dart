@@ -104,8 +104,8 @@ class _CatalogCreateBodyState extends State<CatalogCreateBody> {
     final String name = _name.text.trim();
     final String description = _description.text.trim();
     final bool catalogSaved = widget.isService
-        ? widget.store.addService(name, description, cents)
-        : widget.store.addItem(name, description, cents);
+        ? widget.store.addService(name, description, cents, 0)
+        : widget.store.addItem(name, description, cents, 0);
     if (!catalogSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;
