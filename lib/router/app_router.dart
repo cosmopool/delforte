@@ -8,7 +8,7 @@ import "package:delforte/pages/send_page.dart";
 import "package:delforte/pages/services_page.dart";
 import "package:delforte/pages/templates_page.dart";
 import "package:delforte/router/app_route_state.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {

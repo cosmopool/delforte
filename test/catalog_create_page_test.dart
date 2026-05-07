@@ -2,7 +2,7 @@ import "dart:io";
 
 import "package:delforte/design_system.dart";
 import "package:delforte/pages/catalog_create_page.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 

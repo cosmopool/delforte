@@ -5,7 +5,7 @@ import "package:delforte/design_system/widgets/quote_card_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class QuotesListPage extends StatefulWidget {

@@ -5,7 +5,7 @@ import "package:delforte/design_system/widgets/ready_card_widget.dart";
 import "package:delforte/design_system/widgets/secondary_button_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class SendPage extends StatefulWidget {

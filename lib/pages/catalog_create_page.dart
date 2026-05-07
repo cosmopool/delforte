@@ -3,7 +3,9 @@ import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/panel_widget.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/secondary_button_widget.dart";
-import "package:delforte/store.dart";
+import "package:delforte/store/item_data.dart";
+import "package:delforte/store/quote_store.dart";
+import "package:delforte/store/store_errors.dart";
 import "package:flutter/material.dart";
 
 class CatalogCreatePage extends StatelessWidget {
