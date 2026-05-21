@@ -33,7 +33,19 @@ class _ServicesPageState extends State<ServicesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<int> indexes = widget.store.services.searchIndexes(_searchController.text);
+    final List<int> indexes;
+    final String query = _searchController.text.trim();
+    if (query.isEmpty) {
+      indexes = <int>[];
+      for (var i = 0; i < widget.store.draft.count; i++) {
+        if (widget.store.draft.types[i] == quoteLineService) {
+          final int catalogIndex = widget.store.services.indexOfId(widget.store.draft.refIds[i]);
+          if (catalogIndex >= 0) indexes.add(catalogIndex);
+        }
+      }
+    } else {
+      indexes = widget.store.services.searchIndexes(query);
+    }
 
     return AppShell(
       body: ColoredBox(
@@ -115,11 +127,13 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   void _addDraftLine(int refId) {
+    setState(_searchController.clear);
     final bool ok = widget.store.addDraftLine(quoteLineService, refId, 1);
     if (!ok) _showSnack(widget.store.latestErrorMessage());
   }
 
   void _changeDraftQuantity(int refId, int delta) {
+    setState(_searchController.clear);
     final int index = widget.store.draft.lineIndex(quoteLineService, refId);
     if (index < 0) {
       if (delta > 0) _addDraftLine(refId);
@@ -130,6 +144,7 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   void _removeDraftLine(int refId) {
+    setState(_searchController.clear);
     final int index = widget.store.draft.lineIndex(quoteLineService, refId);
     if (index >= 0 && !widget.store.removeDraftLine(index)) {
       _showSnack(widget.store.latestErrorMessage());

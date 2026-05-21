@@ -32,7 +32,19 @@ class _ItemsPageState extends State<ItemsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<int> indexes = widget.store.items.searchIndexes(_searchController.text);
+    final List<int> indexes;
+    final String query = _searchController.text.trim();
+    if (query.isEmpty) {
+      indexes = <int>[];
+      for (var i = 0; i < widget.store.draft.count; i++) {
+        if (widget.store.draft.types[i] == quoteLineItem) {
+          final int catalogIndex = widget.store.items.indexOfId(widget.store.draft.refIds[i]);
+          if (catalogIndex >= 0) indexes.add(catalogIndex);
+        }
+      }
+    } else {
+      indexes = widget.store.items.searchIndexes(query);
+    }
 
     return AppShell(
       body: Column(
@@ -59,7 +71,7 @@ class _ItemsPageState extends State<ItemsPage> {
                     SearchField(
                       controller: _searchController,
                       hintText: "Search to add equipment...",
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (name) => setState(() {}),
                     ),
                     const SizedBox(height: 10),
                     for (final int index in indexes)
@@ -109,11 +121,13 @@ class _ItemsPageState extends State<ItemsPage> {
   }
 
   void _addDraftLine(int refId) {
+    setState(_searchController.clear);
     final bool ok = widget.store.addDraftLine(quoteLineItem, refId, 1);
     if (!ok) _showSnack(widget.store.latestErrorMessage());
   }
 
   void _changeDraftQuantity(int refId, int delta) {
+    setState(_searchController.clear);
     final int index = widget.store.draft.lineIndex(quoteLineItem, refId);
     if (index < 0) {
       if (delta > 0) _addDraftLine(refId);
@@ -124,6 +138,7 @@ class _ItemsPageState extends State<ItemsPage> {
   }
 
   void _removeDraftLine(int refId) {
+    setState(_searchController.clear);
     final int index = widget.store.draft.lineIndex(quoteLineItem, refId);
     if (index >= 0 && !widget.store.removeDraftLine(index)) {
       _showSnack(widget.store.latestErrorMessage());
