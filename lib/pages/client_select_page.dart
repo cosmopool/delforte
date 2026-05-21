@@ -29,6 +29,7 @@ class ClientSelectPage extends StatefulWidget {
 class _ClientSelectPageState extends State<ClientSelectPage> {
   final TextEditingController _searchController = TextEditingController();
   int? _selectedClientId;
+  late final List<int> indexes = widget.store.clients.allClients();
 
   @override
   void initState() {
@@ -44,15 +45,6 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String query = _searchController.text.trim().toLowerCase();
-    final List<int> indexes = [
-      for (var i = 0; i < widget.store.clients.count; i++)
-        if (query.isEmpty ||
-            widget.store.clients.nameAt(i).toLowerCase().contains(query) ||
-            widget.store.clients.addressAt(i).toLowerCase().contains(query))
-          i,
-    ];
-
     return AppShell(
       body: Column(
         children: [
@@ -82,9 +74,8 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                 for (final int index in indexes) _clientCard(index),
                 AddCard(
                   label: "Add new client",
-                  onTap: () => widget.router.goTo(
-                    ClientCreateRoute(selectedClientId: _selectedClientId),
-                  ),
+                  onTap: () =>
+                      widget.router.goTo(ClientCreateRoute(selectedClientId: _selectedClientId)),
                 ),
               ],
             ),

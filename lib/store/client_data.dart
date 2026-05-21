@@ -2,7 +2,6 @@ import "dart:typed_data";
 
 import "package:delforte/store/quote_store.dart";
 
-
 /// Struct-of-arrays buffer for client rows.
 class ClientData {
   /// Creates a fixed-size client buffer with [capacity] rows.
@@ -103,6 +102,34 @@ class ClientData {
     addresses[index] = address;
     cities[index] = city;
     return true;
+  }
+
+  /// Returns indexes of rows whose name, phone, email, address, or city
+  /// contains [query].
+  ///
+  /// Matching is case-insensitive. An empty [query] returns every index.
+  List<int> searchIndexes(String query) {
+    final String q = query.trim().toLowerCase();
+    if (q.isEmpty) return [];
+    final List<int> result = <int>[];
+    for (var i = 0; i < count; i++) {
+      if (names[i].toLowerCase().contains(q) ||
+          phones[i].toLowerCase().contains(q) ||
+          emails[i].toLowerCase().contains(q) ||
+          addresses[i].toLowerCase().contains(q) ||
+          cities[i].toLowerCase().contains(q)) {
+        result.add(i);
+      }
+    }
+    return result;
+  }
+
+  List<int> allClients() {
+    final List<int> clients = [];
+    for (var i = 0; i < count; i++) {
+      clients.add(i);
+    }
+    return clients;
   }
 
   /// Deletes the row with [id] by swap-removing it.

@@ -122,6 +122,21 @@ class ItemData {
     return true;
   }
 
+  /// Returns indexes of rows whose name or description contains [query].
+  ///
+  /// Matching is case-insensitive. An empty [query] returns every index.
+  List<int> searchIndexes(String query) {
+    final String q = query.trim().toLowerCase();
+    if (q.isEmpty) return [];
+    final List<int> result = <int>[];
+    for (var i = 0; i < count; i++) {
+      if (names[i].toLowerCase().contains(q) || descriptions[i].toLowerCase().contains(q)) {
+        result.add(i);
+      }
+    }
+    return result;
+  }
+
   /// Deletes the row with [id] by swap-removing it.
   bool deleteById(int id) {
     final int index = indexOfId(id);

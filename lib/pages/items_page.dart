@@ -32,14 +32,7 @@ class _ItemsPageState extends State<ItemsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String query = _searchController.text.trim().toLowerCase();
-    final List<int> indexes = [
-      for (var i = 0; i < widget.store.items.count; i++)
-        if (query.isEmpty ||
-            widget.store.items.nameAt(i).toLowerCase().contains(query) ||
-            widget.store.items.descriptionAt(i).toLowerCase().contains(query))
-          i,
-    ];
+    final List<int> indexes = widget.store.items.searchIndexes(_searchController.text);
 
     return AppShell(
       body: Column(
@@ -89,9 +82,7 @@ class _ItemsPageState extends State<ItemsPage> {
                     AddCard(
                       label: "Add new equipment",
                       onTap: () => widget.router.goTo(
-                        ItemCreateRoute(
-                          selectedClientId: widget.selectedClientId,
-                        ),
+                        ItemCreateRoute(selectedClientId: widget.selectedClientId),
                       ),
                     ),
                   ],

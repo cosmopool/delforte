@@ -328,5 +328,47 @@ void main() {
       expect(store.deletePaymentMethod(404), isFalse);
       expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
     });
+
+    test("search indexes filters and returns all on empty query", () async {
+      final QuoteStore store = QuoteStore(databasePath: path);
+      addTearDown(store.dispose);
+      expect(await store.open(), isTrue);
+
+      expect(store.addItem("Camera Pro", "8MP dome", 50000, 0), isTrue);
+      expect(store.addItem("DVR", "16 channel recorder", 89000, 0), isTrue);
+      expect(store.addItem("Cable", "RG6 coaxial", 3000, 0), isTrue);
+
+      expect(store.addClient("Alpha Corp", "111", "a@x.com", "Rua A", "City A"), isTrue);
+      expect(store.addClient("Beta Ltd", "222", "b@x.com", "Rua B", "City B"), isTrue);
+
+      expect(store.addUnit("h", "Hour"), isTrue);
+      expect(store.addUnit("m²", "Square meter"), isTrue);
+
+      expect(store.addPaymentMethod("PIX"), isTrue);
+      expect(store.addPaymentMethod("Credit Card"), isTrue);
+
+      expect(store.items.searchIndexes(""), [0, 1, 2]);
+      expect(store.items.searchIndexes("camera"), [0]);
+      expect(store.items.searchIndexes("recorder"), [1]);
+      expect(store.items.searchIndexes("MISSING"), isEmpty);
+
+      expect(store.clients.searchIndexes(""), [0, 1]);
+      expect(store.clients.searchIndexes("alpha"), [0]);
+      expect(store.clients.searchIndexes("222"), [1]);
+      expect(store.clients.searchIndexes("a@x.com"), [0]);
+      expect(store.clients.searchIndexes("Rua B"), [1]);
+      expect(store.clients.searchIndexes("City A"), [0]);
+      expect(store.clients.searchIndexes("MISSING"), isEmpty);
+
+      expect(store.units.searchIndexes(""), [0, 1]);
+      expect(store.units.searchIndexes("h"), [0]);
+      expect(store.units.searchIndexes("square"), [1]);
+      expect(store.units.searchIndexes("MISSING"), isEmpty);
+
+      expect(store.paymentMethods.searchIndexes(""), [0, 1]);
+      expect(store.paymentMethods.searchIndexes("pix"), [0]);
+      expect(store.paymentMethods.searchIndexes("card"), [1]);
+      expect(store.paymentMethods.searchIndexes("MISSING"), isEmpty);
+    });
   });
 }

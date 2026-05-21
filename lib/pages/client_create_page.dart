@@ -114,4 +114,9 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
     widget.store.draft.clientId = newId;
     widget.router.goTo(QuoteFlowRoute(QuoteStep.client, selectedClientId: newId));
   }
+
+  void _showSnack(String message) {
+    if (message.isEmpty || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
 }
