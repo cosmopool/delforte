@@ -37,13 +37,13 @@ class _EquipmentPageState extends State<EquipmentPage> {
     if (query.isEmpty) {
       indexes = <int>[];
       for (var i = 0; i < widget.store.draft.count; i++) {
-        if (widget.store.draft.types[i] == quoteLineEquipment) {
-          final int catalogIndex = widget.store.equipment.indexOfId(widget.store.draft.refIds[i]);
+        if (widget.store.draft.types[i] == CatalogItemType.equipment.index) {
+          final int catalogIndex = widget.store.equipments.indexOfId(widget.store.draft.refIds[i]);
           if (catalogIndex >= 0) indexes.add(catalogIndex);
         }
       }
     } else {
-      indexes = widget.store.equipment.searchIndexes(query);
+      indexes = widget.store.equipments.searchIndexes(query);
     }
 
     return AppShell(
@@ -55,7 +55,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
             FlowHeader(
               title: "Equipment",
               stepIndex: 2,
-              total: _draftTotalFor(quoteLineEquipment),
+              total: _draftTotalFor(),
               totalLabel: "Equipment Total",
               onBack: () => widget.router.goTo(
                 QuoteFlowRoute(QuoteStep.services, selectedClientId: widget.selectedClientId),
@@ -79,21 +79,21 @@ class _EquipmentPageState extends State<EquipmentPage> {
                       const SizedBox(height: 10),
                       for (final int index in indexes)
                         CatalogCard(
-                          name: widget.store.equipment.nameAt(index),
-                          description: widget.store.equipment.descriptionAt(index),
-                          price: formatMoney(widget.store.equipment.priceCentsAt(index)),
-                          icon: _catalogIcon(widget.store.equipment.nameAt(index)),
-                          expanded: _expandedId == widget.store.equipment.idAt(index),
-                          selectedQuantity: _draftQuantity(widget.store.equipment.idAt(index)),
+                          name: widget.store.equipments.nameAt(index),
+                          description: widget.store.equipments.descriptionAt(index),
+                          price: formatMoney(widget.store.equipments.priceCentsAt(index)),
+                          icon: _catalogIcon(widget.store.equipments.nameAt(index)),
+                          expanded: _expandedId == widget.store.equipments.idAt(index),
+                          selectedQuantity: _draftQuantity(widget.store.equipments.idAt(index)),
                           onToggle: () => setState(() {
-                            final int id = widget.store.equipment.idAt(index);
+                            final int id = widget.store.equipments.idAt(index);
                             _expandedId = _expandedId == id ? null : id;
                           }),
-                          onAdd: () => _addDraftLine(widget.store.equipment.idAt(index)),
+                          onAdd: () => _addDraftLine(widget.store.equipments.idAt(index)),
                           onDecrease: () =>
-                              _changeDraftQuantity(widget.store.equipment.idAt(index), -1),
-                          onIncrease: () => _changeDraftQuantity(widget.store.equipment.idAt(index), 1),
-                          onRemove: () => _removeDraftLine(widget.store.equipment.idAt(index)),
+                              _changeDraftQuantity(widget.store.equipments.idAt(index), -1),
+                          onIncrease: () => _changeDraftQuantity(widget.store.equipments.idAt(index), 1),
+                          onRemove: () => _removeDraftLine(widget.store.equipments.idAt(index)),
                         ),
                       AddCard(
                         label: "Add new equipment",
@@ -113,27 +113,27 @@ class _EquipmentPageState extends State<EquipmentPage> {
   }
 
   int _draftQuantity(int refId) {
-    final int index = widget.store.draft.lineIndex(quoteLineEquipment, refId);
+    final int index = widget.store.draft.lineIndex(.equipment, refId);
     return index < 0 ? 0 : widget.store.draft.quantities[index];
   }
 
-  int _draftTotalFor(int type) {
+  int _draftTotalFor() {
     var total = 0;
     for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == type) total += widget.store.draft.subtotalCents[i];
+      if (widget.store.draft.types[i] == CatalogItemType.equipment.index) total += widget.store.draft.subtotalCents[i];
     }
     return total;
   }
 
   void _addDraftLine(int refId) {
     setState(_searchController.clear);
-    final bool ok = widget.store.addDraftLine(quoteLineEquipment, refId, 1);
+    final bool ok = widget.store.addDraftLine(.equipment, refId, 1);
     if (!ok) _showSnack(widget.store.latestErrorMessage());
   }
 
   void _changeDraftQuantity(int refId, int delta) {
     setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(quoteLineEquipment, refId);
+    final int index = widget.store.draft.lineIndex(.equipment, refId);
     if (index < 0) {
       if (delta > 0) _addDraftLine(refId);
       return;
@@ -144,7 +144,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
 
   void _removeDraftLine(int refId) {
     setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(quoteLineEquipment, refId);
+    final int index = widget.store.draft.lineIndex(.equipment, refId);
     if (index >= 0 && !widget.store.removeDraftLine(index)) {
       _showSnack(widget.store.latestErrorMessage());
     }

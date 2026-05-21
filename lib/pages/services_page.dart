@@ -38,7 +38,7 @@ class _ServicesPageState extends State<ServicesPage> {
     if (query.isEmpty) {
       indexes = <int>[];
       for (var i = 0; i < widget.store.draft.count; i++) {
-        if (widget.store.draft.types[i] == quoteLineService) {
+        if (widget.store.draft.types[i] == CatalogItemType.service.index) {
           final int catalogIndex = widget.store.services.indexOfId(widget.store.draft.refIds[i]);
           if (catalogIndex >= 0) indexes.add(catalogIndex);
         }
@@ -58,7 +58,7 @@ class _ServicesPageState extends State<ServicesPage> {
               FlowHeader(
                 title: "Services",
                 stepIndex: 1,
-                total: _draftTotalFor(quoteLineService),
+                total: _draftTotalFor(),
                 totalLabel: "Services Total",
                 onBack: () => widget.router.goTo(
                   QuoteFlowRoute(QuoteStep.client, selectedClientId: widget.selectedClientId),
@@ -118,27 +118,27 @@ class _ServicesPageState extends State<ServicesPage> {
   }
 
   int _draftQuantity(int refId) {
-    final int index = widget.store.draft.lineIndex(quoteLineService, refId);
+    final int index = widget.store.draft.lineIndex(.service, refId);
     return index < 0 ? 0 : widget.store.draft.quantities[index];
   }
 
-  int _draftTotalFor(int type) {
+  int _draftTotalFor() {
     var total = 0;
     for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == type) total += widget.store.draft.subtotalCents[i];
+      if (widget.store.draft.types[i] == CatalogItemType.service.index) total += widget.store.draft.subtotalCents[i];
     }
     return total;
   }
 
   void _addDraftLine(int refId) {
     setState(_searchController.clear);
-    final bool ok = widget.store.addDraftLine(quoteLineService, refId, 1);
+    final bool ok = widget.store.addDraftLine(.service, refId, 1);
     if (!ok) _showSnack(widget.store.latestErrorMessage());
   }
 
   void _changeDraftQuantity(int refId, int delta) {
     setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(quoteLineService, refId);
+    final int index = widget.store.draft.lineIndex(.service, refId);
     if (index < 0) {
       if (delta > 0) _addDraftLine(refId);
       return;
@@ -149,7 +149,7 @@ class _ServicesPageState extends State<ServicesPage> {
 
   void _removeDraftLine(int refId) {
     setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(quoteLineService, refId);
+    final int index = widget.store.draft.lineIndex(.service, refId);
     if (index >= 0 && !widget.store.removeDraftLine(index)) {
       _showSnack(widget.store.latestErrorMessage());
     }

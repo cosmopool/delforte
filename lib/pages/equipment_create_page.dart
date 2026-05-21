@@ -114,10 +114,9 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
       return;
     }
 
-    final ItemData data = widget.store.equipment;
+    final ItemData data = widget.store.equipments;
     final int insertedId = data.idAt(data.count - 1);
-    const int quoteLineEquipment = 0;
-    final bool lineSaved = widget.store.addDraftLine(quoteLineEquipment, insertedId, 1);
+    final bool lineSaved = widget.store.addDraftLine(.equipment, insertedId, 1);
     if (!lineSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;

@@ -95,7 +95,7 @@ class ReviewPage extends StatelessWidget {
                   const SizedBox(height: 10),
                   LineGroup(
                     title: "Services",
-                    lines: _draftLines(quoteLineService),
+                    lines: _draftLines(.service),
                     onEdit: () => router.goTo(
                       QuoteFlowRoute(QuoteStep.services, selectedClientId: selectedClientId),
                     ),
@@ -103,7 +103,7 @@ class ReviewPage extends StatelessWidget {
                   const SizedBox(height: 10),
                   LineGroup(
                     title: "Equipment",
-                    lines: _draftLines(quoteLineEquipment),
+                    lines: _draftLines(.equipment),
                     onEdit: () => router.goTo(
                       QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId),
                     ),
@@ -131,10 +131,10 @@ class ReviewPage extends StatelessWidget {
     router.goTo(QuoteFlowRoute(QuoteStep.send, selectedClientId: selectedClientId));
   }
 
-  List<DraftLineView> _draftLines(int type) {
+  List<DraftLineView> _draftLines(CatalogItemType type) {
     return [
       for (var i = 0; i < store.draft.count; i++)
-        if (store.draft.types[i] == type)
+        if (store.draft.types[i] == type.index)
           DraftLineView(
             name: store.nameFor(type, store.draft.refIds[i]),
             quantity: store.draft.quantities[i],

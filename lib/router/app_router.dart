@@ -1,8 +1,8 @@
 import "package:delforte/pages/client_create_page.dart";
 import "package:delforte/pages/client_select_page.dart";
-import "package:delforte/pages/home_page.dart";
 import "package:delforte/pages/equipment_create_page.dart";
 import "package:delforte/pages/equipment_page.dart";
+import "package:delforte/pages/home_page.dart";
 import "package:delforte/pages/quotes_list_page.dart";
 import "package:delforte/pages/review_page.dart";
 import "package:delforte/pages/send_page.dart";

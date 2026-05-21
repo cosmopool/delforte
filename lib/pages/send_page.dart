@@ -24,8 +24,8 @@ class _SendPageState extends State<SendPage> {
   @override
   Widget build(BuildContext context) {
     final int total = widget.store.draft.computeTotals();
-    final int serviceCount = _draftCountFor(quoteLineService);
-    final int equipmentCount = _draftCountFor(quoteLineEquipment);
+    final int serviceCount = _draftCountFor(.service);
+    final int equipmentCount = _draftCountFor(.equipment);
     final String clientName = _clientNameById(widget.selectedClientId ?? 0);
 
     return AppShell(
@@ -81,10 +81,10 @@ class _SendPageState extends State<SendPage> {
     );
   }
 
-  int _draftCountFor(int type) {
+  int _draftCountFor(CatalogItemType type) {
     var count = 0;
     for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == type) count++;
+      if (widget.store.draft.types[i] == type.index) count++;
     }
     return count;
   }

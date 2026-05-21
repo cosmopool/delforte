@@ -125,8 +125,7 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
 
     final ItemData data = widget.store.services;
     final int insertedId = data.idAt(data.count - 1);
-    const int quoteLineService = 1;
-    final bool lineSaved = widget.store.addDraftLine(quoteLineService, insertedId, 1);
+    final bool lineSaved = widget.store.addDraftLine(.service, insertedId, 1);
     if (!lineSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;

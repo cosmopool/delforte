@@ -21,11 +21,8 @@ const int initialCap = 256;
 /// Maximum number of rows mirrored in memory per table.
 const int maxLimit = 10000;
 
-/// Quote line type for catalog equipment.
-const int quoteLineEquipment = 0;
-
-/// Quote line type for catalog services.
-const int quoteLineService = 1;
+/// Quote line type for catalog item.
+enum CatalogItemType { equipment, service }
 
 /// Public notifier wrapper used by store tables.
 class StoreNotifier extends ChangeNotifier {
@@ -234,26 +231,26 @@ class QuoteStore {
 
   /// Updates equipment by [id].
   bool updateEquipment(int id, String name, String description, int priceCents, int unitId) {
-    return _updateCatalog(false, id, name, description, priceCents, unitId);
+    return _updateCatalog(.equipment, id, name, description, priceCents, unitId);
   }
 
   /// Updates a service by [id].
   bool updateService(int id, String name, String description, int priceCents, int unitId) {
-    return _updateCatalog(true, id, name, description, priceCents, unitId);
+    return _updateCatalog(.service, id, name, description, priceCents, unitId);
   }
 
   /// Deletes equipment by [id] and removes matching draft lines.
   bool deleteEquipment(int id) {
-    return _deleteCatalog(false, id);
+    return _deleteCatalog(.equipment, id);
   }
 
   /// Deletes a service by [id] and removes matching draft lines.
   bool deleteService(int id) {
-    return _deleteCatalog(true, id);
+    return _deleteCatalog(.service, id);
   }
 
   /// Adds or increments a draft line for [type] and [refId].
-  bool addDraftLine(int type, int refId, int quantity) {
+  bool addDraftLine(CatalogItemType type, int refId, int quantity) {
     final int price = priceFor(type, refId);
     if (price < 0) return _fail(errMissingId, "Catalog ref missing");
     final int existing = draft.lineIndex(type, refId);
@@ -344,24 +341,27 @@ class QuoteStore {
   }
 
   /// Returns the catalog price for [type] and [refId], or `-1` if missing.
-  int priceFor(int type, int refId) {
-    final ItemData data = type == quoteLineService ? services : equipments;
+  int priceFor(CatalogItemType type, int refId) {
+    final ItemData data = switch (type) {
+      .service => services,
+      .equipment => equipments,
+    };
     final int index = data.indexOfId(refId);
     if (index < 0) return -1;
     return data.priceCents[index];
   }
 
   /// Returns the catalog name for [type] and [refId], or `""` if missing.
-  String nameFor(int type, int refId) {
-    final ItemData data = type == quoteLineService ? services : equipments;
+  String nameFor(CatalogItemType type, int refId) {
+    final ItemData data = type == .service ? services : equipments;
     final int index = data.indexOfId(refId);
     if (index < 0) return "";
     return data.names[index];
   }
 
   /// Returns the catalog description for [type] and [refId], or `""` if missing.
-  String descriptionFor(int type, int refId) {
-    final ItemData data = type == quoteLineService ? services : equipments;
+  String descriptionFor(CatalogItemType type, int refId) {
+    final ItemData data = type == .service ? services : equipments;
     final int index = data.indexOfId(refId);
     if (index < 0) return "";
     return data.descriptions[index];
@@ -462,7 +462,7 @@ class QuoteStore {
   }
 
   bool _updateCatalog(
-    bool isService,
+    CatalogItemType type,
     int id,
     String name,
     String description,
@@ -471,43 +471,61 @@ class QuoteStore {
   ) {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
-    final ItemData data = isService ? services : equipments;
+    final ItemData data = switch (type) {
+      .service => services,
+      .equipment => equipments,
+    };
     if (data.indexOfId(id) < 0) return _fail(errMissingId, "Catalog missing");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
-    final String table = isService ? "services" : "equipments";
+    final String table = switch (type) {
+      .service => "services",
+      .equipment => "equipments",
+    };
     try {
       db.execute(
         "UPDATE $table SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?",
         [name, description, priceCents, unitId, id],
       );
       data.update(id, name, description, priceCents, unitId);
-      final int type = isService ? quoteLineService : quoteLineEquipment;
       final int draftIndex = draft.lineIndex(type, id);
       if (draftIndex >= 0) {
         draft.unitPriceCents[draftIndex] = priceCents;
         draft.setQuantity(draftIndex, draft.quantities[draftIndex]);
         quoteDraftNotifier.markChanged();
       }
-      (isService ? servicesNotifier : equipmentNotifier).markChanged();
+      final StoreNotifier notifier = switch (type) {
+        .service => servicesNotifier,
+        .equipment => equipmentNotifier,
+      };
+      notifier.markChanged();
       return true;
     } catch (error) {
       return _fail(errSqlWrite, error.toString());
     }
   }
 
-  bool _deleteCatalog(bool isService, int id) {
-    final ItemData data = isService ? services : equipments;
+  bool _deleteCatalog(CatalogItemType type, int id) {
+    final ItemData data = switch (type) {
+      .service => services,
+      .equipment => equipments,
+    };
     if (data.indexOfId(id) < 0) return _fail(errMissingId, "Catalog missing");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
-    final String table = isService ? "services" : "equipments";
+    final String table = switch (type) {
+      .service => "services",
+      .equipment => "equipments",
+    };
     try {
       db.execute("DELETE FROM $table WHERE id = ?", [id]);
       data.deleteById(id);
-      final int type = isService ? quoteLineService : quoteLineEquipment;
       draft.removeCatalogRef(type, id);
-      (isService ? servicesNotifier : equipmentNotifier).markChanged();
+      final StoreNotifier notifier = switch (type) {
+        .service => servicesNotifier,
+        .equipment => equipmentNotifier,
+      };
+      notifier.markChanged();
       quoteDraftNotifier.markChanged();
       return true;
     } catch (error) {

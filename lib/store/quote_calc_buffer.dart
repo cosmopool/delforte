@@ -12,7 +12,7 @@ class QuoteCalcBuffer {
       unitPriceCents = Int64List(capacity),
       subtotalCents = Int64List(capacity);
 
-  /// Line types, using [quoteLineEquipment] or [quoteLineService].
+  /// Line types, using [.equipment] or [.service].
   final Int32List types;
 
   /// Referenced item or service ids.
@@ -34,10 +34,10 @@ class QuoteCalcBuffer {
   int clientId = 0;
 
   /// Appends a draft line and returns whether it fit in the buffer.
-  bool addLine(int type, int refId, int quantity, int unitPrice) {
+  bool addLine(CatalogItemType type, int refId, int quantity, int unitPrice) {
     if (count >= types.length || count >= maxLimit) return false;
     if (quantity <= 0 || unitPrice < 0) return false;
-    types[count] = type;
+    types[count] = type.index;
     refIds[count] = refId;
     quantities[count] = quantity;
     unitPriceCents[count] = unitPrice;
@@ -47,9 +47,9 @@ class QuoteCalcBuffer {
   }
 
   /// Returns the line index for [type] and [refId], or `-1` when absent.
-  int lineIndex(int type, int refId) {
+  int lineIndex(CatalogItemType type, int refId) {
     for (var i = 0; i < count && i < maxLimit; i++) {
-      if (types[i] == type && refIds[i] == refId) return i;
+      if (types[i] == type.index && refIds[i] == refId) return i;
     }
     return -1;
   }
@@ -83,10 +83,10 @@ class QuoteCalcBuffer {
   }
 
   /// Removes every draft line referencing [type] and [refId].
-  void removeCatalogRef(int type, int refId) {
+  void removeCatalogRef(CatalogItemType type, int refId) {
     var i = 0;
     while (i < count && i < maxLimit) {
-      if (types[i] == type && refIds[i] == refId) {
+      if (types[i] == type.index && refIds[i] == refId) {
         removeAt(i);
       } else {
         i++;
