@@ -25,7 +25,7 @@ class _SendPageState extends State<SendPage> {
   Widget build(BuildContext context) {
     final int total = widget.store.draft.computeTotals();
     final int serviceCount = _draftCountFor(quoteLineService);
-    final int itemCount = _draftCountFor(quoteLineItem);
+    final int equipmentCount = _draftCountFor(quoteLineEquipment);
     final String clientName = _clientNameById(widget.selectedClientId ?? 0);
 
     return AppShell(
@@ -45,7 +45,7 @@ class _SendPageState extends State<SendPage> {
                 ReadyCard(
                   title: "Quote Ready",
                   subtitle: "Saved locally - $clientName - ${formatMoney(total)}",
-                  chips: ["$serviceCount services", "$itemCount items", formatMoney(total)],
+                  chips: ["$serviceCount services", "$equipmentCount equipment", formatMoney(total)],
                 ),
                 const SizedBox(height: 10),
                 PrimaryButton(

@@ -77,10 +77,10 @@ class _AppMainWidgetState extends State<AppMainWidget> {
       _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000, unitHour);
       _store.addService("Gate Motor Install", "Gate motor installation labor", 20000, unitHour);
     }
-    if (_store.items.count == 0) {
-      _store.addItem("IP Camera 4MP", "Outdoor infrared camera", 35000, unitUnit);
-      _store.addItem("Gate Motor Kit", "Motor, remotes, and rails", 85000, unitUnit);
-      _store.addItem("Control Panel Pro", "Alarm and automation control panel", 95000, unitUnit);
+    if (_store.equipment.count == 0) {
+      _store.addEquipment("IP Camera 4MP", "Outdoor infrared camera", 35000, unitUnit);
+      _store.addEquipment("Gate Motor Kit", "Motor, remotes, and rails", 85000, unitUnit);
+      _store.addEquipment("Control Panel Pro", "Alarm and automation control panel", 95000, unitUnit);
     }
   }
 

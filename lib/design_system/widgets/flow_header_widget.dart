@@ -92,7 +92,7 @@ class FlowHeader extends StatelessWidget {
   /// The optional callback for the continue button.
   final VoidCallback? onContinue;
 
-  static const List<String> _steps = ["Client", "Services", "Items", "Review", "Send"];
+  static const List<String> _steps = ["Client", "Services", "Equipment", "Review", "Send"];
 
   @override
   Widget build(BuildContext context) {

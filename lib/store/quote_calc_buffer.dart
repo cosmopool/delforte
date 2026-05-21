@@ -12,7 +12,7 @@ class QuoteCalcBuffer {
       unitPriceCents = Int64List(capacity),
       subtotalCents = Int64List(capacity);
 
-  /// Line types, using [quoteLineItem] or [quoteLineService].
+  /// Line types, using [quoteLineEquipment] or [quoteLineService].
   final Int32List types;
 
   /// Referenced item or service ids.

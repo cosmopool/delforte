@@ -36,7 +36,7 @@ class ReviewPage extends StatelessWidget {
               stepIndex: 3,
               continueLabel: "Looks Good",
               onBack: () =>
-                  router.goTo(QuoteFlowRoute(QuoteStep.items, selectedClientId: selectedClientId)),
+                  router.goTo(QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId)),
               onContinue: _canSaveQuote ? () => _saveAndContinue(total) : null,
             ),
             Expanded(
@@ -103,9 +103,9 @@ class ReviewPage extends StatelessWidget {
                   const SizedBox(height: 10),
                   LineGroup(
                     title: "Equipment",
-                    lines: _draftLines(quoteLineItem),
+                    lines: _draftLines(quoteLineEquipment),
                     onEdit: () => router.goTo(
-                      QuoteFlowRoute(QuoteStep.items, selectedClientId: selectedClientId),
+                      QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId),
                     ),
                   ),
                   const SizedBox(height: 10),

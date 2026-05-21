@@ -9,18 +9,18 @@ import "package:delforte/store/quote_store.dart";
 import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
-class ItemsPage extends StatefulWidget {
-  const ItemsPage({required this.store, required this.router, this.selectedClientId, super.key});
+class EquipmentPage extends StatefulWidget {
+  const EquipmentPage({required this.store, required this.router, this.selectedClientId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
   final int? selectedClientId;
 
   @override
-  State<ItemsPage> createState() => _ItemsPageState();
+  State<EquipmentPage> createState() => _EquipmentPageState();
 }
 
-class _ItemsPageState extends State<ItemsPage> {
+class _EquipmentPageState extends State<EquipmentPage> {
   final TextEditingController _searchController = TextEditingController();
   int? _expandedId;
 
@@ -37,13 +37,13 @@ class _ItemsPageState extends State<ItemsPage> {
     if (query.isEmpty) {
       indexes = <int>[];
       for (var i = 0; i < widget.store.draft.count; i++) {
-        if (widget.store.draft.types[i] == quoteLineItem) {
-          final int catalogIndex = widget.store.items.indexOfId(widget.store.draft.refIds[i]);
+        if (widget.store.draft.types[i] == quoteLineEquipment) {
+          final int catalogIndex = widget.store.equipment.indexOfId(widget.store.draft.refIds[i]);
           if (catalogIndex >= 0) indexes.add(catalogIndex);
         }
       }
     } else {
-      indexes = widget.store.items.searchIndexes(query);
+      indexes = widget.store.equipment.searchIndexes(query);
     }
 
     return AppShell(
@@ -55,7 +55,7 @@ class _ItemsPageState extends State<ItemsPage> {
             FlowHeader(
               title: "Equipment",
               stepIndex: 2,
-              total: _draftTotalFor(quoteLineItem),
+              total: _draftTotalFor(quoteLineEquipment),
               totalLabel: "Equipment Total",
               onBack: () => widget.router.goTo(
                 QuoteFlowRoute(QuoteStep.services, selectedClientId: widget.selectedClientId),
@@ -79,26 +79,26 @@ class _ItemsPageState extends State<ItemsPage> {
                       const SizedBox(height: 10),
                       for (final int index in indexes)
                         CatalogCard(
-                          name: widget.store.items.nameAt(index),
-                          description: widget.store.items.descriptionAt(index),
-                          price: formatMoney(widget.store.items.priceCentsAt(index)),
-                          icon: _catalogIcon(widget.store.items.nameAt(index)),
-                          expanded: _expandedId == widget.store.items.idAt(index),
-                          selectedQuantity: _draftQuantity(widget.store.items.idAt(index)),
+                          name: widget.store.equipment.nameAt(index),
+                          description: widget.store.equipment.descriptionAt(index),
+                          price: formatMoney(widget.store.equipment.priceCentsAt(index)),
+                          icon: _catalogIcon(widget.store.equipment.nameAt(index)),
+                          expanded: _expandedId == widget.store.equipment.idAt(index),
+                          selectedQuantity: _draftQuantity(widget.store.equipment.idAt(index)),
                           onToggle: () => setState(() {
-                            final int id = widget.store.items.idAt(index);
+                            final int id = widget.store.equipment.idAt(index);
                             _expandedId = _expandedId == id ? null : id;
                           }),
-                          onAdd: () => _addDraftLine(widget.store.items.idAt(index)),
+                          onAdd: () => _addDraftLine(widget.store.equipment.idAt(index)),
                           onDecrease: () =>
-                              _changeDraftQuantity(widget.store.items.idAt(index), -1),
-                          onIncrease: () => _changeDraftQuantity(widget.store.items.idAt(index), 1),
-                          onRemove: () => _removeDraftLine(widget.store.items.idAt(index)),
+                              _changeDraftQuantity(widget.store.equipment.idAt(index), -1),
+                          onIncrease: () => _changeDraftQuantity(widget.store.equipment.idAt(index), 1),
+                          onRemove: () => _removeDraftLine(widget.store.equipment.idAt(index)),
                         ),
                       AddCard(
                         label: "Add new equipment",
                         onTap: () => widget.router.goTo(
-                          ItemCreateRoute(selectedClientId: widget.selectedClientId),
+                          EquipmentCreateRoute(selectedClientId: widget.selectedClientId),
                         ),
                       ),
                     ],
@@ -113,7 +113,7 @@ class _ItemsPageState extends State<ItemsPage> {
   }
 
   int _draftQuantity(int refId) {
-    final int index = widget.store.draft.lineIndex(quoteLineItem, refId);
+    final int index = widget.store.draft.lineIndex(quoteLineEquipment, refId);
     return index < 0 ? 0 : widget.store.draft.quantities[index];
   }
 
@@ -127,13 +127,13 @@ class _ItemsPageState extends State<ItemsPage> {
 
   void _addDraftLine(int refId) {
     setState(_searchController.clear);
-    final bool ok = widget.store.addDraftLine(quoteLineItem, refId, 1);
+    final bool ok = widget.store.addDraftLine(quoteLineEquipment, refId, 1);
     if (!ok) _showSnack(widget.store.latestErrorMessage());
   }
 
   void _changeDraftQuantity(int refId, int delta) {
     setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(quoteLineItem, refId);
+    final int index = widget.store.draft.lineIndex(quoteLineEquipment, refId);
     if (index < 0) {
       if (delta > 0) _addDraftLine(refId);
       return;
@@ -144,7 +144,7 @@ class _ItemsPageState extends State<ItemsPage> {
 
   void _removeDraftLine(int refId) {
     setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(quoteLineItem, refId);
+    final int index = widget.store.draft.lineIndex(quoteLineEquipment, refId);
     if (index >= 0 && !widget.store.removeDraftLine(index)) {
       _showSnack(widget.store.latestErrorMessage());
     }

@@ -64,7 +64,7 @@ class _ServicesPageState extends State<ServicesPage> {
                   QuoteFlowRoute(QuoteStep.client, selectedClientId: widget.selectedClientId),
                 ),
                 onContinue: () => widget.router.goTo(
-                  QuoteFlowRoute(QuoteStep.items, selectedClientId: widget.selectedClientId),
+                  QuoteFlowRoute(QuoteStep.equipment, selectedClientId: widget.selectedClientId),
                 ),
               ),
               Expanded(

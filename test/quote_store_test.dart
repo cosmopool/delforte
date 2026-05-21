@@ -28,12 +28,12 @@ void main() {
 
       expect(await store.open(), isTrue);
       expect(store.clients.count, 0);
-      expect(store.items.count, 0);
+      expect(store.equipment.count, 0);
       expect(store.services.count, 0);
       expect(store.quotes.count, 0);
       expect(store.clients.idAt(0), 0);
       expect(store.clients.nameAt(0), "");
-      expect(store.items.priceCentsAt(0), 0);
+      expect(store.equipment.priceCentsAt(0), 0);
       expect(store.errors.count, 0);
     });
 
@@ -69,23 +69,23 @@ void main() {
       addTearDown(store.dispose);
       expect(await store.open(), isTrue);
 
-      expect(store.addItem("Camera", "4MP", 42000, 0), isTrue);
+      expect(store.addEquipment("Camera", "4MP", 42000, 0), isTrue);
       expect(store.addService("Install", "Point", 28000, 0), isTrue);
-      final int itemId = store.items.idAt(0);
+      final int itemId = store.equipment.idAt(0);
       final int serviceId = store.services.idAt(0);
 
-      expect(store.addDraftLine(quoteLineItem, itemId, 2), isTrue);
+      expect(store.addDraftLine(quoteLineEquipment, itemId, 2), isTrue);
       expect(store.addDraftLine(quoteLineService, serviceId, 1), isTrue);
       expect(store.draft.computeTotals(), 112000);
 
-      expect(store.updateItem(itemId, "Camera Pro", "8MP", 50000, 0), isTrue);
-      expect(store.nameFor(quoteLineItem, itemId), "Camera Pro");
+      expect(store.updateEquipment(itemId, "Camera Pro", "8MP", 50000, 0), isTrue);
+      expect(store.nameFor(quoteLineEquipment, itemId), "Camera Pro");
       expect(store.draft.computeTotals(), 128000);
 
       expect(store.deleteService(serviceId), isTrue);
       expect(store.services.count, 0);
       expect(store.draft.count, 1);
-      expect(store.draft.types[0], quoteLineItem);
+      expect(store.draft.types[0], quoteLineEquipment);
     });
 
     test("draft golden path computes totals and clamps quantities", () async {
@@ -93,11 +93,11 @@ void main() {
       addTearDown(store.dispose);
       expect(await store.open(), isTrue);
 
-      expect(store.addItem("DVR", "8 canais", 89000, 0), isTrue);
-      final int itemId = store.items.idAt(0);
+      expect(store.addEquipment("DVR", "8 canais", 89000, 0), isTrue);
+      final int itemId = store.equipment.idAt(0);
 
-      expect(store.addDraftLine(quoteLineItem, itemId, 1), isTrue);
-      expect(store.addDraftLine(quoteLineItem, itemId, 2), isTrue);
+      expect(store.addDraftLine(quoteLineEquipment, itemId, 1), isTrue);
+      expect(store.addDraftLine(quoteLineEquipment, itemId, 2), isTrue);
       expect(store.draft.count, 1);
       expect(store.draft.quantities[0], 3);
       expect(store.draft.subtotalCents[0], 267000);
@@ -117,9 +117,9 @@ void main() {
       expect(await store.open(), isTrue);
 
       expect(store.addClient("Client", "999", "", "Street", ""), isTrue);
-      expect(store.addItem("Camera", "4MP", 42000, 0), isTrue);
+      expect(store.addEquipment("Camera", "4MP", 42000, 0), isTrue);
       expect(store.addService("Install", "Point", 28000, 0), isTrue);
-      expect(store.addDraftLine(quoteLineItem, store.items.idAt(0), 4), isTrue);
+      expect(store.addDraftLine(quoteLineEquipment, store.equipment.idAt(0), 4), isTrue);
       expect(store.addDraftLine(quoteLineService, store.services.idAt(0), 4), isTrue);
 
       final int clientId = store.clients.idAt(0);
@@ -142,7 +142,7 @@ void main() {
       final QuoteStore first = QuoteStore(databasePath: path);
       expect(await first.open(), isTrue);
       expect(first.addClient("Persisted", "555", "", "Addr", "Town"), isTrue);
-      expect(first.addItem("Sensor", "Door", 12000, 0), isTrue);
+      expect(first.addEquipment("Sensor", "Door", 12000, 0), isTrue);
       first.dispose();
 
       final QuoteStore second = QuoteStore(databasePath: path);
@@ -150,9 +150,9 @@ void main() {
       expect(await second.open(), isTrue);
       expect(second.clients.count, 1);
       expect(second.clients.nameAt(0), "Persisted");
-      expect(second.items.count, 1);
-      expect(second.items.nameAt(0), "Sensor");
-      expect(second.items.priceCentsAt(0), 12000);
+      expect(second.equipment.count, 1);
+      expect(second.equipment.nameAt(0), "Sensor");
+      expect(second.equipment.priceCentsAt(0), 12000);
     });
 
     test("error cases return false and leave arrays unchanged", () async {
@@ -173,11 +173,11 @@ void main() {
       expect(store.updateClient(404, "Missing", "", "", "", ""), isFalse);
       expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
 
-      expect(store.addItem("Bad", "", -1, 0), isFalse);
-      expect(store.items.count, 0);
+      expect(store.addEquipment("Bad", "", -1, 0), isFalse);
+      expect(store.equipment.count, 0);
       expect(store.errors.codeAt(store.errors.count - 1), errInvalidInput);
 
-      expect(store.addDraftLine(quoteLineItem, 404, 1), isFalse);
+      expect(store.addDraftLine(quoteLineEquipment, 404, 1), isFalse);
       expect(store.draft.count, 0);
       expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
 
@@ -218,7 +218,7 @@ void main() {
       expect(await first.open(), isTrue);
       expect(first.addClient("CityTest", "", "", "St", "Town"), isTrue);
       expect(first.addUnit("un", "Unit"), isTrue);
-      expect(first.addItem("Box", "Small", 5000, first.units.idAt(0)), isTrue);
+      expect(first.addEquipment("Box", "Small", 5000, first.units.idAt(0)), isTrue);
       first.dispose();
 
       final QuoteStore second = QuoteStore(databasePath: path);
@@ -228,8 +228,8 @@ void main() {
       expect(second.clients.cityAt(0), "Town");
       expect(second.units.count, 1);
       expect(second.units.abbreviationAt(0), "un");
-      expect(second.items.count, 1);
-      expect(second.items.unitIdAt(0), second.units.idAt(0));
+      expect(second.equipment.count, 1);
+      expect(second.equipment.unitIdAt(0), second.units.idAt(0));
     });
 
     test("saveQuote rejects empty draft for valid client", () async {
@@ -334,9 +334,9 @@ void main() {
       addTearDown(store.dispose);
       expect(await store.open(), isTrue);
 
-      expect(store.addItem("Camera Pro", "8MP dome", 50000, 0), isTrue);
-      expect(store.addItem("DVR", "16 channel recorder", 89000, 0), isTrue);
-      expect(store.addItem("Cable", "RG6 coaxial", 3000, 0), isTrue);
+      expect(store.addEquipment("Camera Pro", "8MP dome", 50000, 0), isTrue);
+      expect(store.addEquipment("DVR", "16 channel recorder", 89000, 0), isTrue);
+      expect(store.addEquipment("Cable", "RG6 coaxial", 3000, 0), isTrue);
 
       expect(store.addClient("Alpha Corp", "111", "a@x.com", "Rua A", "City A"), isTrue);
       expect(store.addClient("Beta Ltd", "222", "b@x.com", "Rua B", "City B"), isTrue);
@@ -347,10 +347,10 @@ void main() {
       expect(store.addPaymentMethod("PIX"), isTrue);
       expect(store.addPaymentMethod("Credit Card"), isTrue);
 
-      expect(store.items.searchIndexes(""), [0, 1, 2]);
-      expect(store.items.searchIndexes("camera"), [0]);
-      expect(store.items.searchIndexes("recorder"), [1]);
-      expect(store.items.searchIndexes("MISSING"), isEmpty);
+      expect(store.equipment.searchIndexes(""), [0, 1, 2]);
+      expect(store.equipment.searchIndexes("camera"), [0]);
+      expect(store.equipment.searchIndexes("recorder"), [1]);
+      expect(store.equipment.searchIndexes("MISSING"), isEmpty);
 
       expect(store.clients.searchIndexes(""), [0, 1]);
       expect(store.clients.searchIndexes("alpha"), [0]);

@@ -21,8 +21,8 @@ const int initialCap = 256;
 /// Maximum number of rows mirrored in memory per table.
 const int maxLimit = 10000;
 
-/// Quote line type for catalog items.
-const int quoteLineItem = 0;
+/// Quote line type for catalog equipment.
+const int quoteLineEquipment = 0;
 
 /// Quote line type for catalog services.
 const int quoteLineService = 1;
@@ -48,7 +48,7 @@ class QuoteStore {
   /// If [databasePath] is omitted, [open] uses the app documents directory.
   QuoteStore({String? databasePath})
     : _databasePath = databasePath,
-      items = ItemData(maxLimit),
+      equipments = ItemData(maxLimit),
       services = ItemData(maxLimit),
       clients = ClientData(maxLimit),
       quotes = QuoteData(maxLimit),
@@ -60,8 +60,8 @@ class QuoteStore {
       quoteDefaults = QuoteDefaultsData(),
       pdfSettings = PdfSettingsData();
 
-  /// Item rows mirrored from SQLite.
-  final ItemData items;
+  /// Equipment rows mirrored from SQLite.
+  final ItemData equipments;
 
   /// Service rows mirrored from SQLite.
   final ItemData services;
@@ -93,8 +93,8 @@ class QuoteStore {
   /// PDF appearance settings singleton mirrored from SQLite.
   final PdfSettingsData pdfSettings;
 
-  /// Notifies when [items] changes.
-  final StoreNotifier itemsNotifier = StoreNotifier();
+  /// Notifies when [equipments] changes.
+  final StoreNotifier equipmentNotifier = StoreNotifier();
 
   /// Notifies when [services] changes.
   final StoreNotifier servicesNotifier = StoreNotifier();
@@ -152,7 +152,7 @@ class QuoteStore {
   /// Closes SQLite and disposes all notifiers.
   void dispose() {
     _db?.close();
-    itemsNotifier.dispose();
+    equipmentNotifier.dispose();
     servicesNotifier.dispose();
     clientsNotifier.dispose();
     unitsNotifier.dispose();
@@ -222,8 +222,8 @@ class QuoteStore {
     }
   }
 
-  /// Inserts an item and mirrors it into [items].
-  bool addItem(String name, String description, int priceCents, int unitId) {
+  /// Inserts equipment and mirrors it into [equipments].
+  bool addEquipment(String name, String description, int priceCents, int unitId) {
     return _addCatalog(false, name, description, priceCents, unitId);
   }
 
@@ -232,8 +232,8 @@ class QuoteStore {
     return _addCatalog(true, name, description, priceCents, unitId);
   }
 
-  /// Updates an item by [id].
-  bool updateItem(int id, String name, String description, int priceCents, int unitId) {
+  /// Updates equipment by [id].
+  bool updateEquipment(int id, String name, String description, int priceCents, int unitId) {
     return _updateCatalog(false, id, name, description, priceCents, unitId);
   }
 
@@ -242,8 +242,8 @@ class QuoteStore {
     return _updateCatalog(true, id, name, description, priceCents, unitId);
   }
 
-  /// Deletes an item by [id] and removes matching draft lines.
-  bool deleteItem(int id) {
+  /// Deletes equipment by [id] and removes matching draft lines.
+  bool deleteEquipment(int id) {
     return _deleteCatalog(false, id);
   }
 
@@ -345,7 +345,7 @@ class QuoteStore {
 
   /// Returns the catalog price for [type] and [refId], or `-1` if missing.
   int priceFor(int type, int refId) {
-    final ItemData data = type == quoteLineService ? services : items;
+    final ItemData data = type == quoteLineService ? services : equipments;
     final int index = data.indexOfId(refId);
     if (index < 0) return -1;
     return data.priceCents[index];
@@ -353,7 +353,7 @@ class QuoteStore {
 
   /// Returns the catalog name for [type] and [refId], or `""` if missing.
   String nameFor(int type, int refId) {
-    final ItemData data = type == quoteLineService ? services : items;
+    final ItemData data = type == quoteLineService ? services : equipments;
     final int index = data.indexOfId(refId);
     if (index < 0) return "";
     return data.names[index];
@@ -361,7 +361,7 @@ class QuoteStore {
 
   /// Returns the catalog description for [type] and [refId], or `""` if missing.
   String descriptionFor(int type, int refId) {
-    final ItemData data = type == quoteLineService ? services : items;
+    final ItemData data = type == quoteLineService ? services : equipments;
     final int index = data.indexOfId(refId);
     if (index < 0) return "";
     return data.descriptions[index];
@@ -440,11 +440,11 @@ class QuoteStore {
   bool _addCatalog(bool isService, String name, String description, int priceCents, int unitId) {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
-    final ItemData data = isService ? services : items;
+    final ItemData data = isService ? services : equipments;
     if (data.count >= maxLimit) return _fail(errCapReached, "Catalog cap reached");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
-    final String table = isService ? "services" : "items";
+    final String table = isService ? "services" : "equipments";
     try {
       db.execute(
         "INSERT INTO $table (name, description, price_cents, unit_id) VALUES (?, ?, ?, ?)",
@@ -454,7 +454,7 @@ class QuoteStore {
       if (!data.append(id, name, description, priceCents, unitId)) {
         return _fail(errCapReached, "Catalog RAM cap reached");
       }
-      (isService ? servicesNotifier : itemsNotifier).markChanged();
+      (isService ? servicesNotifier : equipmentNotifier).markChanged();
       return true;
     } catch (error) {
       return _fail(errSqlWrite, error.toString());
@@ -471,25 +471,25 @@ class QuoteStore {
   ) {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
-    final ItemData data = isService ? services : items;
+    final ItemData data = isService ? services : equipments;
     if (data.indexOfId(id) < 0) return _fail(errMissingId, "Catalog missing");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
-    final String table = isService ? "services" : "items";
+    final String table = isService ? "services" : "equipments";
     try {
       db.execute(
         "UPDATE $table SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?",
         [name, description, priceCents, unitId, id],
       );
       data.update(id, name, description, priceCents, unitId);
-      final int type = isService ? quoteLineService : quoteLineItem;
+      final int type = isService ? quoteLineService : quoteLineEquipment;
       final int draftIndex = draft.lineIndex(type, id);
       if (draftIndex >= 0) {
         draft.unitPriceCents[draftIndex] = priceCents;
         draft.setQuantity(draftIndex, draft.quantities[draftIndex]);
         quoteDraftNotifier.markChanged();
       }
-      (isService ? servicesNotifier : itemsNotifier).markChanged();
+      (isService ? servicesNotifier : equipmentNotifier).markChanged();
       return true;
     } catch (error) {
       return _fail(errSqlWrite, error.toString());
@@ -497,17 +497,17 @@ class QuoteStore {
   }
 
   bool _deleteCatalog(bool isService, int id) {
-    final ItemData data = isService ? services : items;
+    final ItemData data = isService ? services : equipments;
     if (data.indexOfId(id) < 0) return _fail(errMissingId, "Catalog missing");
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
-    final String table = isService ? "services" : "items";
+    final String table = isService ? "services" : "equipments";
     try {
       db.execute("DELETE FROM $table WHERE id = ?", [id]);
       data.deleteById(id);
-      final int type = isService ? quoteLineService : quoteLineItem;
+      final int type = isService ? quoteLineService : quoteLineEquipment;
       draft.removeCatalogRef(type, id);
-      (isService ? servicesNotifier : itemsNotifier).markChanged();
+      (isService ? servicesNotifier : equipmentNotifier).markChanged();
       quoteDraftNotifier.markChanged();
       return true;
     } catch (error) {
@@ -534,7 +534,7 @@ CREATE TABLE units (
   abbreviation  TEXT NOT NULL,
   description   TEXT NOT NULL DEFAULT ''
 );
-CREATE TABLE items (
+CREATE TABLE equipments (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   name         TEXT NOT NULL,
   description  TEXT NOT NULL DEFAULT '',
@@ -615,7 +615,7 @@ PRAGMA user_version = 1;
       if (!_loadPdfSettings(db)) return false;
       clientsNotifier.markChanged();
       unitsNotifier.markChanged();
-      itemsNotifier.markChanged();
+      equipmentNotifier.markChanged();
       servicesNotifier.markChanged();
       quotesNotifier.markChanged();
       paymentMethodsNotifier.markChanged();
@@ -664,8 +664,8 @@ PRAGMA user_version = 1;
   }
 
   bool _loadCatalog(Database db, bool isService) {
-    final String table = isService ? "services" : "items";
-    final ItemData data = isService ? services : items;
+    final String table = isService ? "services" : "equipments";
+    final ItemData data = isService ? services : equipments;
     final ResultSet rows = db.select(
       "SELECT id, name, description, price_cents, unit_id FROM $table ORDER BY id DESC",
     );

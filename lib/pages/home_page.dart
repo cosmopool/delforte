@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
     return AnimatedBuilder(
       animation: Listenable.merge([
         store.clientsNotifier,
-        store.itemsNotifier,
+        store.equipmentNotifier,
         store.servicesNotifier,
         store.quotesNotifier,
         store.quoteDraftNotifier,

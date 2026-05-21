@@ -1,8 +1,8 @@
 import "package:delforte/pages/client_create_page.dart";
 import "package:delforte/pages/client_select_page.dart";
 import "package:delforte/pages/home_page.dart";
-import "package:delforte/pages/item_create_page.dart";
-import "package:delforte/pages/items_page.dart";
+import "package:delforte/pages/equipment_create_page.dart";
+import "package:delforte/pages/equipment_page.dart";
 import "package:delforte/pages/quotes_list_page.dart";
 import "package:delforte/pages/review_page.dart";
 import "package:delforte/pages/send_page.dart";
@@ -47,7 +47,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         router: this,
         selectedClientId: selectedClientId,
       ),
-      ItemCreateRoute(:final int? selectedClientId) => ItemCreatePage(
+      EquipmentCreateRoute(:final int? selectedClientId) => EquipmentCreatePage(
         store: store,
         router: this,
         selectedClientId: selectedClientId,
@@ -70,7 +70,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         router: this,
         selectedClientId: selectedClientId,
       ),
-      QuoteStep.items => ItemsPage(store: store, router: this, selectedClientId: selectedClientId),
+      QuoteStep.equipment => EquipmentPage(store: store, router: this, selectedClientId: selectedClientId),
       QuoteStep.review => ReviewPage(
         store: store,
         router: this,
@@ -108,8 +108,8 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         _currentRoute = QuoteFlowRoute(QuoteStep.services, selectedClientId: selectedClientId);
         notifyListeners();
         return Future.value(true);
-      case ItemCreateRoute(:final int? selectedClientId):
-        _currentRoute = QuoteFlowRoute(QuoteStep.items, selectedClientId: selectedClientId);
+      case EquipmentCreateRoute(:final int? selectedClientId):
+        _currentRoute = QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId);
         notifyListeners();
         return Future.value(true);
       case QuotesListRoute():

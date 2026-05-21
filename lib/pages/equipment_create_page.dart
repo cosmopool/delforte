@@ -10,8 +10,8 @@ import "package:delforte/store/item_data.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
-class ItemCreatePage extends StatefulWidget {
-  const ItemCreatePage({
+class EquipmentCreatePage extends StatefulWidget {
+  const EquipmentCreatePage({
     required this.store,
     required this.router,
     this.selectedClientId,
@@ -23,10 +23,10 @@ class ItemCreatePage extends StatefulWidget {
   final int? selectedClientId;
 
   @override
-  State<ItemCreatePage> createState() => _ItemCreatePageState();
+  State<EquipmentCreatePage> createState() => _EquipmentCreatePageState();
 }
 
-class _ItemCreatePageState extends State<ItemCreatePage> {
+class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
   final TextEditingController _name = TextEditingController();
   final TextEditingController _description = TextEditingController();
   final TextEditingController _price = TextEditingController();
@@ -46,9 +46,9 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
       body: Column(
         children: [
           FlowHeader(
-            title: "New Item",
+            title: "New Equipment",
             onBack: () => widget.router.goTo(
-              QuoteFlowRoute(QuoteStep.items, selectedClientId: widget.selectedClientId),
+              QuoteFlowRoute(QuoteStep.equipment, selectedClientId: widget.selectedClientId),
             ),
           ),
           Expanded(
@@ -57,7 +57,7 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
               children: [
                 const FormSectionDivider(label: "Product"),
                 const SizedBox(height: 16),
-                FormFieldWidget(controller: _name, label: "Item Name", hint: "e.g. IP Camera 4MP"),
+                FormFieldWidget(controller: _name, label: "Equipment Name", hint: "e.g. IP Camera 4MP"),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _description,
@@ -92,7 +92,7 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                PrimaryButton(label: "Save Item", icon: Icons.check_rounded, onPressed: _save),
+                PrimaryButton(label: "Save Equipment", icon: Icons.check_rounded, onPressed: _save),
               ],
             ),
           ),
@@ -104,26 +104,26 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
   void _save() {
     final String name = _name.text.trim();
     if (name.isEmpty) {
-      _showSnack("Item name is required");
+      _showSnack("Equipment name is required");
       return;
     }
     final int cents = _parseMoneyCents(_price.text);
-    final bool catalogSaved = widget.store.addItem(name, _description.text.trim(), cents, _unitId);
+    final bool catalogSaved = widget.store.addEquipment(name, _description.text.trim(), cents, _unitId);
     if (!catalogSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;
     }
 
-    final ItemData data = widget.store.items;
+    final ItemData data = widget.store.equipment;
     final int insertedId = data.idAt(data.count - 1);
-    const int quoteLineItem = 0;
-    final bool lineSaved = widget.store.addDraftLine(quoteLineItem, insertedId, 1);
+    const int quoteLineEquipment = 0;
+    final bool lineSaved = widget.store.addDraftLine(quoteLineEquipment, insertedId, 1);
     if (!lineSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;
     }
 
-    widget.router.goTo(QuoteFlowRoute(QuoteStep.items, selectedClientId: widget.selectedClientId));
+    widget.router.goTo(QuoteFlowRoute(QuoteStep.equipment, selectedClientId: widget.selectedClientId));
   }
 
   void _showSnack(String message) {

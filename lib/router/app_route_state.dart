@@ -22,8 +22,8 @@ class ServiceCreateRoute extends AppRoute {
   final int? selectedClientId;
 }
 
-class ItemCreateRoute extends AppRoute {
-  const ItemCreateRoute({this.selectedClientId});
+class EquipmentCreateRoute extends AppRoute {
+  const EquipmentCreateRoute({this.selectedClientId});
   final int? selectedClientId;
 }
 
@@ -39,13 +39,13 @@ class SettingsRoute extends AppRoute {
   const SettingsRoute();
 }
 
-enum QuoteStep { client, services, items, review, send }
+enum QuoteStep { client, services, equipment, review, send }
 
 extension QuoteStepX on QuoteStep {
   int get index => switch (this) {
     QuoteStep.client => 0,
     QuoteStep.services => 1,
-    QuoteStep.items => 2,
+    QuoteStep.equipment => 2,
     QuoteStep.review => 3,
     QuoteStep.send => 4,
   };
@@ -53,7 +53,7 @@ extension QuoteStepX on QuoteStep {
   String get label => switch (this) {
     QuoteStep.client => "Client",
     QuoteStep.services => "Services",
-    QuoteStep.items => "Items",
+    QuoteStep.equipment => "Equipment",
     QuoteStep.review => "Review",
     QuoteStep.send => "Send",
   };
@@ -61,15 +61,15 @@ extension QuoteStepX on QuoteStep {
   QuoteStep? get previous => switch (this) {
     QuoteStep.client => null,
     QuoteStep.services => QuoteStep.client,
-    QuoteStep.items => QuoteStep.services,
-    QuoteStep.review => QuoteStep.items,
+    QuoteStep.equipment => QuoteStep.services,
+    QuoteStep.review => QuoteStep.equipment,
     QuoteStep.send => QuoteStep.review,
   };
 
   QuoteStep? get next => switch (this) {
     QuoteStep.client => QuoteStep.services,
-    QuoteStep.services => QuoteStep.items,
-    QuoteStep.items => QuoteStep.review,
+    QuoteStep.services => QuoteStep.equipment,
+    QuoteStep.equipment => QuoteStep.review,
     QuoteStep.review => QuoteStep.send,
     QuoteStep.send => null,
   };
