@@ -47,62 +47,67 @@ class _ItemsPageState extends State<ItemsPage> {
     }
 
     return AppShell(
-      body: Column(
-        children: [
-          FlowHeader(
-            title: "Equipment",
-            stepIndex: 2,
-            total: _draftTotalFor(quoteLineItem),
-            totalLabel: "Equipment Total",
-            onBack: () => widget.router.goTo(
-              QuoteFlowRoute(QuoteStep.services, selectedClientId: widget.selectedClientId),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: Column(
+          children: [
+            FlowHeader(
+              title: "Equipment",
+              stepIndex: 2,
+              total: _draftTotalFor(quoteLineItem),
+              totalLabel: "Equipment Total",
+              onBack: () => widget.router.goTo(
+                QuoteFlowRoute(QuoteStep.services, selectedClientId: widget.selectedClientId),
+              ),
+              onContinue: () => widget.router.goTo(
+                QuoteFlowRoute(QuoteStep.review, selectedClientId: widget.selectedClientId),
+              ),
             ),
-            onContinue: () => widget.router.goTo(
-              QuoteFlowRoute(QuoteStep.review, selectedClientId: widget.selectedClientId),
-            ),
-          ),
-          Expanded(
-            child: ListenableBuilder(
-              listenable: widget.store.quoteDraftNotifier,
-              builder: (BuildContext context, Widget? _) {
-                return ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    SearchField(
-                      controller: _searchController,
-                      hintText: "Search to add equipment...",
-                      onChanged: (name) => setState(() {}),
-                    ),
-                    const SizedBox(height: 10),
-                    for (final int index in indexes)
-                      CatalogCard(
-                        name: widget.store.items.nameAt(index),
-                        description: widget.store.items.descriptionAt(index),
-                        price: formatMoney(widget.store.items.priceCentsAt(index)),
-                        icon: _catalogIcon(widget.store.items.nameAt(index)),
-                        expanded: _expandedId == widget.store.items.idAt(index),
-                        selectedQuantity: _draftQuantity(widget.store.items.idAt(index)),
-                        onToggle: () => setState(() {
-                          final int id = widget.store.items.idAt(index);
-                          _expandedId = _expandedId == id ? null : id;
-                        }),
-                        onAdd: () => _addDraftLine(widget.store.items.idAt(index)),
-                        onDecrease: () => _changeDraftQuantity(widget.store.items.idAt(index), -1),
-                        onIncrease: () => _changeDraftQuantity(widget.store.items.idAt(index), 1),
-                        onRemove: () => _removeDraftLine(widget.store.items.idAt(index)),
+            Expanded(
+              child: ListenableBuilder(
+                listenable: widget.store.quoteDraftNotifier,
+                builder: (BuildContext context, Widget? _) {
+                  return ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      SearchField(
+                        controller: _searchController,
+                        hintText: "Search to add equipment...",
+                        onChanged: (name) => setState(() {}),
                       ),
-                    AddCard(
-                      label: "Add new equipment",
-                      onTap: () => widget.router.goTo(
-                        ItemCreateRoute(selectedClientId: widget.selectedClientId),
+                      const SizedBox(height: 10),
+                      for (final int index in indexes)
+                        CatalogCard(
+                          name: widget.store.items.nameAt(index),
+                          description: widget.store.items.descriptionAt(index),
+                          price: formatMoney(widget.store.items.priceCentsAt(index)),
+                          icon: _catalogIcon(widget.store.items.nameAt(index)),
+                          expanded: _expandedId == widget.store.items.idAt(index),
+                          selectedQuantity: _draftQuantity(widget.store.items.idAt(index)),
+                          onToggle: () => setState(() {
+                            final int id = widget.store.items.idAt(index);
+                            _expandedId = _expandedId == id ? null : id;
+                          }),
+                          onAdd: () => _addDraftLine(widget.store.items.idAt(index)),
+                          onDecrease: () =>
+                              _changeDraftQuantity(widget.store.items.idAt(index), -1),
+                          onIncrease: () => _changeDraftQuantity(widget.store.items.idAt(index), 1),
+                          onRemove: () => _removeDraftLine(widget.store.items.idAt(index)),
+                        ),
+                      AddCard(
+                        label: "Add new equipment",
+                        onTap: () => widget.router.goTo(
+                          ItemCreateRoute(selectedClientId: widget.selectedClientId),
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

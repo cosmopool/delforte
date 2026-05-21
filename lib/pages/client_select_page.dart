@@ -46,41 +46,45 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
   @override
   Widget build(BuildContext context) {
     return AppShell(
-      body: Column(
-        children: [
-          FlowHeader(
-            title: "Select Client",
-            stepIndex: 0,
-            onBack: () => widget.router.goTo(const HomeRoute()),
-            onContinue: _selectedClientId == null
-                ? null
-                : () {
-                    widget.store.draft.clientId = _selectedClientId!;
-                    widget.router.goTo(
-                      QuoteFlowRoute(QuoteStep.services, selectedClientId: _selectedClientId),
-                    );
-                  },
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                SearchField(
-                  controller: _searchController,
-                  hintText: "Search clients...",
-                  onChanged: (_) => setState(() {}),
-                ),
-                const SizedBox(height: 10),
-                for (final int index in indexes) _clientCard(index),
-                AddCard(
-                  label: "Add new client",
-                  onTap: () =>
-                      widget.router.goTo(ClientCreateRoute(selectedClientId: _selectedClientId)),
-                ),
-              ],
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: Column(
+          children: [
+            FlowHeader(
+              title: "Select Client",
+              stepIndex: 0,
+              onBack: () => widget.router.goTo(const HomeRoute()),
+              onContinue: _selectedClientId == null
+                  ? null
+                  : () {
+                      widget.store.draft.clientId = _selectedClientId!;
+                      widget.router.goTo(
+                        QuoteFlowRoute(QuoteStep.services, selectedClientId: _selectedClientId),
+                      );
+                    },
             ),
-          ),
-        ],
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  SearchField(
+                    controller: _searchController,
+                    hintText: "Search clients...",
+                    onChanged: (_) => setState(() {}),
+                  ),
+                  const SizedBox(height: 10),
+                  for (final int index in indexes) _clientCard(index),
+                  AddCard(
+                    label: "Add new client",
+                    onTap: () =>
+                        widget.router.goTo(ClientCreateRoute(selectedClientId: _selectedClientId)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
