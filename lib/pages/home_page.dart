@@ -6,6 +6,7 @@ import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class HomePage extends StatelessWidget {
@@ -79,7 +80,7 @@ class HomePage extends StatelessWidget {
                         QuoteCard(
                           clientName: _clientNameById(store.quotes.clientIdAt(i)),
                           meta: _dateLabel(store.quotes.timestampAt(i)),
-                          total: _formatMoney(store.quotes.totalCentsAt(i)),
+                          total: formatMoney(store.quotes.totalCentsAt(i)),
                           status: "Saved",
                           statusColor: VigilColors.success,
                           statusBg: VigilColors.successSoft,
@@ -107,20 +108,6 @@ class HomePage extends StatelessWidget {
       return "Today";
     }
     return "${date.month.toString().padLeft(2, "0")}/${date.day.toString().padLeft(2, "0")}/${date.year}";
-  }
-
-  String _formatMoney(int cents) {
-    final int safe = cents < 0 ? 0 : cents;
-    final int whole = safe ~/ 100;
-    final int decimal = safe % 100;
-    final String raw = whole.toString();
-    final StringBuffer buffer = StringBuffer();
-    for (var i = 0; i < raw.length; i++) {
-      final int remaining = raw.length - i;
-      buffer.write(raw[i]);
-      if (remaining > 1 && remaining % 3 == 1) buffer.write(".");
-    }
-    return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
   }
 }
 

@@ -7,6 +7,7 @@ import "package:delforte/design_system/widgets/search_field_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class ClientSelectPage extends StatefulWidget {
@@ -119,7 +120,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
               child: Row(
                 children: [
-                  InitialsAvatar(text: _initials(name), selected: selected),
+                  InitialsAvatar(text: initials(name), selected: selected),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -151,16 +152,5 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
         ),
       ),
     );
-  }
-
-  String _initials(String value) {
-    final List<String> parts = value
-        .trim()
-        .split(RegExp(r"\s+"))
-        .where((part) => part.isNotEmpty)
-        .toList();
-    if (parts.isEmpty) return "--";
-    if (parts.length == 1) return parts.first.characters.take(2).toUpperCase().toString();
-    return "${parts.first.characters.first}${parts.last.characters.first}".toUpperCase();
   }
 }

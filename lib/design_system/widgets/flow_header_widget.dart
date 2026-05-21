@@ -1,4 +1,5 @@
 import "package:delforte/design_system.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 /// An icon button widget styled for use in flow headers.
@@ -42,25 +43,6 @@ class HeaderIconButton extends StatelessWidget {
       icon: Icon(icon, size: 17),
     );
   }
-}
-
-/// A header widget for multi-step flows or navigation screens.
-///
-/// This widget displays a title with optional back and continue buttons.
-/// It uses an ink background color and supports step indicators.
-/// The header is designed for use in multi-step workflows.
-String _formatMoney(int cents) {
-  final int safe = cents < 0 ? 0 : cents;
-  final int whole = safe ~/ 100;
-  final int decimal = safe % 100;
-  final String raw = whole.toString();
-  final StringBuffer buffer = StringBuffer();
-  for (var i = 0; i < raw.length; i++) {
-    final int remaining = raw.length - i;
-    buffer.write(raw[i]);
-    if (remaining > 1 && remaining % 3 == 1) buffer.write(".");
-  }
-  return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
 }
 
 /// A header widget for multi-step flows or navigation screens.
@@ -169,7 +151,7 @@ class FlowHeader extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    _formatMoney(total!),
+                    formatMoney(total!),
                     style: VigilType.body(
                       color: Colors.white.withValues(alpha: 0.85),
                       weight: FontWeight.w500,

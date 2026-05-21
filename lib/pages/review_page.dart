@@ -8,6 +8,7 @@ import "package:delforte/design_system/widgets/total_banner_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class ReviewPage extends StatelessWidget {
@@ -48,7 +49,7 @@ class ReviewPage extends StatelessWidget {
                       children: [
                         InitialsAvatar(
                           text: clientIndex >= 0
-                              ? _initials(store.clients.nameAt(clientIndex))
+                              ? initials(store.clients.nameAt(clientIndex))
                               : "--",
                           selected: false,
                         ),
@@ -108,7 +109,7 @@ class ReviewPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  TotalBanner(label: "Total", amount: _formatMoney(total)),
+                  TotalBanner(label: "Total", amount: formatMoney(total)),
                 ],
               ),
             ),
@@ -137,33 +138,8 @@ class ReviewPage extends StatelessWidget {
           DraftLineView(
             name: store.nameFor(type, store.draft.refIds[i]),
             quantity: store.draft.quantities[i],
-            subtotal: _formatMoney(store.draft.subtotalCents[i]),
+            subtotal: formatMoney(store.draft.subtotalCents[i]),
           ),
     ];
-  }
-
-  String _initials(String value) {
-    final List<String> parts = value
-        .trim()
-        .split(RegExp(r"\s+"))
-        .where((part) => part.isNotEmpty)
-        .toList();
-    if (parts.isEmpty) return "--";
-    if (parts.length == 1) return parts.first.characters.take(2).toUpperCase().toString();
-    return "${parts.first.characters.first}${parts.last.characters.first}".toUpperCase();
-  }
-
-  String _formatMoney(int cents) {
-    final int safe = cents < 0 ? 0 : cents;
-    final int whole = safe ~/ 100;
-    final int decimal = safe % 100;
-    final String raw = whole.toString();
-    final StringBuffer buffer = StringBuffer();
-    for (var i = 0; i < raw.length; i++) {
-      final int remaining = raw.length - i;
-      buffer.write(raw[i]);
-      if (remaining > 1 && remaining % 3 == 1) buffer.write(".");
-    }
-    return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
   }
 }

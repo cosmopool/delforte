@@ -6,6 +6,7 @@ import "package:delforte/design_system/widgets/secondary_button_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class SendPage extends StatefulWidget {
@@ -43,8 +44,8 @@ class _SendPageState extends State<SendPage> {
               children: [
                 ReadyCard(
                   title: "Quote Ready",
-                  subtitle: "Saved locally - $clientName - ${_formatMoney(total)}",
-                  chips: ["$serviceCount services", "$itemCount items", _formatMoney(total)],
+                  subtitle: "Saved locally - $clientName - ${formatMoney(total)}",
+                  chips: ["$serviceCount services", "$itemCount items", formatMoney(total)],
                 ),
                 const SizedBox(height: 10),
                 PrimaryButton(
@@ -96,19 +97,5 @@ class _SendPageState extends State<SendPage> {
   void _showSnack(BuildContext context, String message) {
     if (message.isEmpty) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  String _formatMoney(int cents) {
-    final int safe = cents < 0 ? 0 : cents;
-    final int whole = safe ~/ 100;
-    final int decimal = safe % 100;
-    final String raw = whole.toString();
-    final StringBuffer buffer = StringBuffer();
-    for (var i = 0; i < raw.length; i++) {
-      final int remaining = raw.length - i;
-      buffer.write(raw[i]);
-      if (remaining > 1 && remaining % 3 == 1) buffer.write(".");
-    }
-    return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
   }
 }

@@ -7,6 +7,7 @@ import "package:delforte/design_system/widgets/search_field_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class QuotesListPage extends StatefulWidget {
@@ -63,7 +64,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                     QuoteCard(
                       clientName: _clientNameById(widget.store.quotes.clientIdAt(index)),
                       meta: _dateLabel(widget.store.quotes.timestampAt(index)),
-                      total: _formatMoney(widget.store.quotes.totalCentsAt(index)),
+                      total: formatMoney(widget.store.quotes.totalCentsAt(index)),
                       status: "Saved",
                       statusColor: VigilColors.success,
                       statusBg: VigilColors.successSoft,
@@ -89,19 +90,5 @@ class _QuotesListPageState extends State<QuotesListPage> {
       return "Today";
     }
     return "${date.month.toString().padLeft(2, "0")}/${date.day.toString().padLeft(2, "0")}/${date.year}";
-  }
-
-  String _formatMoney(int cents) {
-    final int safe = cents < 0 ? 0 : cents;
-    final int whole = safe ~/ 100;
-    final int decimal = safe % 100;
-    final String raw = whole.toString();
-    final StringBuffer buffer = StringBuffer();
-    for (var i = 0; i < raw.length; i++) {
-      final int remaining = raw.length - i;
-      buffer.write(raw[i]);
-      if (remaining > 1 && remaining % 3 == 1) buffer.write(".");
-    }
-    return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
   }
 }

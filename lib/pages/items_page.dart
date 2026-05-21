@@ -6,6 +6,7 @@ import "package:delforte/design_system/widgets/search_field_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class ItemsPage extends StatefulWidget {
@@ -72,7 +73,7 @@ class _ItemsPageState extends State<ItemsPage> {
                       CatalogCard(
                         name: widget.store.items.nameAt(index),
                         description: widget.store.items.descriptionAt(index),
-                        price: _formatMoney(widget.store.items.priceCentsAt(index)),
+                        price: formatMoney(widget.store.items.priceCentsAt(index)),
                         icon: _catalogIcon(widget.store.items.nameAt(index)),
                         expanded: _expandedId == widget.store.items.idAt(index),
                         selectedQuantity: _draftQuantity(widget.store.items.idAt(index)),
@@ -150,19 +151,5 @@ class _ItemsPageState extends State<ItemsPage> {
     if (value.contains("gate") || value.contains("motor")) return Icons.garage_rounded;
     if (value.contains("panel")) return Icons.electrical_services_rounded;
     return Icons.inventory_2_rounded;
-  }
-
-  String _formatMoney(int cents) {
-    final int safe = cents < 0 ? 0 : cents;
-    final int whole = safe ~/ 100;
-    final int decimal = safe % 100;
-    final String raw = whole.toString();
-    final StringBuffer buffer = StringBuffer();
-    for (var i = 0; i < raw.length; i++) {
-      final int remaining = raw.length - i;
-      buffer.write(raw[i]);
-      if (remaining > 1 && remaining % 3 == 1) buffer.write(".");
-    }
-    return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
   }
 }
