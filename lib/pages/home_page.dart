@@ -30,9 +30,7 @@ class HomePage extends StatelessWidget {
         return AppShell(
           body: Column(
             children: [
-              _BrandHeader(
-                onSettings: () => router.goTo(const SettingsRoute()),
-              ),
+              _BrandHeader(onSettings: () => router.goTo(const SettingsRoute())),
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),

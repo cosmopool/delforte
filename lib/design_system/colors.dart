@@ -16,9 +16,5 @@ abstract final class VigilColors {
   static const Color border = Color(0x17101D40);
   static const Color borderStrong = Color(0x29101D40);
 
-  static const List<Color> appBackdrop = [
-    Color(0xFF060D22),
-    Color(0xFF142354),
-    Color(0xFF1A2E6B),
-  ];
+  static const List<Color> appBackdrop = [Color(0xFF060D22), Color(0xFF142354), Color(0xFF1A2E6B)];
 }

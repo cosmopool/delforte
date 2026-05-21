@@ -24,10 +24,7 @@ class MainApp extends StatelessWidget {
       builder: (context, child) {
         final SystemUiOverlayStyle? overlayStyle = Theme.of(context).appBarTheme.systemOverlayStyle;
         if (overlayStyle == null) return child!;
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: overlayStyle,
-          child: child!,
-        );
+        return AnnotatedRegion<SystemUiOverlayStyle>(value: overlayStyle, child: child!);
       },
       home: const AppMainWidget(),
     );

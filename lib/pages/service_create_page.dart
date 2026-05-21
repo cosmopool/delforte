@@ -96,11 +96,7 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                PrimaryButton(
-                  label: "Save Service",
-                  icon: Icons.check_rounded,
-                  onPressed: _save,
-                ),
+                PrimaryButton(label: "Save Service", icon: Icons.check_rounded, onPressed: _save),
               ],
             ),
           ),

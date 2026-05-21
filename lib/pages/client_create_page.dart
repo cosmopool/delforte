@@ -80,11 +80,7 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
                 const SizedBox(height: 16),
                 FormFieldWidget(controller: _city, label: "City", hint: "São Paulo"),
                 const SizedBox(height: 24),
-                PrimaryButton(
-                  label: "Save Client",
-                  icon: Icons.check_rounded,
-                  onPressed: _save,
-                ),
+                PrimaryButton(label: "Save Client", icon: Icons.check_rounded, onPressed: _save),
               ],
             ),
           ),

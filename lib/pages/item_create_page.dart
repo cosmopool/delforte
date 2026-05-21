@@ -57,11 +57,7 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
               children: [
                 const FormSectionDivider(label: "Product"),
                 const SizedBox(height: 16),
-                FormFieldWidget(
-                  controller: _name,
-                  label: "Item Name",
-                  hint: "e.g. IP Camera 4MP",
-                ),
+                FormFieldWidget(controller: _name, label: "Item Name", hint: "e.g. IP Camera 4MP"),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _description,
@@ -96,11 +92,7 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                PrimaryButton(
-                  label: "Save Item",
-                  icon: Icons.check_rounded,
-                  onPressed: _save,
-                ),
+                PrimaryButton(label: "Save Item", icon: Icons.check_rounded, onPressed: _save),
               ],
             ),
           ),
@@ -116,12 +108,7 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
       return;
     }
     final int cents = _parseMoneyCents(_price.text);
-    final bool catalogSaved = widget.store.addItem(
-      name,
-      _description.text.trim(),
-      cents,
-      _unitId,
-    );
+    final bool catalogSaved = widget.store.addItem(name, _description.text.trim(), cents, _unitId);
     if (!catalogSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;
@@ -136,9 +123,7 @@ class _ItemCreatePageState extends State<ItemCreatePage> {
       return;
     }
 
-    widget.router.goTo(
-      QuoteFlowRoute(QuoteStep.items, selectedClientId: widget.selectedClientId),
-    );
+    widget.router.goTo(QuoteFlowRoute(QuoteStep.items, selectedClientId: widget.selectedClientId));
   }
 
   void _showSnack(String message) {

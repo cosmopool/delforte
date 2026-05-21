@@ -78,8 +78,7 @@ class UnitData {
     }
     final List<int> result = <int>[];
     for (var i = 0; i < count; i++) {
-      if (abbreviations[i].toLowerCase().contains(q) ||
-          descriptions[i].toLowerCase().contains(q)) {
+      if (abbreviations[i].toLowerCase().contains(q) || descriptions[i].toLowerCase().contains(q)) {
         result.add(i);
       }
     }

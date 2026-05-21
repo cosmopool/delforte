@@ -2,12 +2,7 @@
 ///
 /// Exactly one row (id == 1) is expected in the backing table.
 class QuoteDefaultsData {
-  QuoteDefaultsData()
-    : id = 0,
-      paymentMethod = "",
-      validity = "",
-      warranty = "",
-      terms = "";
+  QuoteDefaultsData() : id = 0, paymentMethod = "", validity = "", warranty = "", terms = "";
 
   /// SQLite row id (always `1` when persisted).
   int id;

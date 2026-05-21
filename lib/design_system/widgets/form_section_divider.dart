@@ -18,11 +18,7 @@ class FormSectionDivider extends StatelessWidget {
         const SizedBox(width: 10),
         Text(
           label.toUpperCase(),
-          style: VigilType.small(
-            color: VigilColors.textMuted,
-            weight: FontWeight.w700,
-            size: 11,
-          ),
+          style: VigilType.small(color: VigilColors.textMuted, weight: FontWeight.w700, size: 11),
         ),
         const SizedBox(width: 10),
         const Expanded(child: Divider(height: 1, color: VigilColors.border)),

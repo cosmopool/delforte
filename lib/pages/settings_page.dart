@@ -83,10 +83,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     _initFromStore();
     return AppShell(
-      header: FlowHeader(
-        title: "Settings",
-        onBack: () => widget.router.goTo(const HomeRoute()),
-      ),
+      header: FlowHeader(title: "Settings", onBack: () => widget.router.goTo(const HomeRoute())),
       body: AnimatedBuilder(
         animation: widget.store.settingsNotifier,
         builder: (context, _) {
@@ -103,23 +100,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 hint: "Your company name",
               ),
               const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _cnpj,
-                label: "CNPJ",
-                hint: "00.000.000/0000-00",
-              ),
+              FormFieldWidget(controller: _cnpj, label: "CNPJ", hint: "00.000.000/0000-00"),
               const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _address,
-                label: "Address",
-                hint: "Street, number",
-              ),
+              FormFieldWidget(controller: _address, label: "Address", hint: "Street, number"),
               const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _city,
-                label: "City & State",
-                hint: "City — State",
-              ),
+              FormFieldWidget(controller: _city, label: "City & State", hint: "City — State"),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _phone,
@@ -143,11 +128,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 hint: "e.g. Bank Transfer (PIX)",
               ),
               const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _validity,
-                label: "Quote Validity",
-                hint: "e.g. 30 days",
-              ),
+              FormFieldWidget(controller: _validity, label: "Quote Validity", hint: "e.g. 30 days"),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _warranty,
@@ -181,11 +162,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: VigilType.small(color: VigilColors.textMuted, size: 11),
               ),
               const SizedBox(height: 24),
-              PrimaryButton(
-                label: "Save Settings",
-                icon: Icons.check_rounded,
-                onPressed: _save,
-              ),
+              PrimaryButton(label: "Save Settings", icon: Icons.check_rounded, onPressed: _save),
             ],
           );
         },
@@ -256,11 +233,7 @@ class _LogoPickerRow extends StatelessWidget {
             onPressed: () {},
             child: Text(
               "Upload",
-              style: VigilType.body(
-                color: VigilColors.primary,
-                size: 12,
-                weight: FontWeight.w600,
-              ),
+              style: VigilType.body(color: VigilColors.primary, size: 12, weight: FontWeight.w600),
             ),
           ),
         ],
@@ -280,10 +253,7 @@ class _FooterPreview extends StatelessWidget {
       decoration: BoxDecoration(
         color: VigilColors.inkElevated,
         borderRadius: VigilRadius.cardRadius,
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.06),
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06), width: 1.5),
       ),
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       child: AnimatedBuilder(
@@ -316,10 +286,7 @@ class _FooterPreview extends StatelessWidget {
                       children: [
                         Text(
                           info.name.isNotEmpty ? info.name : "Delforte Sistemas",
-                          style: VigilType.title(
-                            color: VigilColors.surface,
-                            size: 13,
-                          ),
+                          style: VigilType.title(color: VigilColors.surface, size: 13),
                         ),
                         const SizedBox(height: 1),
                         Text(
@@ -335,10 +302,7 @@ class _FooterPreview extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              Container(
-                height: 1,
-                color: Colors.white.withValues(alpha: 0.08),
-              ),
+              Container(height: 1, color: Colors.white.withValues(alpha: 0.08)),
               const SizedBox(height: 12),
               _FooterGrid(
                 items: [
@@ -346,10 +310,7 @@ class _FooterPreview extends StatelessWidget {
                     Icons.location_on_rounded,
                     "${info.address.isNotEmpty ? info.address : "Rua das Palmeiras, 200"} — ${info.state.isNotEmpty ? info.state : "SP"}",
                   ),
-                  (
-                    Icons.phone_rounded,
-                    info.phone.isNotEmpty ? info.phone : "+55 (11) 98888-0000",
-                  ),
+                  (Icons.phone_rounded, info.phone.isNotEmpty ? info.phone : "+55 (11) 98888-0000"),
                   (
                     Icons.mail_outline_rounded,
                     info.email.isNotEmpty ? info.email : "contato@delforte.com.br",
@@ -366,24 +327,20 @@ class _FooterPreview extends StatelessWidget {
                   ),
                   (
                     Icons.event_available_rounded,
-                    defaults.validity.isNotEmpty ? "Valid for ${defaults.validity}" : "Valid for 30 days",
+                    defaults.validity.isNotEmpty
+                        ? "Valid for ${defaults.validity}"
+                        : "Valid for 30 days",
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              Container(
-                height: 1,
-                color: Colors.white.withValues(alpha: 0.07),
-              ),
+              Container(height: 1, color: Colors.white.withValues(alpha: 0.07)),
               const SizedBox(height: 10),
               Text(
                 defaults.terms.isNotEmpty
                     ? defaults.terms
                     : "Services subject to prior site visit. Prices may vary after inspection.",
-                style: VigilType.small(
-                  color: Colors.white.withValues(alpha: 0.25),
-                  size: 9,
-                ),
+                style: VigilType.small(color: Colors.white.withValues(alpha: 0.25), size: 9),
               ),
             ],
           );
@@ -412,20 +369,13 @@ class _FooterGrid extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 1.5),
-                  child: Icon(
-                    icon,
-                    size: 11,
-                    color: Colors.white.withValues(alpha: 0.28),
-                  ),
+                  child: Icon(icon, size: 11, color: Colors.white.withValues(alpha: 0.28)),
                 ),
                 const SizedBox(width: 5),
                 Expanded(
                   child: Text(
                     text,
-                    style: VigilType.small(
-                      color: Colors.white.withValues(alpha: 0.42),
-                      size: 10,
-                    ),
+                    style: VigilType.small(color: Colors.white.withValues(alpha: 0.42), size: 10),
                   ),
                 ),
               ],

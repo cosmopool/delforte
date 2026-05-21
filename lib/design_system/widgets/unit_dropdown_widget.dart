@@ -25,10 +25,7 @@ class UnitDropdownWidget extends StatelessWidget {
     final bool hasUnits = store.units.count > 0;
     final List<DropdownMenuItem<int>> items = [
       for (var i = 0; i < store.units.count; i++)
-        DropdownMenuItem(
-          value: store.units.idAt(i),
-          child: Text(store.units.abbreviationAt(i)),
-        ),
+        DropdownMenuItem(value: store.units.idAt(i), child: Text(store.units.abbreviationAt(i))),
     ];
 
     return Column(
@@ -44,7 +41,9 @@ class UnitDropdownWidget extends StatelessWidget {
         ),
         const SizedBox(height: 7),
         DropdownButtonFormField<int>(
-          initialValue: hasUnits && store.units.indexOfId(selectedUnitId) >= 0 ? selectedUnitId : null,
+          initialValue: hasUnits && store.units.indexOfId(selectedUnitId) >= 0
+              ? selectedUnitId
+              : null,
           items: items,
           onChanged: hasUnits ? onChanged : null,
           hint: Text(

@@ -44,7 +44,11 @@ class FormFieldWidget extends StatelessWidget {
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: VigilType.body(color: VigilColors.textMuted, size: 14, weight: FontWeight.w400),
+            hintStyle: VigilType.body(
+              color: VigilColors.textMuted,
+              size: 14,
+              weight: FontWeight.w400,
+            ),
             filled: true,
             fillColor: VigilColors.surface,
             border: OutlineInputBorder(

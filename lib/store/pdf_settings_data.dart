@@ -2,9 +2,7 @@
 ///
 /// Exactly one row (id == 1) is expected in the backing table.
 class PdfSettingsData {
-  PdfSettingsData()
-    : id = 0,
-      accentColour = "";
+  PdfSettingsData() : id = 0, accentColour = "";
 
   /// SQLite row id (always `1` when persisted).
   int id;
