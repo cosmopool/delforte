@@ -151,7 +151,7 @@ class QuoteStore {
 
   /// Closes SQLite and disposes all notifiers.
   void dispose() {
-    _db?.dispose();
+    _db?.close();
     itemsNotifier.dispose();
     servicesNotifier.dispose();
     clientsNotifier.dispose();
@@ -327,7 +327,7 @@ class QuoteStore {
           ]);
         }
       } finally {
-        stmt.dispose();
+        stmt.close();
       }
       db.execute("COMMIT");
       if (!quotes.append(quoteId, clientId, createdAt, total)) {
