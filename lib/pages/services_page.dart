@@ -85,6 +85,7 @@ class _ServicesPageState extends State<ServicesPage> {
                             name: widget.store.services.nameAt(index),
                             description: widget.store.services.descriptionAt(index),
                             price: formatMoney(widget.store.services.priceCentsAt(index)),
+                            unitPrice: _draftUnitPrice(widget.store.services.idAt(index)),
                             icon: _catalogIcon(widget.store.services.nameAt(index)),
                             expanded: _expandedId == widget.store.services.idAt(index),
                             selectedQuantity: _draftQuantity(widget.store.services.idAt(index)),
@@ -98,6 +99,8 @@ class _ServicesPageState extends State<ServicesPage> {
                             onIncrease: () =>
                                 _changeDraftQuantity(widget.store.services.idAt(index), 1),
                             onRemove: () => _removeDraftLine(widget.store.services.idAt(index)),
+                            onUnitPriceChanged: (int cents) =>
+                                _setDraftUnitPrice(widget.store.services.idAt(index), cents),
                           ),
                         AddCard(
                           label: "Add new service",
@@ -122,10 +125,28 @@ class _ServicesPageState extends State<ServicesPage> {
     return index < 0 ? 0 : widget.store.draft.quantities[index];
   }
 
+  int _draftUnitPrice(int refId) {
+    final int index = widget.store.draft.lineIndex(.service, refId);
+    if (index < 0) {
+      return widget.store.services.priceCentsAt(widget.store.services.indexOfId(refId));
+    }
+    return widget.store.draft.unitPriceCents[index];
+  }
+
+  void _setDraftUnitPrice(int refId, int cents) {
+    setState(_searchController.clear);
+    final int index = widget.store.draft.lineIndex(.service, refId);
+    if (index < 0) return;
+    final bool ok = widget.store.setDraftUnitPrice(index, cents);
+    if (!ok) _showSnack(widget.store.latestErrorMessage());
+  }
+
   int _draftTotalFor() {
     var total = 0;
     for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == CatalogItemType.service.index) total += widget.store.draft.subtotalCents[i];
+      if (widget.store.draft.types[i] == CatalogItemType.service.index) {
+        total += widget.store.draft.subtotalCents[i];
+      }
     }
     return total;
   }

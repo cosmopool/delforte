@@ -8,6 +8,7 @@ import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/item_data.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class EquipmentCreatePage extends StatefulWidget {
@@ -57,7 +58,11 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
               children: [
                 const FormSectionDivider(label: "Product"),
                 const SizedBox(height: 16),
-                FormFieldWidget(controller: _name, label: "Equipment Name", hint: "e.g. IP Camera 4MP"),
+                FormFieldWidget(
+                  controller: _name,
+                  label: "Equipment Name",
+                  hint: "e.g. IP Camera 4MP",
+                ),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _description,
@@ -74,6 +79,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
                   children: [
                     Expanded(
                       child: FormFieldWidget(
+                        onChanged: _updatePrice,
                         controller: _price,
                         label: "Unit Price",
                         hint: "0,00",
@@ -101,14 +107,25 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
     );
   }
 
+  void _updatePrice(String text) {
+    final int digits = moneyStringToCents(text);
+    final String decimal = formatMoney(digits);
+    _price.text = decimal;
+  }
+
   void _save() {
     final String name = _name.text.trim();
     if (name.isEmpty) {
       _showSnack("Equipment name is required");
       return;
     }
-    final int cents = _parseMoneyCents(_price.text);
-    final bool catalogSaved = widget.store.addEquipment(name, _description.text.trim(), cents, _unitId);
+    final int cents = moneyStringToCents(_price.text);
+    final bool catalogSaved = widget.store.addEquipment(
+      name,
+      _description.text.trim(),
+      cents,
+      _unitId,
+    );
     if (!catalogSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;
@@ -122,18 +139,13 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
       return;
     }
 
-    widget.router.goTo(QuoteFlowRoute(QuoteStep.equipment, selectedClientId: widget.selectedClientId));
+    widget.router.goTo(
+      QuoteFlowRoute(QuoteStep.equipment, selectedClientId: widget.selectedClientId),
+    );
   }
 
   void _showSnack(String message) {
     if (message.isEmpty || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  int _parseMoneyCents(String value) {
-    final String normalized = value.trim().replaceAll(".", "").replaceAll(",", ".");
-    final double parsed = double.tryParse(normalized) ?? 0;
-    if (parsed <= 0) return 0;
-    return (parsed * 100).round();
   }
 }

@@ -1,7 +1,8 @@
 import "package:delforte/design_system.dart";
-import "package:delforte/design_system/widgets/field_summary_widget.dart";
+import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/design_system/widgets/round_button_widget.dart";
 import "package:delforte/design_system/widgets/tap_card_widget.dart";
+import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 /// A card widget for displaying catalog items with expandable details.
@@ -9,12 +10,13 @@ import "package:flutter/material.dart";
 /// This card shows an item's name, description, price, and icon. When expanded,
 /// it displays additional controls for adjusting quantity or removing the item.
 /// The card supports selection state and provides callbacks for all user interactions.
-class CatalogCard extends StatelessWidget {
+class CatalogCard extends StatefulWidget {
   /// Creates a catalog card widget.
   ///
   /// [name] is the item name displayed in the card.
   /// [description] is the optional item description.
   /// [price] is the item price as a string.
+  /// [unitPrice] is the editable unit price in cents (0 when not in draft).
   /// [icon] is the icon displayed for the item.
   /// [expanded] indicates whether the card is currently expanded.
   /// [selectedQuantity] is the current quantity selected (0 if not selected).
@@ -23,6 +25,7 @@ class CatalogCard extends StatelessWidget {
   /// [onDecrease] is called when the decrease button is pressed.
   /// [onIncrease] is called when the increase button is pressed.
   /// [onRemove] is called when the remove button is pressed.
+  /// [onUnitPriceChanged] is called when the user edits the unit price.
   const CatalogCard({
     required this.name,
     required this.description,
@@ -35,6 +38,8 @@ class CatalogCard extends StatelessWidget {
     required this.onDecrease,
     required this.onIncrease,
     required this.onRemove,
+    this.unitPrice = 0,
+    this.onUnitPriceChanged,
     super.key,
   });
 
@@ -46,6 +51,9 @@ class CatalogCard extends StatelessWidget {
 
   /// The item price as a string.
   final String price;
+
+  /// The current editable unit price in cents (0 when not in draft).
+  final int unitPrice;
 
   /// The icon displayed for the item.
   final IconData icon;
@@ -71,19 +79,47 @@ class CatalogCard extends StatelessWidget {
   /// Called when the remove button is pressed.
   final VoidCallback onRemove;
 
+  /// Called when the user edits the unit price.
+  final ValueChanged<int>? onUnitPriceChanged;
+
+  @override
+  State<CatalogCard> createState() => _CatalogCardState();
+}
+
+class _CatalogCardState extends State<CatalogCard> {
+  late final _priceController = TextEditingController()..text = "0";
+
+  void _submitPrice(String text) {
+    final int digits = moneyStringToCents(text);
+    final String decimal = formatMoney(digits);
+    _priceController.text = decimal;
+    widget.onUnitPriceChanged?.call(digits);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _priceController.text = formatMoney(widget.unitPrice);
+  }
+
+  @override
+  void dispose() {
+    _priceController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bool selected = selectedQuantity > 0;
+    final bool selected = widget.selectedQuantity > 0;
     const FontWeight weight = FontWeight.w800;
     const FontWeight weight2 = FontWeight.w700;
     const Color color = VigilColors.textSecondary;
     const FontWeight weight3 = FontWeight.w700;
-    const Color color2 = VigilColors.textMuted;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: TapCard(
-        selected: expanded || selected,
-        onTap: onToggle,
+        selected: widget.expanded || selected,
+        onTap: widget.onToggle,
         child: Column(
           children: [
             Padding(
@@ -91,9 +127,11 @@ class CatalogCard extends StatelessWidget {
               child: Row(
                 children: [
                   VigilIconBox(
-                    icon: icon,
-                    color: expanded || selected ? VigilColors.primary : VigilColors.textMuted,
-                    background: expanded || selected ? VigilColors.primarySoft : VigilColors.canvas,
+                    icon: widget.icon,
+                    color: widget.expanded || selected
+                        ? VigilColors.primary
+                        : VigilColors.textMuted,
+                    background: VigilColors.canvas,
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -101,21 +139,21 @@ class CatalogCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          name,
+                          widget.name,
                           style: VigilType.body(
                             color: VigilColors.textPrimary,
                             size: 14,
                             weight: weight2,
                           ),
                         ),
-                        if (description.isNotEmpty) ...[
+                        if (widget.description.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           Text(
-                            description,
+                            widget.description,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: VigilType.small(
-                              color: color2,
+                              color: VigilColors.textMuted,
                               size: 11,
                               weight: FontWeight.w600,
                             ),
@@ -124,20 +162,20 @@ class CatalogCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  if (!expanded)
+                  if (!widget.expanded)
                     Text(
-                      selected ? "$selectedQuantity x $price" : price,
+                      selected ? "${widget.selectedQuantity} x ${widget.price}" : widget.price,
                       style: VigilType.small(color: color, size: 11, weight: weight3),
                     ),
                   const SizedBox(width: 6),
                   Icon(
-                    expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                    widget.expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
                     color: VigilColors.textMuted,
                   ),
                 ],
               ),
             ),
-            if (expanded)
+            if (widget.expanded)
               DecoratedBox(
                 decoration: const BoxDecoration(
                   border: Border(top: BorderSide(color: VigilColors.border)),
@@ -147,17 +185,30 @@ class CatalogCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Expanded(
-                        child: FieldSummary(label: "Unit Price", value: price),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FormFieldWidget(
+                              onChanged: _submitPrice,
+                              controller: _priceController,
+                              label: "Unit Price",
+                              keyboardType: TextInputType.numberWithOptions(
+                                decimal: false,
+                                signed: true,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 8),
                       if (selected)
                         Row(
                           children: [
-                            RoundButton(icon: Icons.remove_rounded, onPressed: onDecrease),
+                            RoundButton(icon: Icons.remove_rounded, onPressed: widget.onDecrease),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8),
                               child: Text(
-                                "$selectedQuantity",
+                                "${widget.selectedQuantity}",
                                 style: VigilType.body(
                                   color: VigilColors.textPrimary,
                                   size: 14,
@@ -165,10 +216,10 @@ class CatalogCard extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            RoundButton(icon: Icons.add_rounded, onPressed: onIncrease),
+                            RoundButton(icon: Icons.add_rounded, onPressed: widget.onIncrease),
                             IconButton(
                               tooltip: "Remove",
-                              onPressed: onRemove,
+                              onPressed: widget.onRemove,
                               icon: const Icon(
                                 Icons.delete_outline_rounded,
                                 color: VigilColors.textMuted,
@@ -178,7 +229,7 @@ class CatalogCard extends StatelessWidget {
                         )
                       else
                         FilledButton.icon(
-                          onPressed: onAdd,
+                          onPressed: widget.onAdd,
                           icon: const Icon(Icons.add_rounded, size: 18),
                           label: const Text("Add"),
                         ),

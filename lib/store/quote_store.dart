@@ -276,6 +276,16 @@ class QuoteStore {
     return true;
   }
 
+  /// Sets the unit price at [index] to [cents] and refreshes the subtotal.
+  bool setDraftUnitPrice(int index, int cents) {
+    if (index < 0 || index >= draft.count) return _fail(errMissingId, "Quote line missing");
+    if (cents < 0) return _fail(errInvalidInput, "Invalid price");
+    draft.unitPriceCents[index] = cents;
+    draft.setQuantity(index, draft.quantities[index]);
+    quoteDraftNotifier.markChanged();
+    return true;
+  }
+
   /// Removes a draft line by [index].
   bool removeDraftLine(int index) {
     if (!draft.removeAt(index)) return _fail(errMissingId, "Quote line missing");

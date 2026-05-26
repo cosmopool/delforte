@@ -10,7 +10,12 @@ import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class EquipmentPage extends StatefulWidget {
-  const EquipmentPage({required this.store, required this.router, this.selectedClientId, super.key});
+  const EquipmentPage({
+    required this.store,
+    required this.router,
+    this.selectedClientId,
+    super.key,
+  });
 
   final QuoteStore store;
   final AppRouterDelegate router;
@@ -82,6 +87,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                           name: widget.store.equipments.nameAt(index),
                           description: widget.store.equipments.descriptionAt(index),
                           price: formatMoney(widget.store.equipments.priceCentsAt(index)),
+                          unitPrice: _draftUnitPrice(widget.store.equipments.idAt(index)),
                           icon: _catalogIcon(widget.store.equipments.nameAt(index)),
                           expanded: _expandedId == widget.store.equipments.idAt(index),
                           selectedQuantity: _draftQuantity(widget.store.equipments.idAt(index)),
@@ -92,8 +98,11 @@ class _EquipmentPageState extends State<EquipmentPage> {
                           onAdd: () => _addDraftLine(widget.store.equipments.idAt(index)),
                           onDecrease: () =>
                               _changeDraftQuantity(widget.store.equipments.idAt(index), -1),
-                          onIncrease: () => _changeDraftQuantity(widget.store.equipments.idAt(index), 1),
+                          onIncrease: () =>
+                              _changeDraftQuantity(widget.store.equipments.idAt(index), 1),
                           onRemove: () => _removeDraftLine(widget.store.equipments.idAt(index)),
+                          onUnitPriceChanged: (int cents) =>
+                              _setDraftUnitPrice(widget.store.equipments.idAt(index), cents),
                         ),
                       AddCard(
                         label: "Add new equipment",
@@ -117,10 +126,26 @@ class _EquipmentPageState extends State<EquipmentPage> {
     return index < 0 ? 0 : widget.store.draft.quantities[index];
   }
 
+  int _draftUnitPrice(int refId) {
+    final int index = widget.store.draft.lineIndex(.equipment, refId);
+    if (index < 0) {
+      return widget.store.equipments.priceCentsAt(widget.store.equipments.indexOfId(refId));
+    }
+    return widget.store.draft.unitPriceCents[index];
+  }
+
+  void _setDraftUnitPrice(int refId, int cents) {
+    final int index = widget.store.draft.lineIndex(.equipment, refId);
+    if (index < 0) return;
+    final bool ok = widget.store.setDraftUnitPrice(index, cents);
+    if (!ok) _showSnack(widget.store.latestErrorMessage());
+  }
+
   int _draftTotalFor() {
     var total = 0;
     for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == CatalogItemType.equipment.index) total += widget.store.draft.subtotalCents[i];
+      if (widget.store.draft.types[i] == CatalogItemType.equipment.index)
+        total += widget.store.draft.subtotalCents[i];
     }
     return total;
   }

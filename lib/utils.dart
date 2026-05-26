@@ -14,6 +14,11 @@ String formatMoney(int cents) {
   return "R\$ ${buffer.toString()},${decimal.toString().padLeft(2, "0")}";
 }
 
+int moneyStringToCents(String money) {
+  final String digits = money.replaceAll(RegExp(r"\D"), "");
+  return int.parse(digits);
+}
+
 String initials(String value) {
   final List<String> parts = value
       .trim()

@@ -14,6 +14,7 @@ class FormFieldWidget extends StatelessWidget {
     this.keyboardType,
     this.minLines,
     this.maxLines = 1,
+    this.onChanged,
   });
 
   final TextEditingController controller;
@@ -22,6 +23,7 @@ class FormFieldWidget extends StatelessWidget {
   final TextInputType? keyboardType;
   final int? minLines;
   final int? maxLines;
+  final ValueChanged<String>? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class FormFieldWidget extends StatelessWidget {
         ),
         const SizedBox(height: 7),
         TextField(
+          onChanged: onChanged,
           controller: controller,
           keyboardType: keyboardType,
           minLines: minLines,
