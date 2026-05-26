@@ -91,6 +91,11 @@ class _QuoteCatalogStepState extends State<QuoteCatalogStep> {
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: 10),
+                      AddCard(
+                        label: _isServices ? strings.createNewService : strings.createNewEquipment,
+                        onTap: widget.onCreate,
+                      ),
+                      const SizedBox(height: 10),
                       for (final CatalogItem item in items)
                         CatalogCard(
                           name: item.name,
@@ -107,10 +112,6 @@ class _QuoteCatalogStepState extends State<QuoteCatalogStep> {
                           onIncrease: () => _changeDraftQuantity(item.id, 1),
                           onUnitPriceChanged: (cents) => _setUnitPrice(item.id, cents),
                         ),
-                      AddCard(
-                        label: _isServices ? strings.createNewService : strings.createNewEquipment,
-                        onTap: widget.onCreate,
-                      ),
                     ],
                   ),
                 ),

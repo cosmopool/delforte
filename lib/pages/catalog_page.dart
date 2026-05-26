@@ -233,7 +233,8 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: VigilSurface(
-        selected: widget.expanded,
+        background: widget.expanded ? VigilColors.primarySoft : null,
+        border: widget.expanded ? VigilStroke.primary : null,
         onTap: widget.onToggle,
         child: Column(
           children: [

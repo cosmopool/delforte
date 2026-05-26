@@ -112,112 +112,119 @@ class _CatalogCardState extends State<CatalogCard> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: VigilSurface(
-        selected: widget.expanded || selected,
-        onTap: widget.onToggle,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
-              child: Row(
-                children: [
-                  VigilIconBox(
-                    icon: widget.icon,
-                    color: widget.expanded || selected
-                        ? VigilColors.primary
-                        : VigilColors.textMuted,
-                    background: VigilColors.canvas,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.name,
-                          style: VigilType.body(
-                            color: VigilColors.textPrimary,
-                            size: 14,
-                            weight: weight2,
-                          ),
-                        ),
-                        if (widget.description.isNotEmpty) ...[
-                          const SizedBox(height: 2),
+        onTap: () {
+          FocusScope.of(context).unfocus();
+          widget.onToggle();
+        },
+        border: selected ? VigilStroke.primary : VigilStroke.subtle,
+        background: widget.expanded ? VigilColors.primarySoft : VigilColors.surface,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+                child: Row(
+                  children: [
+                    VigilIconBox(
+                      icon: widget.icon,
+                      color: widget.expanded || selected
+                          ? VigilColors.primary
+                          : VigilColors.textMuted,
+                      background: VigilColors.canvas,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            widget.description,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: VigilType.small(
-                              color: VigilColors.textMuted,
-                              size: 11,
-                              weight: FontWeight.w600,
+                            widget.name,
+                            style: VigilType.body(
+                              color: VigilColors.textPrimary,
+                              size: 14,
+                              weight: weight2,
                             ),
                           ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  if (!widget.expanded)
-                    Text(
-                      selected ? "${widget.selectedQuantity} x ${widget.price}" : widget.price,
-                      style: VigilType.small(color: color, size: 11, weight: weight3),
-                    ),
-                  const SizedBox(width: 6),
-                  Icon(
-                    widget.expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
-                    color: VigilColors.textMuted,
-                  ),
-                ],
-              ),
-            ),
-            if (widget.expanded)
-              DecoratedBox(
-                decoration: const BoxDecoration(
-                  border: Border(top: BorderSide(color: VigilColors.border)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 11, 15, 14),
-                  child: Row(
-                    crossAxisAlignment: .end,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FormFieldWidget(
-                              onChanged: _submitPrice,
-                              controller: _priceController,
-                              label: "Unit Price",
-                              keyboardType: TextInputType.numberWithOptions(
-                                decimal: false,
-                                signed: true,
+                          if (widget.description.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              widget.description,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: VigilType.small(
+                                color: VigilColors.textMuted,
+                                size: 11,
+                                weight: FontWeight.w600,
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Row(
-                        children: [
-                          RoundButton(icon: Icons.remove_rounded, onPressed: widget.onDecrease),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Text(
-                              "${widget.selectedQuantity}",
-                              style: VigilType.body(
-                                color: VigilColors.textPrimary,
-                                size: 14,
-                                weight: weight,
-                              ),
-                            ),
-                          ),
-                          RoundButton(icon: Icons.add_rounded, onPressed: widget.onIncrease),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    if (!widget.expanded)
+                      Text(
+                        selected ? "${widget.selectedQuantity} x ${widget.price}" : widget.price,
+                        style: VigilType.small(color: color, size: 11, weight: weight3),
+                      ),
+                    const SizedBox(width: 6),
+                    Icon(
+                      widget.expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+                      color: VigilColors.textMuted,
+                    ),
+                  ],
                 ),
               ),
-          ],
+              if (widget.expanded)
+                DecoratedBox(
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: VigilColors.border)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 11, 15, 14),
+                    child: Row(
+                      crossAxisAlignment: .end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FormFieldWidget(
+                                onChanged: _submitPrice,
+                                controller: _priceController,
+                                label: "Unit Price",
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: false,
+                                  signed: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Row(
+                          children: [
+                            RoundButton(icon: Icons.remove_rounded, onPressed: widget.onDecrease),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Text(
+                                "${widget.selectedQuantity}",
+                                style: VigilType.body(
+                                  color: VigilColors.textPrimary,
+                                  size: 14,
+                                  weight: weight,
+                                ),
+                              ),
+                            ),
+                            RoundButton(icon: Icons.add_rounded, onPressed: widget.onIncrease),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

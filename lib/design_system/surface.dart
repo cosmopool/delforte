@@ -7,26 +7,25 @@ class VigilSurface extends StatelessWidget {
   const VigilSurface({
     required this.child,
     super.key,
-    this.selected = false,
     this.padding,
     this.onTap,
     this.radius,
     this.background,
+    this.border,
   });
 
   final Widget child;
-  final bool selected;
   final EdgeInsetsGeometry? padding;
   final VoidCallback? onTap;
   final BorderRadius? radius;
   final Color? background;
+  final BorderSide? border;
 
   @override
   Widget build(BuildContext context) {
     final BorderRadius resolvedRadius = radius ?? VigilRadius.cardRadius;
-    final Color resolvedBackground =
-        background ?? (selected ? VigilColors.primarySoft : VigilColors.surface);
-    final BorderSide side = selected ? VigilStroke.primary : VigilStroke.subtle;
+    final Color resolvedBackground = background ?? VigilColors.surface;
+    final BorderSide side = border ?? VigilStroke.subtle;
     final Widget content = DecoratedBox(
       decoration: BoxDecoration(
         color: resolvedBackground,
