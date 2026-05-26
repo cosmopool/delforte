@@ -270,7 +270,8 @@ class QuoteStore {
   /// Changes draft quantity at [index] by [delta], clamped to `1..9999`.
   bool changeDraftQuantity(int index, int delta) {
     if (index < 0 || index >= draft.count) return _fail(errMissingId, "Quote line missing");
-    final int next = math.max(1, math.min(9999, draft.quantities[index] + delta));
+    final int next = math.max(0, math.min(9999, draft.quantities[index] + delta));
+    if (next == 0) return draft.removeAt(index);
     if (!draft.setQuantity(index, next)) return _fail(errInvalidInput, "Invalid quantity");
     quoteDraftNotifier.markChanged();
     return true;

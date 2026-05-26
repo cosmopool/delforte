@@ -93,12 +93,10 @@ class _ServicesPageState extends State<ServicesPage> {
                               final int id = widget.store.services.idAt(index);
                               _expandedId = _expandedId == id ? null : id;
                             }),
-                            onAdd: () => _addDraftLine(widget.store.services.idAt(index)),
                             onDecrease: () =>
                                 _changeDraftQuantity(widget.store.services.idAt(index), -1),
                             onIncrease: () =>
                                 _changeDraftQuantity(widget.store.services.idAt(index), 1),
-                            onRemove: () => _removeDraftLine(widget.store.services.idAt(index)),
                             onUnitPriceChanged: (int cents) =>
                                 _setDraftUnitPrice(widget.store.services.idAt(index), cents),
                           ),
@@ -151,29 +149,18 @@ class _ServicesPageState extends State<ServicesPage> {
     return total;
   }
 
-  void _addDraftLine(int refId) {
-    setState(_searchController.clear);
-    final bool ok = widget.store.addDraftLine(.service, refId, 1);
-    if (!ok) _showSnack(widget.store.latestErrorMessage());
-  }
-
   void _changeDraftQuantity(int refId, int delta) {
     setState(_searchController.clear);
+    FocusScope.of(context).unfocus();
     final int index = widget.store.draft.lineIndex(.service, refId);
-    if (index < 0) {
-      if (delta > 0) _addDraftLine(refId);
+    if (index >= 0) {
+      final bool ok = widget.store.changeDraftQuantity(index, delta);
+      if (!ok) _showSnack(widget.store.latestErrorMessage());
       return;
     }
-    final bool ok = widget.store.changeDraftQuantity(index, delta);
+    if (delta < 0) return;
+    final bool ok = widget.store.addDraftLine(.service, refId, 1);
     if (!ok) _showSnack(widget.store.latestErrorMessage());
-  }
-
-  void _removeDraftLine(int refId) {
-    setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(.service, refId);
-    if (index >= 0 && !widget.store.removeDraftLine(index)) {
-      _showSnack(widget.store.latestErrorMessage());
-    }
   }
 
   void _showSnack(String message) {

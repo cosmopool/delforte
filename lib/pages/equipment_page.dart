@@ -95,12 +95,10 @@ class _EquipmentPageState extends State<EquipmentPage> {
                             final int id = widget.store.equipments.idAt(index);
                             _expandedId = _expandedId == id ? null : id;
                           }),
-                          onAdd: () => _addDraftLine(widget.store.equipments.idAt(index)),
                           onDecrease: () =>
                               _changeDraftQuantity(widget.store.equipments.idAt(index), -1),
                           onIncrease: () =>
                               _changeDraftQuantity(widget.store.equipments.idAt(index), 1),
-                          onRemove: () => _removeDraftLine(widget.store.equipments.idAt(index)),
                           onUnitPriceChanged: (int cents) =>
                               _setDraftUnitPrice(widget.store.equipments.idAt(index), cents),
                         ),
@@ -144,35 +142,25 @@ class _EquipmentPageState extends State<EquipmentPage> {
   int _draftTotalFor() {
     var total = 0;
     for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == CatalogItemType.equipment.index)
+      if (widget.store.draft.types[i] == CatalogItemType.equipment.index) {
         total += widget.store.draft.subtotalCents[i];
+      }
     }
     return total;
   }
 
-  void _addDraftLine(int refId) {
-    setState(_searchController.clear);
-    final bool ok = widget.store.addDraftLine(.equipment, refId, 1);
-    if (!ok) _showSnack(widget.store.latestErrorMessage());
-  }
-
   void _changeDraftQuantity(int refId, int delta) {
     setState(_searchController.clear);
+    FocusScope.of(context).unfocus();
     final int index = widget.store.draft.lineIndex(.equipment, refId);
-    if (index < 0) {
-      if (delta > 0) _addDraftLine(refId);
+    if (index >= 0) {
+      final bool ok = widget.store.changeDraftQuantity(index, delta);
+      if (!ok) _showSnack(widget.store.latestErrorMessage());
       return;
     }
-    final bool ok = widget.store.changeDraftQuantity(index, delta);
+    if (delta < 0) return;
+    final bool ok = widget.store.addDraftLine(.equipment, refId, 1);
     if (!ok) _showSnack(widget.store.latestErrorMessage());
-  }
-
-  void _removeDraftLine(int refId) {
-    setState(_searchController.clear);
-    final int index = widget.store.draft.lineIndex(.equipment, refId);
-    if (index >= 0 && !widget.store.removeDraftLine(index)) {
-      _showSnack(widget.store.latestErrorMessage());
-    }
   }
 
   void _showSnack(String message) {

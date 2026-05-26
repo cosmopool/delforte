@@ -57,7 +57,7 @@ class QuoteCalcBuffer {
   /// Sets [quantity] at [index] and refreshes the subtotal.
   bool setQuantity(int index, int quantity) {
     if (index < 0 || index >= count) return false;
-    if (quantity <= 0) return false;
+    if (quantity < 0) return false;
     quantities[index] = quantity;
     subtotalCents[index] = unitPriceCents[index] * quantity;
     return true;

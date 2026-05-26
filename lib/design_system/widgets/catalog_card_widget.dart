@@ -34,10 +34,8 @@ class CatalogCard extends StatefulWidget {
     required this.expanded,
     required this.selectedQuantity,
     required this.onToggle,
-    required this.onAdd,
     required this.onDecrease,
     required this.onIncrease,
-    required this.onRemove,
     this.unitPrice = 0,
     this.onUnitPriceChanged,
     super.key,
@@ -67,17 +65,11 @@ class CatalogCard extends StatefulWidget {
   /// Called when the card is tapped to toggle expansion.
   final VoidCallback onToggle;
 
-  /// Called when the add button is pressed.
-  final VoidCallback onAdd;
-
   /// Called when the decrease button is pressed.
   final VoidCallback onDecrease;
 
   /// Called when the increase button is pressed.
   final VoidCallback onIncrease;
-
-  /// Called when the remove button is pressed.
-  final VoidCallback onRemove;
 
   /// Called when the user edits the unit price.
   final ValueChanged<int>? onUnitPriceChanged;
@@ -183,6 +175,7 @@ class _CatalogCardState extends State<CatalogCard> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(15, 11, 15, 14),
                   child: Row(
+                    crossAxisAlignment: .end,
                     children: [
                       Expanded(
                         child: Column(
@@ -201,38 +194,23 @@ class _CatalogCardState extends State<CatalogCard> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      if (selected)
-                        Row(
-                          children: [
-                            RoundButton(icon: Icons.remove_rounded, onPressed: widget.onDecrease),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text(
-                                "${widget.selectedQuantity}",
-                                style: VigilType.body(
-                                  color: VigilColors.textPrimary,
-                                  size: 14,
-                                  weight: weight,
-                                ),
+                      Row(
+                        children: [
+                          RoundButton(icon: Icons.remove_rounded, onPressed: widget.onDecrease),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              "${widget.selectedQuantity}",
+                              style: VigilType.body(
+                                color: VigilColors.textPrimary,
+                                size: 14,
+                                weight: weight,
                               ),
                             ),
-                            RoundButton(icon: Icons.add_rounded, onPressed: widget.onIncrease),
-                            IconButton(
-                              tooltip: "Remove",
-                              onPressed: widget.onRemove,
-                              icon: const Icon(
-                                Icons.delete_outline_rounded,
-                                color: VigilColors.textMuted,
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        FilledButton.icon(
-                          onPressed: widget.onAdd,
-                          icon: const Icon(Icons.add_rounded, size: 18),
-                          label: const Text("Add"),
-                        ),
+                          ),
+                          RoundButton(icon: Icons.add_rounded, onPressed: widget.onIncrease),
+                        ],
+                      ),
                     ],
                   ),
                 ),
