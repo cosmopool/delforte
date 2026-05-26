@@ -45,7 +45,11 @@ class _SendPageState extends State<SendPage> {
                 ReadyCard(
                   title: "Quote Ready",
                   subtitle: "Saved locally - $clientName - ${formatMoney(total)}",
-                  chips: ["$serviceCount services", "$equipmentCount equipment", formatMoney(total)],
+                  chips: [
+                    "$serviceCount services",
+                    "$equipmentCount equipment",
+                    formatMoney(total),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 PrimaryButton(

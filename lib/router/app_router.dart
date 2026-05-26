@@ -70,7 +70,11 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         router: this,
         selectedClientId: selectedClientId,
       ),
-      QuoteStep.equipment => EquipmentPage(store: store, router: this, selectedClientId: selectedClientId),
+      QuoteStep.equipment => EquipmentPage(
+        store: store,
+        router: this,
+        selectedClientId: selectedClientId,
+      ),
       QuoteStep.review => ReviewPage(
         store: store,
         router: this,

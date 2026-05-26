@@ -35,8 +35,9 @@ class ReviewPage extends StatelessWidget {
               title: "Review",
               stepIndex: 3,
               continueLabel: "Looks Good",
-              onBack: () =>
-                  router.goTo(QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId)),
+              onBack: () => router.goTo(
+                QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId),
+              ),
               onContinue: _canSaveQuote ? () => _saveAndContinue(total) : null,
             ),
             Expanded(

@@ -80,7 +80,12 @@ class _AppMainWidgetState extends State<AppMainWidget> {
     if (_store.equipments.count == 0) {
       _store.addEquipment("IP Camera 4MP", "Outdoor infrared camera", 35000, unitUnit);
       _store.addEquipment("Gate Motor Kit", "Motor, remotes, and rails", 85000, unitUnit);
-      _store.addEquipment("Control Panel Pro", "Alarm and automation control panel", 95000, unitUnit);
+      _store.addEquipment(
+        "Control Panel Pro",
+        "Alarm and automation control panel",
+        95000,
+        unitUnit,
+      );
     }
   }
 
