@@ -324,7 +324,7 @@ class QuoteStore {
         "INSERT INTO quote_lines (quote_id, line_type, ref_id, quantity, unit_price_cents, subtotal_cents) VALUES (?, ?, ?, ?, ?, ?)",
       );
       try {
-        for (var i = 0; i < draft.count && i < maxLimit; i++) {
+        for (var i = 0; i < draft.count; i++) {
           stmt.execute([
             quoteId,
             draft.types[i],

@@ -48,7 +48,7 @@ class QuoteCalcBuffer {
 
   /// Returns the line index for [type] and [refId], or `-1` when absent.
   int lineIndex(CatalogItemType type, int refId) {
-    for (var i = 0; i < count && i < maxLimit; i++) {
+    for (var i = 0; i < count; i++) {
       if (types[i] == type.index && refIds[i] == refId) return i;
     }
     return -1;
@@ -85,7 +85,7 @@ class QuoteCalcBuffer {
   /// Removes every draft line referencing [type] and [refId].
   void removeCatalogRef(CatalogItemType type, int refId) {
     var i = 0;
-    while (i < count && i < maxLimit) {
+    while (i < count) {
       if (types[i] == type.index && refIds[i] == refId) {
         removeAt(i);
       } else {
@@ -97,7 +97,7 @@ class QuoteCalcBuffer {
   /// Recomputes subtotals and returns the draft total in cents.
   int computeTotals() {
     var total = 0;
-    for (var i = 0; i < count && i < maxLimit; i++) {
+    for (var i = 0; i < count; i++) {
       final int subtotal = unitPriceCents[i] * quantities[i];
       subtotalCents[i] = subtotal;
       total += subtotal;
@@ -107,7 +107,7 @@ class QuoteCalcBuffer {
 
   /// Clears all active draft lines.
   void clear() {
-    for (var i = 0; i < count && i < maxLimit; i++) {
+    for (var i = 0; i < count; i++) {
       types[i] = 0;
       refIds[i] = 0;
       quantities[i] = 0;

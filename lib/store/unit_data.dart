@@ -42,7 +42,7 @@ class UnitData {
 
   /// Returns the index for [id], or `-1` when it is not present.
   int indexOfId(int id) {
-    for (var i = 0; i < count && i < maxLimit; i++) {
+    for (var i = 0; i < count; i++) {
       if (ids[i] == id) return i;
     }
     return -1;
