@@ -9,16 +9,11 @@ import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class ClientCreatePage extends StatefulWidget {
-  const ClientCreatePage({
-    required this.store,
-    required this.router,
-    this.selectedClientId,
-    super.key,
-  });
+  const ClientCreatePage({required this.store, required this.router, this.draftId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
-  final int? selectedClientId;
+  final int? draftId;
 
   @override
   State<ClientCreatePage> createState() => _ClientCreatePageState();
@@ -48,9 +43,8 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
         children: [
           FlowHeader(
             title: "New Client",
-            onBack: () => widget.router.goTo(
-              QuoteFlowRoute(QuoteStep.client, selectedClientId: widget.selectedClientId),
-            ),
+            onBack: () =>
+                widget.router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: widget.draftId)),
           ),
           Expanded(
             child: ListView(
@@ -106,9 +100,13 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
       _showSnack(widget.store.latestErrorMessage());
       return;
     }
-    final int newId = widget.store.clients.idAt(widget.store.clients.count - 1);
-    widget.store.draft.clientId = newId;
-    widget.router.goTo(QuoteFlowRoute(QuoteStep.client, selectedClientId: newId));
+    final int newId = widget.store.lastClientId();
+    // Attach the new client to the draft (creating one lazily if needed) so the
+    // client step returns with it preselected.
+    final int? existing = widget.draftId;
+    final int draftId = existing ?? widget.store.createDraft(newId);
+    if (existing != null) widget.store.setDraftClient(existing, newId);
+    widget.router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: draftId == 0 ? null : draftId));
   }
 
   void _showSnack(String message) {

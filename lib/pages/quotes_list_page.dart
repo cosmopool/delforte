@@ -32,11 +32,9 @@ class _QuotesListPageState extends State<QuotesListPage> {
   @override
   Widget build(BuildContext context) {
     final String query = _searchController.text.trim().toLowerCase();
-    final List<int> indexes = [
-      for (var i = 0; i < widget.store.quotes.count; i++)
-        if (query.isEmpty ||
-            _clientNameById(widget.store.quotes.clientIdAt(i)).toLowerCase().contains(query))
-          i,
+    final List<QuoteSummary> quotes = [
+      for (final QuoteSummary quote in widget.store.listQuotes())
+        if (query.isEmpty || _clientNameById(quote.clientId).toLowerCase().contains(query)) quote,
     ];
 
     return AppShell(
@@ -53,21 +51,26 @@ class _QuotesListPageState extends State<QuotesListPage> {
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 10),
-                if (indexes.isEmpty)
+                if (quotes.isEmpty)
                   const EmptyPanel(
                     icon: Icons.receipt_long_rounded,
                     title: "No quotes found",
-                    subtitle: "Saved quotes will appear here.",
+                    subtitle: "Drafts and saved quotes will appear here.",
                   )
                 else
-                  for (final int index in indexes)
+                  for (final QuoteSummary quote in quotes)
                     QuoteCard(
-                      clientName: _clientNameById(widget.store.quotes.clientIdAt(index)),
-                      meta: _dateLabel(widget.store.quotes.timestampAt(index)),
-                      total: formatMoney(widget.store.quotes.totalCentsAt(index)),
-                      status: "Saved",
-                      statusColor: VigilColors.success,
-                      statusBg: VigilColors.successSoft,
+                      clientName: _clientNameById(quote.clientId),
+                      meta: "${quote.serviceCount} services · ${quote.equipmentCount} equipment",
+                      total: formatMoney(quote.totalCents),
+                      status: quote.isDraft ? "Draft" : "Saved",
+                      statusColor: quote.isDraft ? VigilColors.textMuted : VigilColors.success,
+                      statusBg: quote.isDraft ? VigilColors.canvas : VigilColors.successSoft,
+                      onTap: quote.isDraft
+                          ? () => widget.router.goTo(
+                              QuoteFlowRoute(QuoteStep.services, draftId: quote.id),
+                            )
+                          : null,
                     ),
               ],
             ),
@@ -78,17 +81,6 @@ class _QuotesListPageState extends State<QuotesListPage> {
   }
 
   String _clientNameById(int id) {
-    final int index = widget.store.clients.indexOfId(id);
-    return index < 0 ? "Unknown client" : widget.store.clients.nameAt(index);
-  }
-
-  String _dateLabel(int millis) {
-    if (millis <= 0) return "Draft";
-    final DateTime date = DateTime.fromMillisecondsSinceEpoch(millis);
-    final DateTime now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      return "Today";
-    }
-    return "${date.month.toString().padLeft(2, "0")}/${date.day.toString().padLeft(2, "0")}/${date.year}";
+    return widget.store.clientById(id)?.name ?? "Unknown client";
   }
 }

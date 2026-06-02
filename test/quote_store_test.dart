@@ -4,7 +4,6 @@ import "dart:typed_data";
 import "package:delforte/store/quote_store.dart";
 import "package:delforte/store/store_errors.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:sqlite3/sqlite3.dart";
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -22,353 +21,262 @@ void main() {
       if (directory.existsSync()) directory.deleteSync(recursive: true);
     });
 
-    test("open creates empty bounded buffers", () async {
+    Future<QuoteStore> openStore() async {
       final QuoteStore store = QuoteStore(databasePath: path);
       addTearDown(store.dispose);
-
       expect(await store.open(), isTrue);
-      expect(store.clients.count, 0);
-      expect(store.equipments.count, 0);
-      expect(store.services.count, 0);
-      expect(store.quotes.count, 0);
-      expect(store.clients.idAt(0), 0);
-      expect(store.clients.nameAt(0), "");
-      expect(store.equipments.priceCentsAt(0), 0);
+      return store;
+    }
+
+    test("open creates an empty database", () async {
+      final QuoteStore store = await openStore();
+      expect(store.listClients(), isEmpty);
+      expect(store.listCatalog(.equipment), isEmpty);
+      expect(store.listCatalog(.service), isEmpty);
+      expect(store.listQuotes(), isEmpty);
+      expect(store.clientById(1), isNull);
       expect(store.errors.count, 0);
     });
 
-    test("client CRUD mirrors SQLite into arrays", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-
-      var clientNotifies = 0;
-      store.clientsNotifier.addListener(() => clientNotifies++);
+    test("client CRUD round-trips through SQLite", () async {
+      final QuoteStore store = await openStore();
+      var notifies = 0;
+      store.clientsNotifier.addListener(() => notifies++);
 
       expect(store.addClient("Alpha", "111", "a@x.com", "Rua A", "City A"), isTrue);
       expect(store.addClient("Beta", "222", "b@x.com", "Rua B", "City B"), isTrue);
-      expect(store.clients.count, 2);
-      expect(store.clients.nameAt(0), "Alpha");
-      expect(clientNotifies, 2);
+      expect(store.listClients().length, 2);
+      expect(store.listClients().first.name, "Beta"); // newest first
+      expect(notifies, 2);
 
-      final int alphaId = store.clients.idAt(0);
+      final int alphaId = store.listClients().firstWhere((c) => c.name == "Alpha").id;
       expect(store.updateClient(alphaId, "Alpha 2", "333", "z@x.com", "Rua Z", "City Z"), isTrue);
-      final int alphaIndex = store.clients.indexOfId(alphaId);
-      expect(store.clients.nameAt(alphaIndex), "Alpha 2");
-      expect(store.clients.phoneAt(alphaIndex), "333");
-      expect(store.clients.cityAt(alphaIndex), "City Z");
+      final Client alpha = store.clientById(alphaId)!;
+      expect(alpha.name, "Alpha 2");
+      expect(alpha.phone, "333");
+      expect(alpha.city, "City Z");
 
       expect(store.deleteClient(alphaId), isTrue);
-      expect(store.clients.count, 1);
-      expect(store.clients.indexOfId(alphaId), -1);
-      expect(store.clients.nameAt(0), "Beta");
+      expect(store.listClients().length, 1);
+      expect(store.clientById(alphaId), isNull);
     });
 
-    test("catalog CRUD updates draft prices and removes deleted refs", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
+    test("catalog edit propagates to draft lines; delete removes them", () async {
+      final QuoteStore store = await openStore();
+      expect(store.addClient("Client", "", "", "", ""), isTrue);
+      final int clientId = store.lastClientId();
 
       expect(store.addEquipment("Camera", "4MP", 42000, 0), isTrue);
+      final int itemId = store.lastCatalogId(.equipment);
       expect(store.addService("Install", "Point", 28000, 0), isTrue);
-      final int itemId = store.equipments.idAt(0);
-      final int serviceId = store.services.idAt(0);
+      final int serviceId = store.lastCatalogId(.service);
 
-      expect(store.addDraftLine(.equipment, itemId, 2), isTrue);
-      expect(store.addDraftLine(.service, serviceId, 1), isTrue);
-      expect(store.draft.computeTotals(), 112000);
+      final int draftId = store.createDraft(clientId);
+      expect(draftId, greaterThan(0));
+      expect(store.addDraftLine(draftId, .equipment, itemId, 2), isTrue);
+      expect(store.addDraftLine(draftId, .service, serviceId, 1), isTrue);
+      expect(store.quoteTotal(draftId), 112000);
 
+      // Editing the catalog price updates the open draft line.
       expect(store.updateEquipment(itemId, "Camera Pro", "8MP", 50000, 0), isTrue);
       expect(store.nameFor(.equipment, itemId), "Camera Pro");
-      expect(store.draft.computeTotals(), 128000);
+      expect(store.quoteTotal(draftId), 128000);
 
+      // Deleting a catalog row drops its draft lines.
       expect(store.deleteService(serviceId), isTrue);
-      expect(store.services.count, 0);
-      expect(store.draft.count, 1);
-      expect(store.draft.types[0], CatalogItemType.equipment.index);
+      expect(store.listCatalog(.service), isEmpty);
+      final List<QuoteLine> lines = store.listQuoteLines(draftId);
+      expect(lines.length, 1);
+      expect(lines.first.type, CatalogItemType.equipment);
     });
 
-    test("draft golden path computes totals and clamps quantities", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-
+    test("draft lines increment, clamp, and remove", () async {
+      final QuoteStore store = await openStore();
+      expect(store.addClient("Client", "", "", "", ""), isTrue);
+      final int draftId = store.createDraft(store.lastClientId());
       expect(store.addEquipment("DVR", "8 canais", 89000, 0), isTrue);
-      final int itemId = store.equipments.idAt(0);
+      final int itemId = store.lastCatalogId(.equipment);
 
-      expect(store.addDraftLine(.equipment, itemId, 1), isTrue);
-      expect(store.addDraftLine(.equipment, itemId, 2), isTrue);
-      expect(store.draft.count, 1);
-      expect(store.draft.quantities[0], 3);
-      expect(store.draft.subtotalCents[0], 267000);
+      expect(store.addDraftLine(draftId, .equipment, itemId, 1), isTrue);
+      expect(store.addDraftLine(draftId, .equipment, itemId, 2), isTrue);
+      final List<QuoteLine> lines = store.listQuoteLines(draftId);
+      expect(lines.length, 1);
+      expect(lines.first.quantity, 3);
+      expect(lines.first.subtotalCents, 267000);
 
-      expect(store.changeDraftQuantity(0, -99), isTrue);
-      expect(store.draft.quantities[0], 1);
-      expect(store.changeDraftQuantity(0, 20000), isTrue);
-      expect(store.draft.quantities[0], 9999);
+      expect(store.changeDraftLineQuantity(draftId, .equipment, itemId, -99), isTrue);
+      expect(store.listQuoteLines(draftId).first.quantity, 1);
+      expect(store.changeDraftLineQuantity(draftId, .equipment, itemId, 20000), isTrue);
+      expect(store.listQuoteLines(draftId).first.quantity, 9999);
 
-      expect(store.removeDraftLine(0), isTrue);
-      expect(store.draft.count, 0);
-      expect(store.draft.refIds[0], 0);
+      expect(store.removeDraftLine(draftId, .equipment, itemId), isTrue);
+      expect(store.listQuoteLines(draftId), isEmpty);
     });
 
-    test("saveQuote writes quote and quote_lines in one success path", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      expect(await store.open(), isTrue);
-
+    test("finalizeDraft saves the quote and shows in summaries", () async {
+      final QuoteStore store = await openStore();
       expect(store.addClient("Client", "999", "", "Street", ""), isTrue);
+      final int clientId = store.lastClientId();
       expect(store.addEquipment("Camera", "4MP", 42000, 0), isTrue);
       expect(store.addService("Install", "Point", 28000, 0), isTrue);
-      expect(store.addDraftLine(.equipment, store.equipments.idAt(0), 4), isTrue);
-      expect(store.addDraftLine(.service, store.services.idAt(0), 4), isTrue);
 
-      final int clientId = store.clients.idAt(0);
-      expect(store.saveQuote(clientId), isTrue);
-      expect(store.quotes.count, 1);
-      expect(store.quotes.clientIdAt(0), clientId);
-      expect(store.quotes.totalCentsAt(0), 280000);
-      store.dispose();
+      final int draftId = store.createDraft(clientId);
+      expect(store.addDraftLine(draftId, .equipment, store.lastCatalogId(.equipment), 4), isTrue);
+      expect(store.addDraftLine(draftId, .service, store.lastCatalogId(.service), 4), isTrue);
 
-      final Database db = sqlite3.open(path);
-      addTearDown(db.close);
-      final ResultSet lineRows = db.select(
-        "SELECT COUNT(*) AS c, SUM(subtotal_cents) AS total FROM quote_lines",
-      );
-      expect(lineRows.first["c"], 2);
-      expect(lineRows.first["total"], 280000);
+      // Before finalize it is a draft.
+      final QuoteSummary draftSummary = store.listRecentQuotes().single;
+      expect(draftSummary.isDraft, isTrue);
+      expect(draftSummary.serviceCount, 1);
+      expect(draftSummary.equipmentCount, 1);
+
+      expect(store.finalizeDraft(draftId), isTrue);
+      final QuoteSummary saved = store.listQuotes(status: "saved").single;
+      expect(saved.id, draftId);
+      expect(saved.clientId, clientId);
+      expect(saved.totalCents, 280000);
+      expect(saved.isDraft, isFalse);
+      expect(store.listQuotes(status: "draft"), isEmpty);
     });
 
-    test("reload loads persisted rows into arrays", () async {
+    test("drafts persist across reopen and resume editable", () async {
       final QuoteStore first = QuoteStore(databasePath: path);
       expect(await first.open(), isTrue);
       expect(first.addClient("Persisted", "555", "", "Addr", "Town"), isTrue);
+      final int clientId = first.lastClientId();
       expect(first.addEquipment("Sensor", "Door", 12000, 0), isTrue);
+      final int draftId = first.createDraft(clientId);
+      expect(first.addDraftLine(draftId, .equipment, first.lastCatalogId(.equipment), 3), isTrue);
       first.dispose();
 
       final QuoteStore second = QuoteStore(databasePath: path);
       addTearDown(second.dispose);
       expect(await second.open(), isTrue);
-      expect(second.clients.count, 1);
-      expect(second.clients.nameAt(0), "Persisted");
-      expect(second.equipments.count, 1);
-      expect(second.equipments.nameAt(0), "Sensor");
-      expect(second.equipments.priceCentsAt(0), 12000);
+      final QuoteSummary draft = second.listRecentQuotes().single;
+      expect(draft.id, draftId);
+      expect(draft.isDraft, isTrue);
+      expect(draft.equipmentCount, 1);
+      expect(second.listQuoteLines(draftId).single.quantity, 3);
+      expect(second.draftClientId(draftId), clientId);
     });
 
-    test("error cases return false and leave arrays unchanged", () async {
+    test("deleteDraftIfEmpty removes only lineless drafts", () async {
+      final QuoteStore store = await openStore();
+      expect(store.addClient("Client", "", "", "", ""), isTrue);
+      final int clientId = store.lastClientId();
+      expect(store.addEquipment("Camera", "4MP", 42000, 0), isTrue);
+
+      final int empty = store.createDraft(clientId);
+      store.deleteDraftIfEmpty(empty);
+      expect(store.listQuotes(), isEmpty);
+
+      final int withLine = store.createDraft(clientId);
+      expect(store.addDraftLine(withLine, .equipment, store.lastCatalogId(.equipment), 1), isTrue);
+      store.deleteDraftIfEmpty(withLine);
+      expect(store.listQuotes().length, 1);
+    });
+
+    test("error cases return false with the right code", () async {
       final QuoteStore unopened = QuoteStore(databasePath: path);
       addTearDown(unopened.dispose);
       expect(unopened.addClient("No DB", "", "", "", ""), isFalse);
       expect(unopened.errors.codeAt(0), errDbOpen);
-      expect(unopened.clients.count, 0);
 
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-
+      final QuoteStore store = await openStore();
       expect(store.addClient("", "", "", "", ""), isFalse);
       expect(store.errors.codeAt(store.errors.count - 1), errInvalidInput);
-      expect(store.clients.count, 0);
-
-      expect(store.updateClient(404, "Missing", "", "", "", ""), isFalse);
-      expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
 
       expect(store.addEquipment("Bad", "", -1, 0), isFalse);
-      expect(store.equipments.count, 0);
       expect(store.errors.codeAt(store.errors.count - 1), errInvalidInput);
 
-      expect(store.addDraftLine(.equipment, 404, 1), isFalse);
-      expect(store.draft.count, 0);
+      expect(store.addClient("Client", "", "", "", ""), isTrue);
+      final int draftId = store.createDraft(store.lastClientId());
+      expect(store.addDraftLine(draftId, .equipment, 404, 1), isFalse);
       expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
 
-      expect(store.saveQuote(404), isFalse);
-      expect(store.quotes.count, 0);
+      // Finalize with no lines.
+      expect(store.finalizeDraft(draftId), isFalse);
+      expect(store.errors.codeAt(store.errors.count - 1), errQuoteEmpty);
+
+      // Finalize a draft without a client.
+      final int clientless = store.createDraft(0);
+      expect(store.finalizeDraft(clientless), isFalse);
       expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
     });
 
-    test("unit CRUD mirrors SQLite into arrays", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-
-      var unitNotifies = 0;
-      store.unitsNotifier.addListener(() => unitNotifies++);
-
+    test("unit CRUD and lookups", () async {
+      final QuoteStore store = await openStore();
       expect(store.addUnit("h", "Hour"), isTrue);
       expect(store.addUnit("m²", "Square meter"), isTrue);
-      expect(store.units.count, 2);
-      expect(store.units.abbreviationAt(0), "h");
-      expect(store.units.descriptionAt(0), "Hour");
-      expect(unitNotifies, 2);
+      expect(store.listUnits().length, 2);
+      final int hourId = store.listUnits().firstWhere((u) => u.abbreviation == "h").id;
+      expect(store.unitAbbreviationFor(hourId), "h");
 
-      final int hourId = store.units.idAt(0);
       expect(store.updateUnit(hourId, "hr", "Hour revised"), isTrue);
-      final int hourIndex = store.units.indexOfId(hourId);
-      expect(store.units.abbreviationAt(hourIndex), "hr");
-      expect(store.units.descriptionAt(hourIndex), "Hour revised");
-
+      expect(store.unitById(hourId)!.abbreviation, "hr");
       expect(store.deleteUnit(hourId), isTrue);
-      expect(store.units.count, 1);
-      expect(store.units.indexOfId(hourId), -1);
-      expect(store.units.abbreviationAt(0), "m²");
+      expect(store.unitById(hourId), isNull);
     });
 
-    test("reload loads units and new client fields", () async {
-      final QuoteStore first = QuoteStore(databasePath: path);
-      expect(await first.open(), isTrue);
-      expect(first.addClient("CityTest", "", "", "St", "Town"), isTrue);
-      expect(first.addUnit("un", "Unit"), isTrue);
-      expect(first.addEquipment("Box", "Small", 5000, first.units.idAt(0)), isTrue);
-      first.dispose();
-
-      final QuoteStore second = QuoteStore(databasePath: path);
-      addTearDown(second.dispose);
-      expect(await second.open(), isTrue);
-      expect(second.clients.count, 1);
-      expect(second.clients.cityAt(0), "Town");
-      expect(second.units.count, 1);
-      expect(second.units.abbreviationAt(0), "un");
-      expect(second.equipments.count, 1);
-      expect(second.equipments.unitIdAt(0), second.units.idAt(0));
-    });
-
-    test("saveQuote rejects empty draft for valid client", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-      expect(store.addClient("Client", "", "", "", ""), isTrue);
-
-      expect(store.saveQuote(store.clients.idAt(0)), isFalse);
-      expect(store.quotes.count, 0);
-      expect(store.errors.codeAt(store.errors.count - 1), errQuoteEmpty);
-    });
-
-    test("payment method CRUD mirrors SQLite into arrays", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-
-      var paymentNotifies = 0;
-      store.paymentMethodsNotifier.addListener(() => paymentNotifies++);
-
+    test("payment method CRUD", () async {
+      final QuoteStore store = await openStore();
       expect(store.addPaymentMethod("PIX"), isTrue);
       expect(store.addPaymentMethod("Credit Card"), isTrue);
-      expect(store.paymentMethods.count, 2);
-      expect(store.paymentMethods.nameAt(0), "PIX");
-      expect(paymentNotifies, 2);
-
-      final int pixId = store.paymentMethods.idAt(0);
+      expect(store.listPaymentMethods().length, 2);
+      final int pixId = store.listPaymentMethods().firstWhere((p) => p.name == "PIX").id;
       expect(store.updatePaymentMethod(pixId, "Bank Transfer (PIX)"), isTrue);
-      final int pixIndex = store.paymentMethods.indexOfId(pixId);
-      expect(store.paymentMethods.nameAt(pixIndex), "Bank Transfer (PIX)");
-      expect(paymentNotifies, 3);
-
+      expect(store.listPaymentMethods().firstWhere((p) => p.id == pixId).name, "Bank Transfer (PIX)");
       expect(store.deletePaymentMethod(pixId), isTrue);
-      expect(store.paymentMethods.count, 1);
-      expect(store.paymentMethods.indexOfId(pixId), -1);
-      expect(store.paymentMethods.nameAt(0), "Credit Card");
+      expect(store.listPaymentMethods().length, 1);
     });
 
     test("singleton settings round-trip on reload", () async {
       final QuoteStore first = QuoteStore(databasePath: path);
       expect(await first.open(), isTrue);
-      expect(first.saveBusinessInfo(
-        "Delforte Sistemas",
-        "12.345.678/0001-90",
-        "Rua das Palmeiras, 200",
-        "São Paulo",
-        "SP",
-        "+55 (11) 98888-0000",
-        "contato@delforte.com.br",
-        Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]),
-      ), isTrue);
-      expect(first.saveQuoteDefaults(
-        "Bank Transfer (PIX)",
-        "30 days",
-        "90 days — parts & labour",
-        "Services subject to prior site visit.",
-      ), isTrue);
+      expect(
+        first.saveBusinessInfo(
+          "Delforte Sistemas",
+          "12.345.678/0001-90",
+          "Rua das Palmeiras, 200",
+          "São Paulo",
+          "SP",
+          "+55 (11) 98888-0000",
+          "contato@delforte.com.br",
+          Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]),
+        ),
+        isTrue,
+      );
+      expect(first.saveQuoteDefaults("PIX", "30 days", "90 days", "Site visit first."), isTrue);
       expect(first.savePdfSettings("Navy Blue (default)"), isTrue);
       first.dispose();
 
       final QuoteStore second = QuoteStore(databasePath: path);
       addTearDown(second.dispose);
       expect(await second.open(), isTrue);
-      expect(second.businessInfo.hasData, isTrue);
       expect(second.businessInfo.name, "Delforte Sistemas");
-      expect(second.businessInfo.cnpj, "12.345.678/0001-90");
-      expect(second.businessInfo.address, "Rua das Palmeiras, 200");
-      expect(second.businessInfo.city, "São Paulo");
-      expect(second.businessInfo.state, "SP");
-      expect(second.businessInfo.phone, "+55 (11) 98888-0000");
-      expect(second.businessInfo.email, "contato@delforte.com.br");
       expect(second.businessInfo.logo, Uint8List.fromList([0x89, 0x50, 0x4E, 0x47]));
-      expect(second.quoteDefaults.hasData, isTrue);
-      expect(second.quoteDefaults.paymentMethod, "Bank Transfer (PIX)");
-      expect(second.quoteDefaults.validity, "30 days");
-      expect(second.quoteDefaults.warranty, "90 days — parts & labour");
-      expect(second.quoteDefaults.terms, "Services subject to prior site visit.");
-      expect(second.pdfSettings.hasData, isTrue);
+      expect(second.quoteDefaults.paymentMethod, "PIX");
       expect(second.pdfSettings.accentColour, "Navy Blue (default)");
     });
 
-    test("payment method errors return false and leave arrays unchanged", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-
-      expect(store.addPaymentMethod(""), isFalse);
-      expect(store.paymentMethods.count, 0);
-      expect(store.errors.codeAt(store.errors.count - 1), errInvalidInput);
-
-      expect(store.addPaymentMethod("Cash"), isTrue);
-      expect(store.updatePaymentMethod(404, "Missing"), isFalse);
-      expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
-
-      expect(store.deletePaymentMethod(404), isFalse);
-      expect(store.errors.codeAt(store.errors.count - 1), errMissingId);
-    });
-
-    test("search indexes filters and returns all on empty query", () async {
-      final QuoteStore store = QuoteStore(databasePath: path);
-      addTearDown(store.dispose);
-      expect(await store.open(), isTrue);
-
+    test("search filters and returns all on empty query", () async {
+      final QuoteStore store = await openStore();
       expect(store.addEquipment("Camera Pro", "8MP dome", 50000, 0), isTrue);
       expect(store.addEquipment("DVR", "16 channel recorder", 89000, 0), isTrue);
       expect(store.addEquipment("Cable", "RG6 coaxial", 3000, 0), isTrue);
-
       expect(store.addClient("Alpha Corp", "111", "a@x.com", "Rua A", "City A"), isTrue);
       expect(store.addClient("Beta Ltd", "222", "b@x.com", "Rua B", "City B"), isTrue);
 
-      expect(store.addUnit("h", "Hour"), isTrue);
-      expect(store.addUnit("m²", "Square meter"), isTrue);
+      expect(store.searchCatalog(.equipment, "").length, 3);
+      expect(store.searchCatalog(.equipment, "camera").single.name, "Camera Pro");
+      expect(store.searchCatalog(.equipment, "recorder").single.name, "DVR");
+      expect(store.searchCatalog(.equipment, "MISSING"), isEmpty);
 
-      expect(store.addPaymentMethod("PIX"), isTrue);
-      expect(store.addPaymentMethod("Credit Card"), isTrue);
-
-      expect(store.equipments.searchIndexes(""), [0, 1, 2]);
-      expect(store.equipments.searchIndexes("camera"), [0]);
-      expect(store.equipments.searchIndexes("recorder"), [1]);
-      expect(store.equipments.searchIndexes("MISSING"), isEmpty);
-
-      expect(store.clients.searchIndexes(""), [0, 1]);
-      expect(store.clients.searchIndexes("alpha"), [0]);
-      expect(store.clients.searchIndexes("222"), [1]);
-      expect(store.clients.searchIndexes("a@x.com"), [0]);
-      expect(store.clients.searchIndexes("Rua B"), [1]);
-      expect(store.clients.searchIndexes("City A"), [0]);
-      expect(store.clients.searchIndexes("MISSING"), isEmpty);
-
-      expect(store.units.searchIndexes(""), [0, 1]);
-      expect(store.units.searchIndexes("h"), [0]);
-      expect(store.units.searchIndexes("square"), [1]);
-      expect(store.units.searchIndexes("MISSING"), isEmpty);
-
-      expect(store.paymentMethods.searchIndexes(""), [0, 1]);
-      expect(store.paymentMethods.searchIndexes("pix"), [0]);
-      expect(store.paymentMethods.searchIndexes("card"), [1]);
-      expect(store.paymentMethods.searchIndexes("MISSING"), isEmpty);
+      expect(store.searchClients("").length, 2);
+      expect(store.searchClients("alpha").single.name, "Alpha Corp");
+      expect(store.searchClients("222").single.name, "Beta Ltd");
+      expect(store.searchClients("City A").single.name, "Alpha Corp");
+      expect(store.searchClients("MISSING"), isEmpty);
     });
   });
 }

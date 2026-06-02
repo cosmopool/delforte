@@ -7,24 +7,27 @@ class HomeRoute extends AppRoute {
 }
 
 class QuoteFlowRoute extends AppRoute {
-  const QuoteFlowRoute(this.step, {this.selectedClientId});
+  const QuoteFlowRoute(this.step, {this.draftId});
+
+  /// The draft quote being edited, or `null` at the initial client step of a
+  /// brand-new quote (the draft is created lazily once a client is chosen).
   final QuoteStep step;
-  final int? selectedClientId;
+  final int? draftId;
 }
 
 class ClientCreateRoute extends AppRoute {
-  const ClientCreateRoute({this.selectedClientId});
-  final int? selectedClientId;
+  const ClientCreateRoute({this.draftId});
+  final int? draftId;
 }
 
 class ServiceCreateRoute extends AppRoute {
-  const ServiceCreateRoute({this.selectedClientId});
-  final int? selectedClientId;
+  const ServiceCreateRoute({this.draftId});
+  final int? draftId;
 }
 
 class EquipmentCreateRoute extends AppRoute {
-  const EquipmentCreateRoute({this.selectedClientId});
-  final int? selectedClientId;
+  const EquipmentCreateRoute({this.draftId});
+  final int? draftId;
 }
 
 class QuotesListRoute extends AppRoute {

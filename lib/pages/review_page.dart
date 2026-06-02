@@ -12,134 +12,125 @@ import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class ReviewPage extends StatelessWidget {
-  const ReviewPage({required this.store, required this.router, this.selectedClientId, super.key});
+  const ReviewPage({required this.store, required this.router, required this.draftId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
-  final int? selectedClientId;
+  final int draftId;
 
   @override
   Widget build(BuildContext context) {
-    final int total = store.draft.computeTotals();
-    final int clientIndex = selectedClientId == null
-        ? -1
-        : store.clients.indexOfId(selectedClientId!);
-
-    return AppShell(
-      body: (int total, int clientIndex) {
+    return ListenableBuilder(
+      listenable: store.quotesNotifier,
+      builder: (BuildContext context, Widget? _) {
+        final List<QuoteLine> lines = store.listQuoteLines(draftId);
+        final int total = store.quoteTotal(draftId);
+        final Client? client = store.clientById(store.draftClientId(draftId));
         const FontWeight weight = FontWeight.w700;
         const Color color = VigilColors.textSecondary;
-        return Column(
-          children: [
-            FlowHeader(
-              title: "Review",
-              stepIndex: 3,
-              continueLabel: "Looks Good",
-              onBack: () => router.goTo(
-                QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId),
+        return AppShell(
+          body: Column(
+            children: [
+              FlowHeader(
+                title: "Review",
+                stepIndex: 3,
+                continueLabel: "Looks Good",
+                onBack: () => router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: draftId)),
+                onContinue: (client != null && lines.isNotEmpty)
+                    ? () => _saveAndContinue(context)
+                    : null,
               ),
-              onContinue: _canSaveQuote ? () => _saveAndContinue(total) : null,
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Panel(
-                    title: "Client",
-                    child: Row(
-                      children: [
-                        InitialsAvatar(
-                          text: clientIndex >= 0
-                              ? initials(store.clients.nameAt(clientIndex))
-                              : "--",
-                          selected: false,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                clientIndex >= 0
-                                    ? store.clients.nameAt(clientIndex)
-                                    : "No client selected",
-                                style: VigilType.body(
-                                  color: VigilColors.textPrimary,
-                                  size: 14,
-                                  weight: weight,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                clientIndex >= 0
-                                    ? store.clients.addressAt(clientIndex)
-                                    : "Return to client step",
-                                style: VigilType.small(
-                                  color: color,
-                                  size: 11,
-                                  weight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    Panel(
+                      title: "Client",
+                      child: Row(
+                        children: [
+                          InitialsAvatar(
+                            text: client != null ? initials(client.name) : "--",
+                            selected: false,
                           ),
-                        ),
-                        IconButton(
-                          tooltip: "Edit client",
-                          onPressed: () => router.goTo(
-                            QuoteFlowRoute(QuoteStep.client, selectedClientId: selectedClientId),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  client?.name ?? "No client selected",
+                                  style: VigilType.body(
+                                    color: VigilColors.textPrimary,
+                                    size: 14,
+                                    weight: weight,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  client?.address ?? "Return to client step",
+                                  style: VigilType.small(
+                                    color: color,
+                                    size: 11,
+                                    weight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          icon: const Icon(Icons.edit_rounded, size: 18),
-                        ),
-                      ],
+                          IconButton(
+                            tooltip: "Edit client",
+                            onPressed: () =>
+                                router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: draftId)),
+                            icon: const Icon(Icons.edit_rounded, size: 18),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  LineGroup(
-                    title: "Services",
-                    lines: _draftLines(.service),
-                    onEdit: () => router.goTo(
-                      QuoteFlowRoute(QuoteStep.services, selectedClientId: selectedClientId),
+                    const SizedBox(height: 10),
+                    LineGroup(
+                      title: "Services",
+                      lines: _lineViews(lines, .service),
+                      onEdit: () =>
+                          router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: draftId)),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  LineGroup(
-                    title: "Equipment",
-                    lines: _draftLines(.equipment),
-                    onEdit: () => router.goTo(
-                      QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId),
+                    const SizedBox(height: 10),
+                    LineGroup(
+                      title: "Equipment",
+                      lines: _lineViews(lines, .equipment),
+                      onEdit: () =>
+                          router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: draftId)),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  TotalBanner(label: "Total", amount: formatMoney(total)),
-                ],
+                    const SizedBox(height: 10),
+                    TotalBanner(label: "Total", amount: formatMoney(total)),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
-      }(total, clientIndex),
+      },
     );
   }
 
-  bool get _canSaveQuote => selectedClientId != null && store.draft.count > 0;
-
-  void _saveAndContinue(int total) {
-    if (selectedClientId == null) return;
-    final bool saved = store.saveQuote(selectedClientId!);
-    if (!saved) {
-      // Show error - but we're in a StatelessWidget, need context
+  void _saveAndContinue(BuildContext context) {
+    if (!store.finalizeDraft(draftId)) {
+      final String message = store.latestErrorMessage();
+      if (message.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      }
       return;
     }
-    router.goTo(QuoteFlowRoute(QuoteStep.send, selectedClientId: selectedClientId));
+    router.goTo(QuoteFlowRoute(QuoteStep.send, draftId: draftId));
   }
 
-  List<DraftLineView> _draftLines(CatalogItemType type) {
+  List<DraftLineView> _lineViews(List<QuoteLine> lines, CatalogItemType type) {
     return [
-      for (var i = 0; i < store.draft.count; i++)
-        if (store.draft.types[i] == type.index)
+      for (final QuoteLine line in lines)
+        if (line.type == type)
           DraftLineView(
-            name: store.nameFor(type, store.draft.refIds[i]),
-            quantity: store.draft.quantities[i],
-            subtotal: formatMoney(store.draft.subtotalCents[i]),
+            name: line.name,
+            quantity: line.quantity,
+            subtotal: formatMoney(line.subtotalCents),
           ),
     ];
   }

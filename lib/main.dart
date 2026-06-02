@@ -60,24 +60,26 @@ class _AppMainWidgetState extends State<AppMainWidget> {
   }
 
   void _seedEmptyStore() {
-    if (_store.clients.count == 0) {
+    if (_store.listClients().isEmpty) {
       _store.addClient("Residencial Oliveira", "(11) 98888-1010", "", "Rua das Flores, 142", "");
       _store.addClient("Comercio Santos", "(11) 97777-2020", "", "Av. Central, 88 - Bloco B", "");
       _store.addClient("Casa Joao Silva", "(11) 96666-3030", "", "Estrada do Morro, 55", "");
     }
-    if (_store.units.count == 0) {
+    List<Unit> units = _store.listUnits();
+    if (units.isEmpty) {
       _store.addUnit("h", "Hour");
       _store.addUnit("un", "Unit");
       _store.addUnit("m", "Meter");
+      units = _store.listUnits();
     }
-    final int unitHour = _store.units.count > 0 ? _store.units.idAt(0) : 0;
-    final int unitUnit = _store.units.count > 1 ? _store.units.idAt(1) : 0;
-    if (_store.services.count == 0) {
+    final int unitHour = units.isNotEmpty ? units[0].id : 0;
+    final int unitUnit = units.length > 1 ? units[1].id : 0;
+    if (_store.listCatalog(.service).isEmpty) {
       _store.addService("CCTV Installation", "Camera installation and setup", 60000, unitHour);
       _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000, unitHour);
       _store.addService("Gate Motor Install", "Gate motor installation labor", 20000, unitHour);
     }
-    if (_store.equipments.count == 0) {
+    if (_store.listCatalog(.equipment).isEmpty) {
       _store.addEquipment("IP Camera 4MP", "Outdoor infrared camera", 35000, unitUnit);
       _store.addEquipment("Gate Motor Kit", "Motor, remotes, and rails", 85000, unitUnit);
       _store.addEquipment(

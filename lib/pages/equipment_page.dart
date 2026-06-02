@@ -10,16 +10,11 @@ import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class EquipmentPage extends StatefulWidget {
-  const EquipmentPage({
-    required this.store,
-    required this.router,
-    this.selectedClientId,
-    super.key,
-  });
+  const EquipmentPage({required this.store, required this.router, required this.draftId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
-  final int? selectedClientId;
+  final int draftId;
 
   @override
   State<EquipmentPage> createState() => _EquipmentPageState();
@@ -37,43 +32,37 @@ class _EquipmentPageState extends State<EquipmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<int> indexes;
-    final String query = _searchController.text.trim();
-    if (query.isEmpty) {
-      indexes = <int>[];
-      for (var i = 0; i < widget.store.draft.count; i++) {
-        if (widget.store.draft.types[i] == CatalogItemType.equipment.index) {
-          final int catalogIndex = widget.store.equipments.indexOfId(widget.store.draft.refIds[i]);
-          if (catalogIndex >= 0) indexes.add(catalogIndex);
-        }
-      }
-    } else {
-      indexes = widget.store.equipments.searchIndexes(query);
-    }
-
     return AppShell(
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         behavior: HitTestBehavior.translucent,
-        child: Column(
-          children: [
-            FlowHeader(
-              title: "Equipment",
-              stepIndex: 2,
-              total: _draftTotalFor(),
-              totalLabel: "Equipment Total",
-              onBack: () => widget.router.goTo(
-                QuoteFlowRoute(QuoteStep.services, selectedClientId: widget.selectedClientId),
-              ),
-              onContinue: () => widget.router.goTo(
-                QuoteFlowRoute(QuoteStep.review, selectedClientId: widget.selectedClientId),
-              ),
-            ),
-            Expanded(
-              child: ListenableBuilder(
-                listenable: widget.store.quoteDraftNotifier,
-                builder: (BuildContext context, Widget? _) {
-                  return ListView(
+        child: ListenableBuilder(
+          listenable: widget.store.quotesNotifier,
+          builder: (BuildContext context, Widget? _) {
+            final String query = _searchController.text.trim();
+            final Map<int, int> quantities = _draftQuantities();
+            final List<CatalogItem> items = query.isEmpty
+                ? [
+                    for (final int refId in quantities.keys)
+                      widget.store.catalogById(.equipment, refId),
+                  ].whereType<CatalogItem>().toList()
+                : widget.store.searchCatalog(.equipment, query);
+            return Column(
+              children: [
+                FlowHeader(
+                  title: "Equipment",
+                  stepIndex: 2,
+                  total: widget.store.quoteSubtotal(widget.draftId, .equipment),
+                  totalLabel: "Equipment Total",
+                  onBack: () => widget.router.goTo(
+                    QuoteFlowRoute(QuoteStep.services, draftId: widget.draftId),
+                  ),
+                  onContinue: () => widget.router.goTo(
+                    QuoteFlowRoute(QuoteStep.review, draftId: widget.draftId),
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
                       SearchField(
@@ -82,85 +71,61 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         onChanged: (name) => setState(() {}),
                       ),
                       const SizedBox(height: 10),
-                      for (final int index in indexes)
+                      for (final CatalogItem item in items)
                         CatalogCard(
-                          name: widget.store.equipments.nameAt(index),
-                          description: widget.store.equipments.descriptionAt(index),
-                          price: formatMoney(widget.store.equipments.priceCentsAt(index)),
-                          unitPrice: _draftUnitPrice(widget.store.equipments.idAt(index)),
-                          icon: _catalogIcon(widget.store.equipments.nameAt(index)),
-                          expanded: _expandedId == widget.store.equipments.idAt(index),
-                          selectedQuantity: _draftQuantity(widget.store.equipments.idAt(index)),
+                          name: item.name,
+                          description: item.description,
+                          price: formatMoney(item.priceCents),
+                          icon: _catalogIcon(item.name),
+                          expanded: _expandedId == item.id,
+                          selectedQuantity: quantities[item.id] ?? 0,
                           onToggle: () => setState(() {
-                            final int id = widget.store.equipments.idAt(index);
-                            _expandedId = _expandedId == id ? null : id;
+                            _expandedId = _expandedId == item.id ? null : item.id;
                           }),
-                          onDecrease: () =>
-                              _changeDraftQuantity(widget.store.equipments.idAt(index), -1),
-                          onIncrease: () =>
-                              _changeDraftQuantity(widget.store.equipments.idAt(index), 1),
-                          onUnitPriceChanged: (int cents) =>
-                              _setDraftUnitPrice(widget.store.equipments.idAt(index), cents),
+                          onDecrease: () => _changeDraftQuantity(item.id, -1),
+                          onIncrease: () => _changeDraftQuantity(item.id, 1),
                         ),
                       AddCard(
                         label: "Add new equipment",
                         onTap: () => widget.router.goTo(
-                          EquipmentCreateRoute(selectedClientId: widget.selectedClientId),
+                          EquipmentCreateRoute(draftId: widget.draftId),
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  int _draftQuantity(int refId) {
-    final int index = widget.store.draft.lineIndex(.equipment, refId);
-    return index < 0 ? 0 : widget.store.draft.quantities[index];
-  }
-
-  int _draftUnitPrice(int refId) {
-    final int index = widget.store.draft.lineIndex(.equipment, refId);
-    if (index < 0) {
-      return widget.store.equipments.priceCentsAt(widget.store.equipments.indexOfId(refId));
-    }
-    return widget.store.draft.unitPriceCents[index];
-  }
-
-  void _setDraftUnitPrice(int refId, int cents) {
-    final int index = widget.store.draft.lineIndex(.equipment, refId);
-    if (index < 0) return;
-    final bool ok = widget.store.setDraftUnitPrice(index, cents);
-    if (!ok) _showSnack(widget.store.latestErrorMessage());
-  }
-
-  int _draftTotalFor() {
-    var total = 0;
-    for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == CatalogItemType.equipment.index) {
-        total += widget.store.draft.subtotalCents[i];
-      }
-    }
-    return total;
+  /// Map of equipment refId -> quantity for the lines already in the draft.
+  Map<int, int> _draftQuantities() {
+    return {
+      for (final QuoteLine line in widget.store.listQuoteLines(widget.draftId))
+        if (line.type == CatalogItemType.equipment) line.refId: line.quantity,
+    };
   }
 
   void _changeDraftQuantity(int refId, int delta) {
     setState(_searchController.clear);
     FocusScope.of(context).unfocus();
-    final int index = widget.store.draft.lineIndex(.equipment, refId);
-    if (index >= 0) {
-      final bool ok = widget.store.changeDraftQuantity(index, delta);
-      if (!ok) _showSnack(widget.store.latestErrorMessage());
+    final bool exists = widget.store
+        .listQuoteLines(widget.draftId)
+        .any((QuoteLine line) => line.type == CatalogItemType.equipment && line.refId == refId);
+    if (exists) {
+      if (!widget.store.changeDraftLineQuantity(widget.draftId, .equipment, refId, delta)) {
+        _showSnack(widget.store.latestErrorMessage());
+      }
       return;
     }
     if (delta < 0) return;
-    final bool ok = widget.store.addDraftLine(.equipment, refId, 1);
-    if (!ok) _showSnack(widget.store.latestErrorMessage());
+    if (!widget.store.addDraftLine(widget.draftId, .equipment, refId, 1)) {
+      _showSnack(widget.store.latestErrorMessage());
+    }
   }
 
   void _showSnack(String message) {

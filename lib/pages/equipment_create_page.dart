@@ -6,22 +6,15 @@ import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/unit_dropdown_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
-import "package:delforte/store/item_data.dart";
 import "package:delforte/store/quote_store.dart";
-import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class EquipmentCreatePage extends StatefulWidget {
-  const EquipmentCreatePage({
-    required this.store,
-    required this.router,
-    this.selectedClientId,
-    super.key,
-  });
+  const EquipmentCreatePage({required this.store, required this.router, this.draftId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
-  final int? selectedClientId;
+  final int? draftId;
 
   @override
   State<EquipmentCreatePage> createState() => _EquipmentCreatePageState();
@@ -48,9 +41,8 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
         children: [
           FlowHeader(
             title: "New Equipment",
-            onBack: () => widget.router.goTo(
-              QuoteFlowRoute(QuoteStep.equipment, selectedClientId: widget.selectedClientId),
-            ),
+            onBack: () =>
+                widget.router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: widget.draftId)),
           ),
           Expanded(
             child: ListView(
@@ -58,11 +50,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
               children: [
                 const FormSectionDivider(label: "Product"),
                 const SizedBox(height: 16),
-                FormFieldWidget(
-                  controller: _name,
-                  label: "Equipment Name",
-                  hint: "e.g. IP Camera 4MP",
-                ),
+                FormFieldWidget(controller: _name, label: "Equipment Name", hint: "e.g. IP Camera 4MP"),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _description,
@@ -79,7 +67,6 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
                   children: [
                     Expanded(
                       child: FormFieldWidget(
-                        onChanged: _updatePrice,
                         controller: _price,
                         label: "Unit Price",
                         hint: "0,00",
@@ -107,45 +94,40 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
     );
   }
 
-  void _updatePrice(String text) {
-    final int digits = moneyStringToCents(text);
-    final String decimal = formatMoney(digits);
-    _price.text = decimal;
-  }
-
   void _save() {
     final String name = _name.text.trim();
     if (name.isEmpty) {
       _showSnack("Equipment name is required");
       return;
     }
-    final int cents = moneyStringToCents(_price.text);
-    final bool catalogSaved = widget.store.addEquipment(
-      name,
-      _description.text.trim(),
-      cents,
-      _unitId,
-    );
+    final int cents = _parseMoneyCents(_price.text);
+    final bool catalogSaved = widget.store.addEquipment(name, _description.text.trim(), cents, _unitId);
     if (!catalogSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;
     }
 
-    final ItemData data = widget.store.equipments;
-    final int insertedId = data.idAt(data.count - 1);
-    final bool lineSaved = widget.store.addDraftLine(.equipment, insertedId, 1);
-    if (!lineSaved) {
-      _showSnack(widget.store.latestErrorMessage());
-      return;
+    final int? draftId = widget.draftId;
+    if (draftId != null) {
+      final int insertedId = widget.store.lastCatalogId(.equipment);
+      if (!widget.store.addDraftLine(draftId, .equipment, insertedId, 1)) {
+        _showSnack(widget.store.latestErrorMessage());
+        return;
+      }
     }
 
-    widget.router.goTo(
-      QuoteFlowRoute(QuoteStep.equipment, selectedClientId: widget.selectedClientId),
-    );
+    widget.router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: draftId));
   }
 
   void _showSnack(String message) {
     if (message.isEmpty || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  int _parseMoneyCents(String value) {
+    final String normalized = value.trim().replaceAll(".", "").replaceAll(",", ".");
+    final double parsed = double.tryParse(normalized) ?? 0;
+    if (parsed <= 0) return 0;
+    return (parsed * 100).round();
   }
 }

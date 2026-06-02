@@ -10,11 +10,11 @@ import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class SendPage extends StatefulWidget {
-  const SendPage({required this.store, required this.router, this.selectedClientId, super.key});
+  const SendPage({required this.store, required this.router, required this.draftId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
-  final int? selectedClientId;
+  final int draftId;
 
   @override
   State<SendPage> createState() => _SendPageState();
@@ -23,10 +23,11 @@ class SendPage extends StatefulWidget {
 class _SendPageState extends State<SendPage> {
   @override
   Widget build(BuildContext context) {
-    final int total = widget.store.draft.computeTotals();
-    final int serviceCount = _draftCountFor(.service);
-    final int equipmentCount = _draftCountFor(.equipment);
-    final String clientName = _clientNameById(widget.selectedClientId ?? 0);
+    final int total = widget.store.quoteTotal(widget.draftId);
+    final int serviceCount = widget.store.quoteLineCount(widget.draftId, .service);
+    final int equipmentCount = widget.store.quoteLineCount(widget.draftId, .equipment);
+    final Client? client = widget.store.clientById(widget.store.draftClientId(widget.draftId));
+    final String clientName = client?.name ?? "Unknown client";
 
     return AppShell(
       body: Column(
@@ -34,9 +35,8 @@ class _SendPageState extends State<SendPage> {
           FlowHeader(
             title: "Send Quote",
             stepIndex: 4,
-            onBack: () => widget.router.goTo(
-              QuoteFlowRoute(QuoteStep.review, selectedClientId: widget.selectedClientId),
-            ),
+            onBack: () =>
+                widget.router.goTo(QuoteFlowRoute(QuoteStep.review, draftId: widget.draftId)),
           ),
           Expanded(
             child: ListView(
@@ -71,10 +71,7 @@ class _SendPageState extends State<SendPage> {
                       _showSnack(context, "Link sharing is not available for local drafts."),
                 ),
                 TextButton(
-                  onPressed: () {
-                    widget.store.clearDraft();
-                    widget.router.goTo(const HomeRoute());
-                  },
+                  onPressed: () => widget.router.goTo(const HomeRoute()),
                   child: const Text("Back to Home"),
                 ),
               ],
@@ -83,19 +80,6 @@ class _SendPageState extends State<SendPage> {
         ],
       ),
     );
-  }
-
-  int _draftCountFor(CatalogItemType type) {
-    var count = 0;
-    for (var i = 0; i < widget.store.draft.count; i++) {
-      if (widget.store.draft.types[i] == type.index) count++;
-    }
-    return count;
-  }
-
-  String _clientNameById(int id) {
-    final int index = widget.store.clients.indexOfId(id);
-    return index < 0 ? "Unknown client" : widget.store.clients.nameAt(index);
   }
 
   void _showSnack(BuildContext context, String message) {

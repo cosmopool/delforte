@@ -2,7 +2,6 @@ import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
 import "package:delforte/design_system/widgets/quote_card_widget.dart";
-import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -18,15 +17,9 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([
-        store.clientsNotifier,
-        store.equipmentNotifier,
-        store.servicesNotifier,
-        store.quotesNotifier,
-        store.quoteDraftNotifier,
-        store.errorsNotifier,
-      ]),
+      animation: Listenable.merge([store.clientsNotifier, store.quotesNotifier]),
       builder: (context, _) {
+        final List<QuoteSummary> quotes = store.listRecentQuotes(limit: 3);
         return AppShell(
           body: Column(
             children: [
@@ -38,26 +31,7 @@ class HomePage extends StatelessWidget {
                     Transform.translate(
                       offset: const Offset(0, -16),
                       child: _NewQuoteCard(
-                        onTap: () {
-                          store.clearDraft();
-                          router.goTo(const QuoteFlowRoute(QuoteStep.client));
-                        },
-                      ),
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, -6),
-                      child: _ActionTile(
-                        label: "Continue",
-                        subtitle: "Resume a draft",
-                        icon: Icons.edit_note_rounded,
-                        onTap: () => router.goTo(
-                          QuoteFlowRoute(
-                            QuoteStep.client,
-                            selectedClientId: store.draft.clientId == 0
-                                ? null
-                                : store.draft.clientId,
-                          ),
-                        ),
+                        onTap: () => router.goTo(const QuoteFlowRoute(QuoteStep.client)),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -67,22 +41,14 @@ class HomePage extends StatelessWidget {
                       onAction: () => router.goTo(const QuotesListRoute()),
                     ),
                     const SizedBox(height: 12),
-                    if (store.quotes.count == 0)
+                    if (quotes.isEmpty)
                       const EmptyPanel(
                         icon: Icons.receipt_long_rounded,
-                        title: "No saved quotes yet",
-                        subtitle: "Create a quote and save it from the review flow.",
+                        title: "No quotes yet",
+                        subtitle: "Start a new quote — drafts and saved quotes appear here.",
                       )
                     else
-                      for (var i = 0; i < store.quotes.count && i < 3; i++)
-                        QuoteCard(
-                          clientName: _clientNameById(store.quotes.clientIdAt(i)),
-                          meta: _dateLabel(store.quotes.timestampAt(i)),
-                          total: formatMoney(store.quotes.totalCentsAt(i)),
-                          status: "Saved",
-                          statusColor: VigilColors.success,
-                          statusBg: VigilColors.successSoft,
-                        ),
+                      for (final QuoteSummary quote in quotes) _quoteCard(quote),
                   ],
                 ),
               ),
@@ -93,19 +59,23 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  String _clientNameById(int id) {
-    final int index = store.clients.indexOfId(id);
-    return index < 0 ? "Unknown client" : store.clients.nameAt(index);
+  Widget _quoteCard(QuoteSummary quote) {
+    return QuoteCard(
+      clientName: _clientNameById(quote.clientId),
+      meta: "${quote.serviceCount} services · ${quote.equipmentCount} equipment",
+      total: formatMoney(quote.totalCents),
+      status: quote.isDraft ? "Draft" : "Saved",
+      statusColor: quote.isDraft ? VigilColors.textMuted : VigilColors.success,
+      statusBg: quote.isDraft ? VigilColors.canvas : VigilColors.successSoft,
+      // Drafts resume into the editable flow; reopening saved quotes is not wired yet.
+      onTap: quote.isDraft
+          ? () => router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: quote.id))
+          : null,
+    );
   }
 
-  String _dateLabel(int millis) {
-    if (millis <= 0) return "Draft";
-    final DateTime date = DateTime.fromMillisecondsSinceEpoch(millis);
-    final DateTime now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
-      return "Today";
-    }
-    return "${date.month.toString().padLeft(2, "0")}/${date.day.toString().padLeft(2, "0")}/${date.year}";
+  String _clientNameById(int id) {
+    return store.clientById(id)?.name ?? "Unknown client";
   }
 }
 
@@ -209,52 +179,6 @@ class _NewQuoteCard extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionTile extends StatelessWidget {
-  const _ActionTile({
-    required this.label,
-    required this.subtitle,
-    required this.icon,
-    required this.onTap,
-  });
-
-  final String label;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    const Color color = VigilColors.textMuted;
-    const FontWeight weight = FontWeight.w700;
-    return TapCard(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            VigilIconBox(
-              icon: icon,
-              color: VigilColors.textSecondary,
-              background: VigilColors.canvas,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              style: VigilType.body(color: VigilColors.textPrimary, size: 14, weight: weight),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              subtitle,
-              style: VigilType.small(color: color, size: 11, weight: FontWeight.w600),
-            ),
-          ],
         ),
       ),
     );

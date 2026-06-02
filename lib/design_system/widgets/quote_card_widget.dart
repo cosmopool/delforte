@@ -22,6 +22,7 @@ class QuoteCard extends StatelessWidget {
     required this.status,
     required this.statusColor,
     required this.statusBg,
+    this.onTap,
     super.key,
   });
 
@@ -43,6 +44,9 @@ class QuoteCard extends StatelessWidget {
   /// The background color for the status pill.
   final Color statusBg;
 
+  /// Optional tap handler. When set, the card becomes tappable.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
     const FontWeight weight = FontWeight.w700;
@@ -51,15 +55,20 @@ class QuoteCard extends StatelessWidget {
     const Color color2 = VigilColors.textMuted;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: VigilColors.border, width: 1.5),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
           borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Column(
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: Border.all(color: VigilColors.border, width: 1.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Column(
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +101,9 @@ class QuoteCard extends StatelessWidget {
                   VigilPill(label: status.toUpperCase(), color: statusColor, background: statusBg),
                 ],
               ),
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

@@ -22,10 +22,11 @@ class UnitDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasUnits = store.units.count > 0;
+    final List<Unit> units = store.listUnits();
+    final bool hasUnits = units.isNotEmpty;
     final List<DropdownMenuItem<int>> items = [
-      for (var i = 0; i < store.units.count; i++)
-        DropdownMenuItem(value: store.units.idAt(i), child: Text(store.units.abbreviationAt(i))),
+      for (final Unit unit in units)
+        DropdownMenuItem(value: unit.id, child: Text(unit.abbreviation)),
     ];
 
     return Column(
@@ -41,7 +42,7 @@ class UnitDropdownWidget extends StatelessWidget {
         ),
         const SizedBox(height: 7),
         DropdownButtonFormField<int>(
-          initialValue: hasUnits && store.units.indexOfId(selectedUnitId) >= 0
+          initialValue: hasUnits && store.unitById(selectedUnitId) != null
               ? selectedUnitId
               : null,
           items: items,

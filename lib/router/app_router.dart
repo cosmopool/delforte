@@ -33,24 +33,21 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
   Widget build(BuildContext context) {
     return switch (_currentRoute) {
       HomeRoute() => HomePage(store: store, router: this),
-      QuoteFlowRoute(:final QuoteStep step, :final int? selectedClientId) => _buildQuoteFlow(
-        step,
-        selectedClientId,
-      ),
-      ClientCreateRoute(:final int? selectedClientId) => ClientCreatePage(
+      QuoteFlowRoute(:final QuoteStep step, :final int? draftId) => _buildQuoteFlow(step, draftId),
+      ClientCreateRoute(:final int? draftId) => ClientCreatePage(
         store: store,
         router: this,
-        selectedClientId: selectedClientId,
+        draftId: draftId,
       ),
-      ServiceCreateRoute(:final int? selectedClientId) => ServiceCreatePage(
+      ServiceCreateRoute(:final int? draftId) => ServiceCreatePage(
         store: store,
         router: this,
-        selectedClientId: selectedClientId,
+        draftId: draftId,
       ),
-      EquipmentCreateRoute(:final int? selectedClientId) => EquipmentCreatePage(
+      EquipmentCreateRoute(:final int? draftId) => EquipmentCreatePage(
         store: store,
         router: this,
-        selectedClientId: selectedClientId,
+        draftId: draftId,
       ),
       QuotesListRoute() => QuotesListPage(store: store, router: this),
       TemplatesRoute() => TemplatesPage(router: this),
@@ -58,29 +55,13 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
     };
   }
 
-  Widget _buildQuoteFlow(QuoteStep step, int? selectedClientId) {
+  Widget _buildQuoteFlow(QuoteStep step, int? draftId) {
     return switch (step) {
-      QuoteStep.client => ClientSelectPage(
-        store: store,
-        router: this,
-        selectedClientId: selectedClientId,
-      ),
-      QuoteStep.services => ServicesPage(
-        store: store,
-        router: this,
-        selectedClientId: selectedClientId,
-      ),
-      QuoteStep.equipment => EquipmentPage(
-        store: store,
-        router: this,
-        selectedClientId: selectedClientId,
-      ),
-      QuoteStep.review => ReviewPage(
-        store: store,
-        router: this,
-        selectedClientId: selectedClientId,
-      ),
-      QuoteStep.send => SendPage(store: store, router: this, selectedClientId: selectedClientId),
+      QuoteStep.client => ClientSelectPage(store: store, router: this, draftId: draftId),
+      QuoteStep.services => ServicesPage(store: store, router: this, draftId: draftId ?? 0),
+      QuoteStep.equipment => EquipmentPage(store: store, router: this, draftId: draftId ?? 0),
+      QuoteStep.review => ReviewPage(store: store, router: this, draftId: draftId ?? 0),
+      QuoteStep.send => SendPage(store: store, router: this, draftId: draftId ?? 0),
     };
   }
 
@@ -95,25 +76,26 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
     switch (_currentRoute) {
       case HomeRoute():
         return Future.value(false);
-      case QuoteFlowRoute(:final QuoteStep step, :final int? selectedClientId):
+      case QuoteFlowRoute(:final QuoteStep step, :final int? draftId):
         final QuoteStep? previous = step.previous;
         if (previous == null) {
+          if (draftId != null) store.deleteDraftIfEmpty(draftId);
           _currentRoute = const HomeRoute();
         } else {
-          _currentRoute = QuoteFlowRoute(previous, selectedClientId: selectedClientId);
+          _currentRoute = QuoteFlowRoute(previous, draftId: draftId);
         }
         notifyListeners();
         return Future.value(true);
-      case ClientCreateRoute(:final int? selectedClientId):
-        _currentRoute = QuoteFlowRoute(QuoteStep.client, selectedClientId: selectedClientId);
+      case ClientCreateRoute(:final int? draftId):
+        _currentRoute = QuoteFlowRoute(QuoteStep.client, draftId: draftId);
         notifyListeners();
         return Future.value(true);
-      case ServiceCreateRoute(:final int? selectedClientId):
-        _currentRoute = QuoteFlowRoute(QuoteStep.services, selectedClientId: selectedClientId);
+      case ServiceCreateRoute(:final int? draftId):
+        _currentRoute = QuoteFlowRoute(QuoteStep.services, draftId: draftId);
         notifyListeners();
         return Future.value(true);
-      case EquipmentCreateRoute(:final int? selectedClientId):
-        _currentRoute = QuoteFlowRoute(QuoteStep.equipment, selectedClientId: selectedClientId);
+      case EquipmentCreateRoute(:final int? draftId):
+        _currentRoute = QuoteFlowRoute(QuoteStep.equipment, draftId: draftId);
         notifyListeners();
         return Future.value(true);
       case QuotesListRoute():

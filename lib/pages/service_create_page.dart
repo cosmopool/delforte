@@ -6,22 +6,16 @@ import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/unit_dropdown_widget.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
-import "package:delforte/store/item_data.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class ServiceCreatePage extends StatefulWidget {
-  const ServiceCreatePage({
-    required this.store,
-    required this.router,
-    this.selectedClientId,
-    super.key,
-  });
+  const ServiceCreatePage({required this.store, required this.router, this.draftId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
-  final int? selectedClientId;
+  final int? draftId;
 
   @override
   State<ServiceCreatePage> createState() => _ServiceCreatePageState();
@@ -48,9 +42,8 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
         children: [
           FlowHeader(
             title: "New Service",
-            onBack: () => widget.router.goTo(
-              QuoteFlowRoute(QuoteStep.services, selectedClientId: widget.selectedClientId),
-            ),
+            onBack: () =>
+                widget.router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: widget.draftId)),
           ),
           Expanded(
             child: ListView(
@@ -131,17 +124,16 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
       return;
     }
 
-    final ItemData data = widget.store.services;
-    final int insertedId = data.idAt(data.count - 1);
-    final bool lineSaved = widget.store.addDraftLine(.service, insertedId, 1);
-    if (!lineSaved) {
-      _showSnack(widget.store.latestErrorMessage());
-      return;
+    final int? draftId = widget.draftId;
+    if (draftId != null) {
+      final int insertedId = widget.store.lastCatalogId(.service);
+      if (!widget.store.addDraftLine(draftId, .service, insertedId, 1)) {
+        _showSnack(widget.store.latestErrorMessage());
+        return;
+      }
     }
 
-    widget.router.goTo(
-      QuoteFlowRoute(QuoteStep.services, selectedClientId: widget.selectedClientId),
-    );
+    widget.router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: draftId));
   }
 
   void _showSnack(String message) {

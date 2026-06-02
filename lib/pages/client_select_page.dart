@@ -11,16 +11,11 @@ import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class ClientSelectPage extends StatefulWidget {
-  const ClientSelectPage({
-    required this.store,
-    required this.router,
-    this.selectedClientId,
-    super.key,
-  });
+  const ClientSelectPage({required this.store, required this.router, this.draftId, super.key});
 
   final QuoteStore store;
   final AppRouterDelegate router;
-  final int? selectedClientId;
+  final int? draftId;
 
   @override
   State<ClientSelectPage> createState() => _ClientSelectPageState();
@@ -29,12 +24,15 @@ class ClientSelectPage extends StatefulWidget {
 class _ClientSelectPageState extends State<ClientSelectPage> {
   final TextEditingController _searchController = TextEditingController();
   int? _selectedClientId;
-  late final List<int> indexes = widget.store.clients.allClients();
 
   @override
   void initState() {
     super.initState();
-    _selectedClientId = widget.selectedClientId;
+    final int? draftId = widget.draftId;
+    if (draftId != null) {
+      final int clientId = widget.store.draftClientId(draftId);
+      if (clientId != 0) _selectedClientId = clientId;
+    }
   }
 
   @override
@@ -45,6 +43,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Client> clients = widget.store.searchClients(_searchController.text);
     return AppShell(
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
@@ -54,15 +53,8 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
             FlowHeader(
               title: "Select Client",
               stepIndex: 0,
-              onBack: () => widget.router.goTo(const HomeRoute()),
-              onContinue: _selectedClientId == null
-                  ? null
-                  : () {
-                      widget.store.draft.clientId = _selectedClientId!;
-                      widget.router.goTo(
-                        QuoteFlowRoute(QuoteStep.services, selectedClientId: _selectedClientId),
-                      );
-                    },
+              onBack: _goBack,
+              onContinue: _selectedClientId == null ? null : _continue,
             ),
             Expanded(
               child: ListView(
@@ -74,11 +66,10 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 10),
-                  for (final int index in indexes) _clientCard(index),
+                  for (final Client client in clients) _clientCard(client),
                   AddCard(
                     label: "Add new client",
-                    onTap: () =>
-                        widget.router.goTo(ClientCreateRoute(selectedClientId: _selectedClientId)),
+                    onTap: () => widget.router.goTo(ClientCreateRoute(draftId: widget.draftId)),
                   ),
                 ],
               ),
@@ -89,10 +80,33 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
     );
   }
 
-  Widget _clientCard(int index) {
-    final int id = widget.store.clients.idAt(index);
+  void _goBack() {
+    final int? draftId = widget.draftId;
+    if (draftId != null) widget.store.deleteDraftIfEmpty(draftId);
+    widget.router.goTo(const HomeRoute());
+  }
+
+  void _continue() {
+    final int clientId = _selectedClientId!;
+    final int? existing = widget.draftId;
+    final int draftId = existing ?? widget.store.createDraft(clientId);
+    if (draftId == 0) {
+      _showSnack(widget.store.latestErrorMessage());
+      return;
+    }
+    if (existing != null) widget.store.setDraftClient(existing, clientId);
+    widget.router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: draftId));
+  }
+
+  void _showSnack(String message) {
+    if (message.isEmpty || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Widget _clientCard(Client client) {
+    final int id = client.id;
     final bool selected = _selectedClientId == id;
-    final String name = widget.store.clients.nameAt(index);
+    final String name = client.name;
     const FontWeight weight = FontWeight.w700;
     const Color color = VigilColors.textMuted;
     return Padding(
@@ -131,7 +145,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          widget.store.clients.addressAt(index),
+                          client.address,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: VigilType.small(color: color, size: 11, weight: FontWeight.w600),
