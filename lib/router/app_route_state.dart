@@ -34,6 +34,10 @@ class QuotesListRoute extends AppRoute {
   const QuotesListRoute();
 }
 
+class CatalogRoute extends AppRoute {
+  const CatalogRoute();
+}
+
 class PdfPreviewRoute extends AppRoute {
   const PdfPreviewRoute(this.quoteId, {this.back = const HomeRoute()});
 

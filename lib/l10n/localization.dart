@@ -14,6 +14,8 @@ abstract class Localization {
   late final String continueLabel;
   late final String back;
   late final String ok;
+  late final String cancel;
+  late final String delete;
   late final String total;
   late final String unit;
   late final String description;
@@ -29,6 +31,9 @@ abstract class Localization {
   late final String seeAll;
   late final String noQuotesYet;
   late final String noQuotesYetSubtitle;
+  late final String resumeDraftSubtitle;
+  late final String templatesSubtitle;
+  late final String catalogSubtitle;
   late final String statusDraft;
   late final String statusSaved;
   late final String unknownClient;
@@ -80,6 +85,17 @@ abstract class Localization {
   late final String equipmentTotal;
   late final String searchAddEquipment;
   late final String addNewEquipment;
+
+  // Catalog
+  late final String catalog;
+  late final String catalogNew;
+  late final String searchServices;
+  late final String searchEquipment;
+  late final String saveChanges;
+  late final String changesSaved;
+  late final String noServicesYet;
+  late final String noEquipmentYet;
+  late final String catalogEmptySubtitle;
 
   // Equipment create
   late final String newEquipment;
@@ -181,4 +197,5 @@ abstract class Localization {
   String validFor(String validity);
   String cnpjLabel(String cnpj);
   String editGroup(String title);
+  String deleteCatalogItemConfirm(String name);
 }

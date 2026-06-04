@@ -11,6 +11,10 @@ class English implements Localization {
   @override
   String ok = "OK";
   @override
+  String cancel = "Cancel";
+  @override
+  String delete = "Delete";
+  @override
   String total = "Total";
   @override
   String unit = "Unit";
@@ -37,6 +41,12 @@ class English implements Localization {
   String noQuotesYet = "No quotes yet";
   @override
   String noQuotesYetSubtitle = "Start a new quote — drafts and saved quotes appear here.";
+  @override
+  String resumeDraftSubtitle = "Resume a draft";
+  @override
+  String templatesSubtitle = "Start from preset";
+  @override
+  String catalogSubtitle = "Services & items";
   @override
   String statusDraft = "Draft";
   @override
@@ -121,6 +131,25 @@ class English implements Localization {
   String searchAddEquipment = "Search to add equipment...";
   @override
   String addNewEquipment = "Add new equipment";
+
+  @override
+  String catalog = "Catalog";
+  @override
+  String catalogNew = "New";
+  @override
+  String searchServices = "Search services...";
+  @override
+  String searchEquipment = "Search equipment...";
+  @override
+  String saveChanges = "Save Changes";
+  @override
+  String changesSaved = "Changes saved";
+  @override
+  String noServicesYet = "No services yet";
+  @override
+  String noEquipmentYet = "No equipment yet";
+  @override
+  String catalogEmptySubtitle = "Tap New to add your first item.";
 
   @override
   String newEquipment = "New Equipment";
@@ -296,4 +325,6 @@ class English implements Localization {
   String cnpjLabel(String cnpj) => "CNPJ $cnpj";
   @override
   String editGroup(String title) => "Edit $title";
+  @override
+  String deleteCatalogItemConfirm(String name) => "Delete \"$name\"? This can't be undone.";
 }

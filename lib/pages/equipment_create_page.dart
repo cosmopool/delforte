@@ -40,11 +40,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
     return AppShell(
       body: Column(
         children: [
-          FlowHeader(
-            title: strings.newEquipment,
-            onBack: () =>
-                widget.router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: widget.draftId)),
-          ),
+          FlowHeader(title: strings.newEquipment, onBack: () => widget.router.goTo(_origin())),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
@@ -130,8 +126,14 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
       }
     }
 
-    widget.router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: draftId));
+    widget.router.goTo(_origin());
   }
+
+  /// Where to return: the equipment step when editing a draft, or the catalog
+  /// manager when created standalone (no draft).
+  AppRoute _origin() => widget.draftId == null
+      ? const CatalogRoute()
+      : QuoteFlowRoute(QuoteStep.equipment, draftId: widget.draftId);
 
   void _showSnack(String message) {
     if (message.isEmpty || !mounted) return;

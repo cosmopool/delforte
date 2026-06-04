@@ -36,6 +36,8 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    _QuickActions(router: router),
+                    const SizedBox(height: 12),
                     _SectionTitle(
                       title: strings.recentQuotes,
                       action: strings.seeAll,
@@ -179,6 +181,109 @@ class _NewQuoteCard extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickActions extends StatelessWidget {
+  const _QuickActions({required this.router});
+
+  final AppRouterDelegate router;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _QuickAction(
+            icon: Icons.edit_note_rounded,
+            label: strings.continueLabel,
+            subtitle: strings.resumeDraftSubtitle,
+            onTap: () => router.goTo(const QuotesListRoute()),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _QuickAction(
+            icon: Icons.layers_rounded,
+            label: strings.templates,
+            subtitle: strings.templatesSubtitle,
+            onTap: () => router.goTo(const TemplatesRoute()),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _QuickAction(
+            icon: Icons.inventory_2_rounded,
+            label: strings.catalog,
+            subtitle: strings.catalogSubtitle,
+            onTap: () => router.goTo(const CatalogRoute()),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: VigilColors.surface,
+      borderRadius: VigilRadius.cardRadius,
+      child: InkWell(
+        borderRadius: VigilRadius.cardRadius,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: VigilRadius.cardRadius,
+            border: Border.all(color: VigilColors.border, width: 1.5),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VigilIconBox(
+                icon: icon,
+                color: VigilColors.textSecondary,
+                background: VigilColors.canvas,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                label,
+                style: VigilType.body(
+                  color: VigilColors.textPrimary,
+                  size: 14,
+                  weight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: VigilType.small(
+                  color: VigilColors.textMuted,
+                  size: 11,
+                  weight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ),
       ),

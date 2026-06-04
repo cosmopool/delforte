@@ -1,3 +1,4 @@
+import "package:delforte/pages/catalog_page.dart";
 import "package:delforte/pages/client_create_page.dart";
 import "package:delforte/pages/client_select_page.dart";
 import "package:delforte/pages/equipment_create_page.dart";
@@ -51,6 +52,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         draftId: draftId,
       ),
       QuotesListRoute() => QuotesListPage(store: store, router: this),
+      CatalogRoute() => CatalogPage(store: store, router: this),
       PdfPreviewRoute(:final int quoteId, :final AppRoute back) => PdfPreviewPage(
         store: store,
         router: this,
@@ -98,11 +100,15 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         notifyListeners();
         return Future.value(true);
       case ServiceCreateRoute(:final int? draftId):
-        _currentRoute = QuoteFlowRoute(QuoteStep.services, draftId: draftId);
+        _currentRoute = draftId == null
+            ? const CatalogRoute()
+            : QuoteFlowRoute(QuoteStep.services, draftId: draftId);
         notifyListeners();
         return Future.value(true);
       case EquipmentCreateRoute(:final int? draftId):
-        _currentRoute = QuoteFlowRoute(QuoteStep.equipment, draftId: draftId);
+        _currentRoute = draftId == null
+            ? const CatalogRoute()
+            : QuoteFlowRoute(QuoteStep.equipment, draftId: draftId);
         notifyListeners();
         return Future.value(true);
       case PdfPreviewRoute(:final AppRoute back):
@@ -110,6 +116,7 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         notifyListeners();
         return Future.value(true);
       case QuotesListRoute():
+      case CatalogRoute():
       case TemplatesRoute():
       case SettingsRoute():
         _currentRoute = const HomeRoute();

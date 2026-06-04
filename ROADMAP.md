@@ -3,7 +3,7 @@
 [ ] fix `search` text field hint color
 [x] `search` should filter and display `any` existent `clients`/`services`/`equipments` -not only added ones.
 [x] page to create `equipments`
-[ ] page to edit `equipments`
+[x] page to edit `equipments`
 [ ] select emoji for `equipments` on `create`/`edit` page
 [x] page to create `clients`
 [ ] page to edit `clients`
