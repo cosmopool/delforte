@@ -4,6 +4,7 @@ import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/design_system/widgets/form_section_divider.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/unit_dropdown_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -41,7 +42,7 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
       body: Column(
         children: [
           FlowHeader(
-            title: "New Service",
+            title: strings.newService,
             onBack: () =>
                 widget.router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: widget.draftId)),
           ),
@@ -49,24 +50,24 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const FormSectionDivider(label: "Identity"),
+                FormSectionDivider(label: strings.sectionIdentity),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _name,
-                  label: "Service Name",
-                  hint: "e.g. CCTV Installation",
+                  label: strings.serviceName,
+                  hint: strings.serviceNameHint,
                 ),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _description,
-                  label: "Description",
-                  hint: "Brief description of what this service includes…",
+                  label: strings.description,
+                  hint: strings.serviceDescriptionHint,
                   minLines: 3,
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                 ),
                 const SizedBox(height: 24),
-                const FormSectionDivider(label: "Pricing"),
+                FormSectionDivider(label: strings.sectionPricing),
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -74,8 +75,8 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
                       child: FormFieldWidget(
                         onChanged: _updatePrice,
                         controller: _price,
-                        label: "Default Price",
-                        hint: "0,00",
+                        label: strings.defaultPrice,
+                        hint: strings.priceHint,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       ),
                     ),
@@ -83,7 +84,7 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
                     Expanded(
                       child: UnitDropdownWidget(
                         store: widget.store,
-                        label: "Unit",
+                        label: strings.unit,
                         selectedUnitId: _unitId,
                         onChanged: (value) => setState(() => _unitId = value ?? 0),
                       ),
@@ -91,7 +92,11 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                PrimaryButton(label: "Save Service", icon: Icons.check_rounded, onPressed: _save),
+                PrimaryButton(
+                  label: strings.saveService,
+                  icon: Icons.check_rounded,
+                  onPressed: _save,
+                ),
               ],
             ),
           ),
@@ -109,7 +114,7 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
   void _save() {
     final String name = _name.text.trim();
     if (name.isEmpty) {
-      _showSnack("Service name is required");
+      _showSnack(strings.serviceNameRequired);
       return;
     }
     final int cents = moneyStringToCents(_price.text);

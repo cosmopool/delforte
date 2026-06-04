@@ -1,6 +1,7 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/line_row_widget.dart";
 import "package:delforte/design_system/widgets/panel_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:flutter/material.dart";
 
 export "package:delforte/design_system/widgets/line_row_widget.dart" show DraftLineView;
@@ -33,13 +34,13 @@ class LineGroup extends StatelessWidget {
     return Panel(
       title: title,
       trailing: IconButton(
-        tooltip: "Edit $title",
+        tooltip: strings.editGroup(title),
         onPressed: onEdit,
         icon: const Icon(Icons.edit_rounded, size: 18),
       ),
       child: lines.isEmpty
           ? Text(
-              "No lines added",
+              strings.noLinesAdded,
               style: VigilType.small(color: color, size: 13, weight: FontWeight.w600),
             )
           : Column(

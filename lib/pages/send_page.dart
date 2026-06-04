@@ -3,6 +3,7 @@ import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/ready_card_widget.dart";
 import "package:delforte/design_system/widgets/secondary_button_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -27,13 +28,13 @@ class _SendPageState extends State<SendPage> {
     final int serviceCount = widget.store.quoteLineCount(widget.draftId, .service);
     final int equipmentCount = widget.store.quoteLineCount(widget.draftId, .equipment);
     final Client? client = widget.store.clientById(widget.store.draftClientId(widget.draftId));
-    final String clientName = client?.name ?? "Unknown client";
+    final String clientName = client?.name ?? strings.unknownClient;
 
     return AppShell(
       body: Column(
         children: [
           FlowHeader(
-            title: "Send Quote",
+            title: strings.sendQuote,
             stepIndex: 4,
             onBack: () =>
                 widget.router.goTo(QuoteFlowRoute(QuoteStep.review, draftId: widget.draftId)),
@@ -43,23 +44,23 @@ class _SendPageState extends State<SendPage> {
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
               children: [
                 ReadyCard(
-                  title: "Quote Ready",
-                  subtitle: "Saved locally - $clientName - ${formatMoney(total)}",
+                  title: strings.quoteReady,
+                  subtitle: strings.savedLocally(clientName, formatMoney(total)),
                   chips: [
-                    "$serviceCount services",
-                    "$equipmentCount equipment",
+                    strings.servicesChip(serviceCount),
+                    strings.equipmentChip(equipmentCount),
                     formatMoney(total),
                   ],
                 ),
                 const SizedBox(height: 10),
                 PrimaryButton(
-                  label: "Share via WhatsApp",
+                  label: strings.shareWhatsApp,
                   icon: Icons.share_rounded,
-                  onPressed: () => _showSnack(context, "Sharing is not wired yet."),
+                  onPressed: () => _showSnack(context, strings.sharingNotWired),
                 ),
                 const SizedBox(height: 10),
                 SecondaryButton(
-                  label: "Export PDF",
+                  label: strings.exportPdf,
                   icon: Icons.picture_as_pdf_rounded,
                   onPressed: () => widget.router.goTo(
                     PdfPreviewRoute(
@@ -70,14 +71,13 @@ class _SendPageState extends State<SendPage> {
                 ),
                 const SizedBox(height: 10),
                 SecondaryButton(
-                  label: "Copy Link",
+                  label: strings.copyLink,
                   icon: Icons.link_rounded,
-                  onPressed: () =>
-                      _showSnack(context, "Link sharing is not available for local drafts."),
+                  onPressed: () => _showSnack(context, strings.copyLinkUnavailable),
                 ),
                 TextButton(
                   onPressed: () => widget.router.goTo(const HomeRoute()),
-                  child: const Text("Back to Home"),
+                  child: Text(strings.backToHome),
                 ),
               ],
             ),

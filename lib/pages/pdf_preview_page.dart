@@ -3,6 +3,7 @@ import "dart:typed_data";
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/pdf/quote_pdf.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
@@ -71,13 +72,13 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
           children: [
             HeaderIconButton(
               icon: Icons.arrow_back_rounded,
-              tooltip: "Back",
+              tooltip: strings.back,
               onPressed: () => widget.router.goTo(widget.back),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                "PDF Preview",
+                strings.pdfPreview,
                 style: VigilType.title(color: VigilColors.surface, size: 17),
               ),
             ),
@@ -89,7 +90,7 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
               ),
               onPressed: _share,
               icon: const Icon(Icons.ios_share_rounded, size: 16),
-              label: const Text("Share"),
+              label: Text(strings.share),
             ),
           ],
         ),

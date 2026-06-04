@@ -3,6 +3,7 @@ import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/design_system/widgets/form_section_divider.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -42,7 +43,7 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
       body: Column(
         children: [
           FlowHeader(
-            title: "New Client",
+            title: strings.newClient,
             onBack: () =>
                 widget.router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: widget.draftId)),
           ),
@@ -50,31 +51,43 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const FormSectionDivider(label: "Contact"),
+                FormSectionDivider(label: strings.sectionContact),
                 const SizedBox(height: 16),
-                FormFieldWidget(controller: _name, label: "Full Name", hint: "e.g. João da Silva"),
+                FormFieldWidget(
+                  controller: _name,
+                  label: strings.fullName,
+                  hint: strings.fullNameHint,
+                ),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _phone,
-                  label: "Phone",
-                  hint: "+55 (11) 99999-0000",
+                  label: strings.phone,
+                  hint: strings.phoneHint,
                   keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _email,
-                  label: "Email",
-                  hint: "joao@email.com",
+                  label: strings.email,
+                  hint: strings.emailHint,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 24),
-                const FormSectionDivider(label: "Location"),
+                FormSectionDivider(label: strings.sectionLocation),
                 const SizedBox(height: 16),
-                FormFieldWidget(controller: _address, label: "Address", hint: "Street, number"),
+                FormFieldWidget(
+                  controller: _address,
+                  label: strings.address,
+                  hint: strings.addressHint,
+                ),
                 const SizedBox(height: 16),
-                FormFieldWidget(controller: _city, label: "City", hint: "São Paulo"),
+                FormFieldWidget(controller: _city, label: strings.city, hint: strings.cityHint),
                 const SizedBox(height: 24),
-                PrimaryButton(label: "Save Client", icon: Icons.check_rounded, onPressed: _save),
+                PrimaryButton(
+                  label: strings.saveClient,
+                  icon: Icons.check_rounded,
+                  onPressed: _save,
+                ),
               ],
             ),
           ),
@@ -86,7 +99,7 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
   void _save() {
     final String name = _name.text.trim();
     if (name.isEmpty) {
-      _showSnack("Client name is required");
+      _showSnack(strings.clientNameRequired);
       return;
     }
     final bool ok = widget.store.addClient(

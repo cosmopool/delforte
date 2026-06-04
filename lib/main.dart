@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -123,7 +124,7 @@ class _AppMainWidgetState extends State<AppMainWidget> {
                 const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 44),
                 const SizedBox(height: 12),
                 Text(
-                  error.isEmpty ? "Could not open the quote database." : error,
+                  error.isEmpty ? strings.databaseOpenError : error,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: VigilColors.textPrimary,
@@ -136,7 +137,7 @@ class _AppMainWidgetState extends State<AppMainWidget> {
                     setState(() => _storeState = .opening);
                     unawaited(_openStore());
                   },
-                  child: const Text("Try again"),
+                  child: Text(strings.tryAgain),
                 ),
               ],
             ),

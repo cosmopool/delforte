@@ -1,4 +1,5 @@
 import "package:delforte/design_system.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
@@ -46,7 +47,7 @@ class UnitDropdownWidget extends StatelessWidget {
           items: items,
           onChanged: hasUnits ? onChanged : null,
           hint: Text(
-            hasUnits ? "Select…" : "No units",
+            hasUnits ? strings.selectUnit : strings.noUnits,
             style: VigilType.body(color: VigilColors.textMuted, size: 14, weight: FontWeight.w400),
           ),
           icon: const Icon(Icons.expand_more_rounded, color: VigilColors.textMuted),

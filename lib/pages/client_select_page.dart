@@ -4,6 +4,7 @@ import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/initials_avatar_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -51,7 +52,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
         child: Column(
           children: [
             FlowHeader(
-              title: "Select Client",
+              title: strings.selectClient,
               stepIndex: 0,
               onBack: _goBack,
               onContinue: _selectedClientId == null ? null : _continue,
@@ -62,13 +63,13 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                 children: [
                   SearchField(
                     controller: _searchController,
-                    hintText: "Search clients...",
+                    hintText: strings.searchClients,
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 10),
                   for (final Client client in clients) _clientCard(client),
                   AddCard(
-                    label: "Add new client",
+                    label: strings.addNewClient,
                     onTap: () => widget.router.goTo(ClientCreateRoute(draftId: widget.draftId)),
                   ),
                 ],

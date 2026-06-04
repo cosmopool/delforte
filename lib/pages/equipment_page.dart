@@ -3,6 +3,7 @@ import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/catalog_card_widget.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -56,10 +57,10 @@ class _EquipmentPageState extends State<EquipmentPage> {
             return Column(
               children: [
                 FlowHeader(
-                  title: "Equipment",
+                  title: strings.equipment,
                   stepIndex: 2,
                   total: widget.store.quoteSubtotal(widget.draftId, .equipment),
-                  totalLabel: "Equipment Total",
+                  totalLabel: strings.equipmentTotal,
                   onBack: () => widget.router.goTo(
                     QuoteFlowRoute(QuoteStep.services, draftId: widget.draftId),
                   ),
@@ -72,7 +73,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                     children: [
                       SearchField(
                         controller: _searchController,
-                        hintText: "Search to add equipment...",
+                        hintText: strings.searchAddEquipment,
                         onChanged: (name) => setState(() {}),
                       ),
                       const SizedBox(height: 10),
@@ -93,7 +94,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                           onUnitPriceChanged: (int cents) => _setUnitPrice(item.id, cents),
                         ),
                       AddCard(
-                        label: "Add new equipment",
+                        label: strings.addNewEquipment,
                         onTap: () =>
                             widget.router.goTo(EquipmentCreateRoute(draftId: widget.draftId)),
                       ),

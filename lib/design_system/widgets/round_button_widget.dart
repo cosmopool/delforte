@@ -1,3 +1,4 @@
+import "package:delforte/l10n/localization.dart";
 import "package:flutter/material.dart";
 
 /// A circular icon button widget.
@@ -21,7 +22,7 @@ class RoundButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton.filledTonal(
-      tooltip: icon == Icons.add_rounded ? "Increase" : "Decrease",
+      tooltip: icon == Icons.add_rounded ? strings.increase : strings.decrease,
       onPressed: onPressed,
       icon: Icon(icon, size: 18),
     );

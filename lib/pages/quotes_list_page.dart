@@ -4,6 +4,7 @@ import "package:delforte/design_system/widgets/empty_panel.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/quote_card_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -40,30 +41,30 @@ class _QuotesListPageState extends State<QuotesListPage> {
     return AppShell(
       body: Column(
         children: [
-          FlowHeader(title: "Quotes", onBack: () => widget.router.goTo(const HomeRoute())),
+          FlowHeader(title: strings.quotes, onBack: () => widget.router.goTo(const HomeRoute())),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 SearchField(
                   controller: _searchController,
-                  hintText: "Search quotes...",
+                  hintText: strings.searchQuotes,
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 10),
                 if (quotes.isEmpty)
-                  const EmptyPanel(
+                  EmptyPanel(
                     icon: Icons.receipt_long_rounded,
-                    title: "No quotes found",
-                    subtitle: "Drafts and saved quotes will appear here.",
+                    title: strings.noQuotesFound,
+                    subtitle: strings.noQuotesFoundSubtitle,
                   )
                 else
                   for (final QuoteSummary quote in quotes)
                     QuoteCard(
                       clientName: _clientNameById(quote.clientId),
-                      meta: "${quote.serviceCount} services · ${quote.equipmentCount} equipment",
+                      meta: strings.quoteMeta(quote.serviceCount, quote.equipmentCount),
                       total: formatMoney(quote.totalCents),
-                      status: quote.isDraft ? "Draft" : "Saved",
+                      status: quote.isDraft ? strings.statusDraft : strings.statusSaved,
                       statusColor: quote.isDraft ? VigilColors.textMuted : VigilColors.success,
                       statusBg: quote.isDraft ? VigilColors.canvas : VigilColors.successSoft,
                       onTap: quote.isDraft
@@ -81,6 +82,6 @@ class _QuotesListPageState extends State<QuotesListPage> {
   }
 
   String _clientNameById(int id) {
-    return widget.store.clientById(id)?.name ?? "Unknown client";
+    return widget.store.clientById(id)?.name ?? strings.unknownClient;
   }
 }

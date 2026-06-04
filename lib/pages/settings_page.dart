@@ -6,6 +6,7 @@ import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/design_system/widgets/form_section_divider.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/business_info_data.dart";
@@ -83,7 +84,10 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     _initFromStore();
     return AppShell(
-      header: FlowHeader(title: "Settings", onBack: () => widget.router.goTo(const HomeRoute())),
+      header: FlowHeader(
+        title: strings.settings,
+        onBack: () => widget.router.goTo(const HomeRoute()),
+      ),
       body: AnimatedBuilder(
         animation: widget.store.settingsNotifier,
         builder: (context, _) {
@@ -92,77 +96,93 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               _LogoPickerRow(),
               const SizedBox(height: 16),
-              const FormSectionDivider(label: "Business"),
+              FormSectionDivider(label: strings.sectionBusiness),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _businessName,
-                label: "Business Name",
-                hint: "Your company name",
+                label: strings.businessName,
+                hint: strings.businessNameHint,
               ),
               const SizedBox(height: 16),
-              FormFieldWidget(controller: _cnpj, label: "CNPJ", hint: "00.000.000/0000-00"),
+              FormFieldWidget(controller: _cnpj, label: strings.cnpj, hint: strings.cnpjHint),
               const SizedBox(height: 16),
-              FormFieldWidget(controller: _address, label: "Address", hint: "Street, number"),
+              FormFieldWidget(
+                controller: _address,
+                label: strings.address,
+                hint: strings.addressHint,
+              ),
               const SizedBox(height: 16),
-              FormFieldWidget(controller: _city, label: "City & State", hint: "City — State"),
+              FormFieldWidget(
+                controller: _city,
+                label: strings.cityState,
+                hint: strings.cityStateHint,
+              ),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _phone,
-                label: "Phone",
-                hint: "+55 (11) 00000-0000",
+                label: strings.phone,
+                hint: strings.businessPhoneHint,
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _email,
-                label: "Email",
-                hint: "contact@yourcompany.com",
+                label: strings.email,
+                hint: strings.businessEmailHint,
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 24),
-              const FormSectionDivider(label: "Quote Defaults"),
+              FormSectionDivider(label: strings.sectionQuoteDefaults),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _paymentMethod,
-                label: "Payment Method",
-                hint: "e.g. Bank Transfer (PIX)",
+                label: strings.paymentMethod,
+                hint: strings.paymentMethodHint,
               ),
               const SizedBox(height: 16),
-              FormFieldWidget(controller: _validity, label: "Quote Validity", hint: "e.g. 30 days"),
+              FormFieldWidget(
+                controller: _validity,
+                label: strings.quoteValidity,
+                hint: strings.quoteValidityHint,
+              ),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _warranty,
-                label: "Warranty",
-                hint: "e.g. 90 days for parts & labour",
+                label: strings.warranty,
+                hint: strings.warrantyHint,
               ),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _terms,
-                label: "Terms & Conditions",
-                hint: "Enter terms…",
+                label: strings.termsConditions,
+                hint: strings.termsHint,
                 minLines: 2,
                 maxLines: 4,
               ),
               const SizedBox(height: 24),
-              const FormSectionDivider(label: "PDF Appearance"),
+              FormSectionDivider(label: strings.sectionPdfAppearance),
               const SizedBox(height: 16),
               FormFieldWidget(
                 controller: _accentColour,
-                label: "Accent Colour",
-                hint: "e.g. Navy Blue (default)",
+                label: strings.accentColour,
+                hint: strings.accentColourHint,
               ),
               const SizedBox(height: 24),
-              const FormSectionDivider(label: "PDF Footer Preview"),
+              FormSectionDivider(label: strings.sectionPdfFooterPreview),
               const SizedBox(height: 16),
               _FooterPreview(store: widget.store),
               const SizedBox(height: 6),
               Text(
-                "This footer appears at the bottom of every generated PDF",
+                strings.footerPreviewNote,
                 textAlign: TextAlign.center,
                 style: VigilType.small(color: VigilColors.textMuted, size: 11),
               ),
               const SizedBox(height: 24),
-              PrimaryButton(label: "Save Settings", icon: Icons.check_rounded, onPressed: _save),
+              PrimaryButton(
+                label: strings.saveSettings,
+                icon: Icons.check_rounded,
+                onPressed: _save,
+              ),
             ],
           );
         },
@@ -218,12 +238,12 @@ class _LogoPickerRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Company Logo",
+                  strings.companyLogo,
                   style: VigilType.body(color: VigilColors.textPrimary, size: 13),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Shown on PDF header · PNG or SVG",
+                  strings.companyLogoNote,
                   style: VigilType.small(color: VigilColors.textMuted, size: 11),
                 ),
               ],
@@ -232,7 +252,7 @@ class _LogoPickerRow extends StatelessWidget {
           TextButton(
             onPressed: () {},
             child: Text(
-              "Upload",
+              strings.upload,
               style: VigilType.body(color: VigilColors.primary, size: 12, weight: FontWeight.w600),
             ),
           ),
@@ -285,12 +305,14 @@ class _FooterPreview extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          info.name.isNotEmpty ? info.name : "Delforte Sistemas",
+                          info.name.isNotEmpty ? info.name : strings.footerBusinessNamePlaceholder,
                           style: VigilType.title(color: VigilColors.surface, size: 13),
                         ),
                         const SizedBox(height: 1),
                         Text(
-                          info.cnpj.isNotEmpty ? "CNPJ ${info.cnpj}" : "CNPJ 12.345.678/0001-90",
+                          info.cnpj.isNotEmpty
+                              ? strings.cnpjLabel(info.cnpj)
+                              : strings.footerCnpjPlaceholder,
                           style: VigilType.small(
                             color: Colors.white.withValues(alpha: 0.35),
                             size: 10,
@@ -308,28 +330,33 @@ class _FooterPreview extends StatelessWidget {
                 items: [
                   (
                     Icons.location_on_rounded,
-                    "${info.address.isNotEmpty ? info.address : "Rua das Palmeiras, 200"} — ${info.state.isNotEmpty ? info.state : "SP"}",
+                    "${info.address.isNotEmpty ? info.address : strings.footerAddressPlaceholder} — ${info.state.isNotEmpty ? info.state : strings.footerStatePlaceholder}",
                   ),
-                  (Icons.phone_rounded, info.phone.isNotEmpty ? info.phone : "+55 (11) 98888-0000"),
+                  (
+                    Icons.phone_rounded,
+                    info.phone.isNotEmpty ? info.phone : strings.footerPhonePlaceholder,
+                  ),
                   (
                     Icons.mail_outline_rounded,
-                    info.email.isNotEmpty ? info.email : "contato@delforte.com.br",
+                    info.email.isNotEmpty ? info.email : strings.footerEmailPlaceholder,
                   ),
                   (
                     Icons.payments_rounded,
                     defaults.paymentMethod.isNotEmpty
                         ? defaults.paymentMethod
-                        : "PIX · Credit Card · Boleto",
+                        : strings.footerPaymentPlaceholder,
                   ),
                   (
                     Icons.verified_user_rounded,
-                    defaults.warranty.isNotEmpty ? defaults.warranty : "90-day warranty",
+                    defaults.warranty.isNotEmpty
+                        ? defaults.warranty
+                        : strings.footerWarrantyPlaceholder,
                   ),
                   (
                     Icons.event_available_rounded,
                     defaults.validity.isNotEmpty
-                        ? "Valid for ${defaults.validity}"
-                        : "Valid for 30 days",
+                        ? strings.validFor(defaults.validity)
+                        : strings.footerValidityPlaceholder,
                   ),
                 ],
               ),
@@ -337,9 +364,7 @@ class _FooterPreview extends StatelessWidget {
               Container(height: 1, color: Colors.white.withValues(alpha: 0.07)),
               const SizedBox(height: 10),
               Text(
-                defaults.terms.isNotEmpty
-                    ? defaults.terms
-                    : "Services subject to prior site visit. Prices may vary after inspection.",
+                defaults.terms.isNotEmpty ? defaults.terms : strings.footerTermsPlaceholder,
                 style: VigilType.small(color: Colors.white.withValues(alpha: 0.25), size: 9),
               ),
             ],

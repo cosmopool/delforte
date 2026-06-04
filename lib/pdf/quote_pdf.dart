@@ -20,8 +20,18 @@ const PdfColor _textSec = PdfColor.fromInt(0xFF5A6480);
 const PdfColor _textMuted = PdfColor.fromInt(0xFF9AA3BA);
 
 const List<String> _ptMonths = [
-  "jan.", "fev.", "mar.", "abr.", "mai.", "jun.",
-  "jul.", "ago.", "set.", "out.", "nov.", "dez.",
+  "jan.",
+  "fev.",
+  "mar.",
+  "abr.",
+  "mai.",
+  "jun.",
+  "jul.",
+  "ago.",
+  "set.",
+  "out.",
+  "nov.",
+  "dez.",
 ];
 
 /// The DelforteApp.jsx typefaces: Syne (display), DM Sans (body), DM Mono (numbers).
@@ -184,7 +194,12 @@ pw.Widget _headerBand(
               children: [
                 pw.Text(
                   "QUOTE",
-                  style: pw.TextStyle(font: fonts.sans, fontSize: 9, color: _alpha(0.35), letterSpacing: 0.5),
+                  style: pw.TextStyle(
+                    font: fonts.sans,
+                    fontSize: 9,
+                    color: _alpha(0.35),
+                    letterSpacing: 0.5,
+                  ),
                 ),
                 pw.SizedBox(height: 2),
                 pw.Text(
@@ -350,7 +365,11 @@ pw.Widget _th(String text, _Fonts fonts, pw.TextAlign align) => pw.Padding(
 
 pw.Widget _td(String text, pw.Font font, PdfColor color, pw.TextAlign align) => pw.Padding(
   padding: const pw.EdgeInsets.symmetric(vertical: 6),
-  child: pw.Text(text, textAlign: align, style: pw.TextStyle(font: font, fontSize: 10, color: color)),
+  child: pw.Text(
+    text,
+    textAlign: align,
+    style: pw.TextStyle(font: font, fontSize: 10, color: color),
+  ),
 );
 
 pw.Widget _totalBox(int total, _Fonts fonts) => pw.Container(
@@ -359,7 +378,10 @@ pw.Widget _totalBox(int total, _Fonts fonts) => pw.Container(
   child: pw.Row(
     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
     children: [
-      pw.Text("Total", style: pw.TextStyle(font: fonts.sansSemi, fontSize: 11, color: _alpha(0.7))),
+      pw.Text(
+        "Total",
+        style: pw.TextStyle(font: fonts.sansSemi, fontSize: 11, color: _alpha(0.7)),
+      ),
       pw.Text(
         formatMoney(total),
         style: pw.TextStyle(font: fonts.monoMed, fontSize: 18, color: PdfColors.white),
@@ -418,7 +440,10 @@ pw.Widget _footer(
             runSpacing: 5,
             children: [
               for (final String c in contacts)
-                pw.Text(c, style: pw.TextStyle(font: fonts.sans, fontSize: 8.5, color: _alpha(0.35))),
+                pw.Text(
+                  c,
+                  style: pw.TextStyle(font: fonts.sans, fontSize: 8.5, color: _alpha(0.35)),
+                ),
             ],
           ),
         pw.SizedBox(height: 10),

@@ -1,4 +1,5 @@
 import "package:delforte/design_system.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
@@ -58,7 +59,7 @@ class FlowHeader extends StatelessWidget {
   /// [stepIndex] is the optional current step index.
   /// [total] is the optional total number of steps.
   /// [totalLabel] is the optional label for the total.
-  /// [continueLabel] is the text for the continue button (defaults to "Continue").
+  /// [continueLabel] is the text for the continue button (defaults to [Localization.continueLabel]).
   /// [onContinue] is the optional callback for the continue button.
   const FlowHeader({
     required this.title,
@@ -67,7 +68,7 @@ class FlowHeader extends StatelessWidget {
     this.stepIndex,
     this.total,
     this.totalLabel,
-    this.continueLabel = "Continue",
+    this.continueLabel,
     this.onContinue,
   });
 
@@ -83,8 +84,8 @@ class FlowHeader extends StatelessWidget {
   /// The optional label for the total.
   final String? totalLabel;
 
-  /// The text for the continue button.
-  final String continueLabel;
+  /// The text for the continue button. Falls back to [Localization.continueLabel].
+  final String? continueLabel;
 
   /// The optional callback for the back button.
   final VoidCallback? onBack;
@@ -92,7 +93,13 @@ class FlowHeader extends StatelessWidget {
   /// The optional callback for the continue button.
   final VoidCallback? onContinue;
 
-  static const List<String> _steps = ["Client", "Services", "Equipment", "Review", "Send"];
+  List<String> get _steps => [
+    strings.client,
+    strings.services,
+    strings.equipment,
+    strings.review,
+    strings.send,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +115,7 @@ class FlowHeader extends StatelessWidget {
                 if (onBack != null) ...[
                   HeaderIconButton(
                     icon: Icons.arrow_back_rounded,
-                    tooltip: "Back",
+                    tooltip: strings.back,
                     onPressed: onBack,
                   ),
                   const SizedBox(width: 10),
@@ -125,7 +132,7 @@ class FlowHeader extends StatelessWidget {
                     ),
                     onPressed: onContinue,
                     icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                    label: Text(continueLabel),
+                    label: Text(continueLabel ?? strings.continueLabel),
                   ),
               ],
             ),

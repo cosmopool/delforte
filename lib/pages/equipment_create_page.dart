@@ -4,6 +4,7 @@ import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/design_system/widgets/form_section_divider.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/design_system/widgets/unit_dropdown_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -40,7 +41,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
       body: Column(
         children: [
           FlowHeader(
-            title: "New Equipment",
+            title: strings.newEquipment,
             onBack: () =>
                 widget.router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: widget.draftId)),
           ),
@@ -48,32 +49,32 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                const FormSectionDivider(label: "Product"),
+                FormSectionDivider(label: strings.sectionProduct),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _name,
-                  label: "Equipment Name",
-                  hint: "e.g. IP Camera 4MP",
+                  label: strings.equipmentName,
+                  hint: strings.equipmentNameHint,
                 ),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _description,
-                  label: "Description",
-                  hint: "Technical specs, compatibility notes…",
+                  label: strings.description,
+                  hint: strings.equipmentDescriptionHint,
                   minLines: 3,
                   maxLines: null,
                   keyboardType: TextInputType.multiline,
                 ),
                 const SizedBox(height: 24),
-                const FormSectionDivider(label: "Pricing"),
+                FormSectionDivider(label: strings.sectionPricing),
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
                       child: FormFieldWidget(
                         controller: _price,
-                        label: "Unit Price",
-                        hint: "0,00",
+                        label: strings.unitPrice,
+                        hint: strings.priceHint,
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       ),
                     ),
@@ -81,7 +82,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
                     Expanded(
                       child: UnitDropdownWidget(
                         store: widget.store,
-                        label: "Unit",
+                        label: strings.unit,
                         selectedUnitId: _unitId,
                         onChanged: (value) => setState(() => _unitId = value ?? 0),
                       ),
@@ -89,7 +90,11 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                PrimaryButton(label: "Save Equipment", icon: Icons.check_rounded, onPressed: _save),
+                PrimaryButton(
+                  label: strings.saveEquipment,
+                  icon: Icons.check_rounded,
+                  onPressed: _save,
+                ),
               ],
             ),
           ),
@@ -101,7 +106,7 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
   void _save() {
     final String name = _name.text.trim();
     if (name.isEmpty) {
-      _showSnack("Equipment name is required");
+      _showSnack(strings.equipmentNameRequired);
       return;
     }
     final int cents = _parseMoneyCents(_price.text);

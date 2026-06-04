@@ -1,6 +1,7 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:flutter/material.dart";
@@ -30,12 +31,10 @@ class _TemplatesPageState extends State<TemplatesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Page unavailable"),
-          content: const Text(
-            "Template presets are disabled. Add clients, services, and equipment from the quote flow.",
-          ),
+          title: Text(strings.pageUnavailable),
+          content: Text(strings.templatesDisabledMessage),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text("OK")),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(strings.ok)),
           ],
         );
       },
@@ -66,14 +65,14 @@ class _TemplatesPageState extends State<TemplatesPage> {
   Widget _buildBody() {
     return Column(
       children: [
-        FlowHeader(title: "Templates", onBack: () => widget.router.goTo(const HomeRoute())),
-        const Expanded(
+        FlowHeader(title: strings.templates, onBack: () => widget.router.goTo(const HomeRoute())),
+        Expanded(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: EmptyPanel(
               icon: Icons.block_rounded,
-              title: "Page unavailable",
-              subtitle: "Use the quote flow to add saved clients, services, and equipment.",
+              title: strings.pageUnavailable,
+              subtitle: strings.templatesEmptySubtitle,
             ),
           ),
         ),

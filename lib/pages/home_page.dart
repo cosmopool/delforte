@@ -2,6 +2,7 @@ import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
 import "package:delforte/design_system/widgets/quote_card_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -36,16 +37,16 @@ class HomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     _SectionTitle(
-                      title: "Recent Quotes",
-                      action: "See all",
+                      title: strings.recentQuotes,
+                      action: strings.seeAll,
                       onAction: () => router.goTo(const QuotesListRoute()),
                     ),
                     const SizedBox(height: 12),
                     if (quotes.isEmpty)
-                      const EmptyPanel(
+                      EmptyPanel(
                         icon: Icons.receipt_long_rounded,
-                        title: "No quotes yet",
-                        subtitle: "Start a new quote — drafts and saved quotes appear here.",
+                        title: strings.noQuotesYet,
+                        subtitle: strings.noQuotesYetSubtitle,
                       )
                     else
                       for (final QuoteSummary quote in quotes) _quoteCard(quote),
@@ -62,9 +63,9 @@ class HomePage extends StatelessWidget {
   Widget _quoteCard(QuoteSummary quote) {
     return QuoteCard(
       clientName: _clientNameById(quote.clientId),
-      meta: "${quote.serviceCount} services · ${quote.equipmentCount} equipment",
+      meta: strings.quoteMeta(quote.serviceCount, quote.equipmentCount),
       total: formatMoney(quote.totalCents),
-      status: quote.isDraft ? "Draft" : "Saved",
+      status: quote.isDraft ? strings.statusDraft : strings.statusSaved,
       statusColor: quote.isDraft ? VigilColors.textMuted : VigilColors.success,
       statusBg: quote.isDraft ? VigilColors.canvas : VigilColors.successSoft,
       // Drafts resume into the editable flow; saved quotes open their PDF.
@@ -75,7 +76,7 @@ class HomePage extends StatelessWidget {
   }
 
   String _clientNameById(int id) {
-    return store.clientById(id)?.name ?? "Unknown client";
+    return store.clientById(id)?.name ?? strings.unknownClient;
   }
 }
 
@@ -93,9 +94,9 @@ class _BrandHeader extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              "Delforte",
-              style: TextStyle(
+            Text(
+              strings.appName,
+              style: const TextStyle(
                 color: VigilColors.surface,
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
@@ -151,12 +152,12 @@ class _NewQuoteCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "New Quote",
+                          strings.newQuote,
                           style: VigilType.title(color: VigilColors.surface, size: 19),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "Build a quote step by step",
+                          strings.newQuoteSubtitle,
                           style: VigilType.small(
                             color: Colors.white.withValues(alpha: 0.70),
                             size: 12,

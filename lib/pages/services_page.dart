@@ -4,6 +4,7 @@ import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/catalog_card_widget.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -54,10 +55,10 @@ class _ServicesPageState extends State<ServicesPage> {
               return Column(
                 children: [
                   FlowHeader(
-                    title: "Services",
+                    title: strings.services,
                     stepIndex: 1,
                     total: widget.store.quoteSubtotal(widget.draftId, .service),
-                    totalLabel: "Services Total",
+                    totalLabel: strings.servicesTotal,
                     onBack: () => widget.router.goTo(
                       QuoteFlowRoute(QuoteStep.client, draftId: widget.draftId),
                     ),
@@ -71,7 +72,7 @@ class _ServicesPageState extends State<ServicesPage> {
                       children: [
                         SearchField(
                           controller: _searchController,
-                          hintText: "Search to add a service...",
+                          hintText: strings.searchAddService,
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 10),
@@ -92,7 +93,7 @@ class _ServicesPageState extends State<ServicesPage> {
                             onUnitPriceChanged: (int cents) => _setUnitPrice(item.id, cents),
                           ),
                         AddCard(
-                          label: "Add new service",
+                          label: strings.addNewService,
                           onTap: () =>
                               widget.router.goTo(ServiceCreateRoute(draftId: widget.draftId)),
                         ),

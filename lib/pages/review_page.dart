@@ -5,6 +5,7 @@ import "package:delforte/design_system/widgets/initials_avatar_widget.dart";
 import "package:delforte/design_system/widgets/line_group_widget.dart";
 import "package:delforte/design_system/widgets/panel_widget.dart";
 import "package:delforte/design_system/widgets/total_banner_widget.dart";
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -32,9 +33,9 @@ class ReviewPage extends StatelessWidget {
           body: Column(
             children: [
               FlowHeader(
-                title: "Review",
+                title: strings.review,
                 stepIndex: 3,
-                continueLabel: "Looks Good",
+                continueLabel: strings.looksGood,
                 onBack: () => router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: draftId)),
                 onContinue: (client != null && lines.isNotEmpty)
                     ? () => _saveAndContinue(context)
@@ -45,7 +46,7 @@ class ReviewPage extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   children: [
                     Panel(
-                      title: "Client",
+                      title: strings.client,
                       child: Row(
                         children: [
                           InitialsAvatar(
@@ -58,7 +59,7 @@ class ReviewPage extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  client?.name ?? "No client selected",
+                                  client?.name ?? strings.noClientSelected,
                                   style: VigilType.body(
                                     color: VigilColors.textPrimary,
                                     size: 14,
@@ -67,7 +68,7 @@ class ReviewPage extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  client?.address ?? "Return to client step",
+                                  client?.address ?? strings.returnToClientStep,
                                   style: VigilType.small(
                                     color: color,
                                     size: 11,
@@ -78,7 +79,7 @@ class ReviewPage extends StatelessWidget {
                             ),
                           ),
                           IconButton(
-                            tooltip: "Edit client",
+                            tooltip: strings.editClient,
                             onPressed: () =>
                                 router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: draftId)),
                             icon: const Icon(Icons.edit_rounded, size: 18),
@@ -88,20 +89,20 @@ class ReviewPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     LineGroup(
-                      title: "Services",
+                      title: strings.services,
                       lines: _lineViews(lines, .service),
                       onEdit: () =>
                           router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: draftId)),
                     ),
                     const SizedBox(height: 10),
                     LineGroup(
-                      title: "Equipment",
+                      title: strings.equipment,
                       lines: _lineViews(lines, .equipment),
                       onEdit: () =>
                           router.goTo(QuoteFlowRoute(QuoteStep.equipment, draftId: draftId)),
                     ),
                     const SizedBox(height: 10),
-                    TotalBanner(label: "Total", amount: formatMoney(total)),
+                    TotalBanner(label: strings.total, amount: formatMoney(total)),
                   ],
                 ),
               ),
