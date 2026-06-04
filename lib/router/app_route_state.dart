@@ -34,6 +34,16 @@ class QuotesListRoute extends AppRoute {
   const QuotesListRoute();
 }
 
+class PdfPreviewRoute extends AppRoute {
+  const PdfPreviewRoute(this.quoteId, {this.back = const HomeRoute()});
+
+  /// The quote being rendered to PDF.
+  final int quoteId;
+
+  /// Where back navigation returns to (the screen the PDF was opened from).
+  final AppRoute back;
+}
+
 class TemplatesRoute extends AppRoute {
   const TemplatesRoute();
 }

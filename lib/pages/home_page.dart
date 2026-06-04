@@ -67,10 +67,10 @@ class HomePage extends StatelessWidget {
       status: quote.isDraft ? "Draft" : "Saved",
       statusColor: quote.isDraft ? VigilColors.textMuted : VigilColors.success,
       statusBg: quote.isDraft ? VigilColors.canvas : VigilColors.successSoft,
-      // Drafts resume into the editable flow; reopening saved quotes is not wired yet.
+      // Drafts resume into the editable flow; saved quotes open their PDF.
       onTap: quote.isDraft
           ? () => router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: quote.id))
-          : null,
+          : () => router.goTo(PdfPreviewRoute(quote.id, back: const HomeRoute())),
     );
   }
 

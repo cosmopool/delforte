@@ -394,6 +394,14 @@ class QuoteStore {
     }
   }
 
+  /// Returns the creation timestamp (millis since epoch) of [quoteId], or `0`.
+  int quoteCreatedAt(int quoteId) {
+    final Database? db = _db;
+    if (db == null) return 0;
+    final ResultSet rows = db.select("SELECT created_at FROM quotes WHERE id = ?", [quoteId]);
+    return rows.isEmpty ? 0 : rows.first["created_at"] as int;
+  }
+
   /// Returns the client id of [quoteId], or `0` when absent.
   int draftClientId(int quoteId) {
     final Database? db = _db;

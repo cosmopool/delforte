@@ -61,7 +61,12 @@ class _SendPageState extends State<SendPage> {
                 SecondaryButton(
                   label: "Export PDF",
                   icon: Icons.picture_as_pdf_rounded,
-                  onPressed: () => _showSnack(context, "PDF export is not wired to the UI yet."),
+                  onPressed: () => widget.router.goTo(
+                    PdfPreviewRoute(
+                      widget.draftId,
+                      back: QuoteFlowRoute(QuoteStep.send, draftId: widget.draftId),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 10),
                 SecondaryButton(

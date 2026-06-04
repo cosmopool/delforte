@@ -3,6 +3,7 @@ import "package:delforte/pages/client_select_page.dart";
 import "package:delforte/pages/equipment_create_page.dart";
 import "package:delforte/pages/equipment_page.dart";
 import "package:delforte/pages/home_page.dart";
+import "package:delforte/pages/pdf_preview_page.dart";
 import "package:delforte/pages/quotes_list_page.dart";
 import "package:delforte/pages/review_page.dart";
 import "package:delforte/pages/send_page.dart";
@@ -50,6 +51,12 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         draftId: draftId,
       ),
       QuotesListRoute() => QuotesListPage(store: store, router: this),
+      PdfPreviewRoute(:final int quoteId, :final AppRoute back) => PdfPreviewPage(
+        store: store,
+        router: this,
+        quoteId: quoteId,
+        back: back,
+      ),
       TemplatesRoute() => TemplatesPage(router: this),
       SettingsRoute() => SettingsPage(store: store, router: this),
     };
@@ -96,6 +103,10 @@ class AppRouterDelegate extends RouterDelegate<AppRoute> with ChangeNotifier {
         return Future.value(true);
       case EquipmentCreateRoute(:final int? draftId):
         _currentRoute = QuoteFlowRoute(QuoteStep.equipment, draftId: draftId);
+        notifyListeners();
+        return Future.value(true);
+      case PdfPreviewRoute(:final AppRoute back):
+        _currentRoute = back;
         notifyListeners();
         return Future.value(true);
       case QuotesListRoute():
