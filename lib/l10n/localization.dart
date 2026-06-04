@@ -1,7 +1,7 @@
-import "package:delforte/l10n/english.dart";
+import "package:delforte/l10n/portuguese.dart";
 
 /// The active translation. Swap this to change the app language.
-Localization strings = English();
+Localization strings = Portuguese();
 
 /// All user-facing strings in the app.
 ///
