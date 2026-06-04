@@ -42,9 +42,7 @@ class UnitDropdownWidget extends StatelessWidget {
         ),
         const SizedBox(height: 7),
         DropdownButtonFormField<int>(
-          initialValue: hasUnits && store.unitById(selectedUnitId) != null
-              ? selectedUnitId
-              : null,
+          initialValue: hasUnits && store.unitById(selectedUnitId) != null ? selectedUnitId : null,
           items: items,
           onChanged: hasUnits ? onChanged : null,
           hint: Text(

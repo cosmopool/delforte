@@ -84,7 +84,10 @@ class _CatalogCardState extends State<CatalogCard> {
   void _submitPrice(String text) {
     final int digits = moneyStringToCents(text);
     final String decimal = formatMoney(digits);
-    _priceController.text = decimal;
+    _priceController.value = TextEditingValue(
+      text: decimal,
+      selection: TextSelection.collapsed(offset: decimal.length),
+    );
     widget.onUnitPriceChanged?.call(digits);
   }
 

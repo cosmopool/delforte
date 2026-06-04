@@ -118,7 +118,9 @@ class QuoteStore {
 
   /// Returns all clients, newest first.
   List<Client> listClients() {
-    return _queryClients("SELECT id, name, phone, email, address, city FROM clients ORDER BY id DESC");
+    return _queryClients(
+      "SELECT id, name, phone, email, address, city FROM clients ORDER BY id DESC",
+    );
   }
 
   /// Returns clients whose any text field contains [query] (case-insensitive).
@@ -447,6 +449,27 @@ class QuoteStore {
     }
   }
 
+  /// Sets the unit price of an existing draft line and recomputes its subtotal.
+  ///
+  /// A no-op (still returns `true`) when no matching line exists.
+  bool setDraftLineUnitPrice(int quoteId, CatalogItemType type, int refId, int priceCents) {
+    if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
+    final Database? db = _db;
+    if (db == null) return _fail(errDbOpen, "DB not open");
+    try {
+      db.execute(
+        "UPDATE quote_lines SET unit_price_cents = ?, subtotal_cents = quantity * ? "
+        "WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
+        [priceCents, priceCents, quoteId, type.index, refId],
+      );
+      _touchQuote(db, quoteId);
+      quotesNotifier.markChanged();
+      return true;
+    } catch (error) {
+      return _fail(errSqlWrite, error.toString());
+    }
+  }
+
   /// Removes a draft line by [type] and [refId].
   bool removeDraftLine(int quoteId, CatalogItemType type, int refId) {
     final Database? db = _db;
@@ -571,10 +594,9 @@ class QuoteStore {
     if (status == null) {
       return _queryQuotes(_quoteSummarySql("", "ORDER BY updated_at DESC"));
     }
-    return _queryQuotes(
-      _quoteSummarySql("WHERE q.status = ?", "ORDER BY updated_at DESC"),
-      [status],
-    );
+    return _queryQuotes(_quoteSummarySql("WHERE q.status = ?", "ORDER BY updated_at DESC"), [
+      status,
+    ]);
   }
 
   /// Returns the most recent error message, or `""` when there are no errors.
@@ -590,7 +612,9 @@ class QuoteStore {
     final Database? db = _db;
     if (db == null) return const <PaymentMethod>[];
     final ResultSet rows = db.select("SELECT id, name FROM payment_methods ORDER BY id DESC");
-    return [for (final Row row in rows) PaymentMethod(id: row["id"] as int, name: row["name"] as String)];
+    return [
+      for (final Row row in rows) PaymentMethod(id: row["id"] as int, name: row["name"] as String),
+    ];
   }
 
   bool addPaymentMethod(String name) {
@@ -739,9 +763,10 @@ class QuoteStore {
   int _sumSubtotals({required Database? db, required int quoteId, CatalogItemType? type}) {
     if (db == null) return 0;
     final ResultSet rows = type == null
-        ? db.select("SELECT COALESCE(SUM(subtotal_cents), 0) AS s FROM quote_lines WHERE quote_id = ?", [
-            quoteId,
-          ])
+        ? db.select(
+            "SELECT COALESCE(SUM(subtotal_cents), 0) AS s FROM quote_lines WHERE quote_id = ?",
+            [quoteId],
+          )
         : db.select(
             "SELECT COALESCE(SUM(subtotal_cents), 0) AS s FROM quote_lines WHERE quote_id = ? AND line_type = ?",
             [quoteId, type.index],
@@ -797,9 +822,9 @@ class QuoteStore {
   }
 
   String _quoteSummarySql(String where, String tail) {
-    return "SELECT q.id, q.client_id, q.status, q.total_cents, q.updated_at, "
-        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.service.index} THEN 1 ELSE 0 END), 0) AS service_count, "
-        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.equipment.index} THEN 1 ELSE 0 END), 0) AS equipment_count "
+    return "SELECT q.id, q.client_id, q.status, COALESCE(SUM(l.subtotal_cents), 0) AS total_cents, q.updated_at, "
+        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.service.index} THEN l.quantity ELSE 0 END), 0) AS service_count, "
+        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.equipment.index} THEN l.quantity ELSE 0 END), 0) AS equipment_count "
         "FROM quotes q LEFT JOIN quote_lines l ON l.quote_id = q.id "
         "$where GROUP BY q.id $tail";
   }

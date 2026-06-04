@@ -10,7 +10,12 @@ import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
 class EquipmentPage extends StatefulWidget {
-  const EquipmentPage({required this.store, required this.router, required this.draftId, super.key});
+  const EquipmentPage({
+    required this.store,
+    required this.router,
+    required this.draftId,
+    super.key,
+  });
 
   final QuoteStore store;
   final AppRouterDelegate router;
@@ -41,6 +46,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
           builder: (BuildContext context, Widget? _) {
             final String query = _searchController.text.trim();
             final Map<int, int> quantities = _draftQuantities();
+            final Map<int, int> unitPrices = _draftUnitPrices();
             final List<CatalogItem> items = query.isEmpty
                 ? [
                     for (final int refId in quantities.keys)
@@ -57,9 +63,8 @@ class _EquipmentPageState extends State<EquipmentPage> {
                   onBack: () => widget.router.goTo(
                     QuoteFlowRoute(QuoteStep.services, draftId: widget.draftId),
                   ),
-                  onContinue: () => widget.router.goTo(
-                    QuoteFlowRoute(QuoteStep.review, draftId: widget.draftId),
-                  ),
+                  onContinue: () =>
+                      widget.router.goTo(QuoteFlowRoute(QuoteStep.review, draftId: widget.draftId)),
                 ),
                 Expanded(
                   child: ListView(
@@ -75,7 +80,8 @@ class _EquipmentPageState extends State<EquipmentPage> {
                         CatalogCard(
                           name: item.name,
                           description: item.description,
-                          price: formatMoney(item.priceCents),
+                          price: formatMoney(unitPrices[item.id] ?? item.priceCents),
+                          unitPrice: unitPrices[item.id] ?? item.priceCents,
                           icon: _catalogIcon(item.name),
                           expanded: _expandedId == item.id,
                           selectedQuantity: quantities[item.id] ?? 0,
@@ -84,12 +90,12 @@ class _EquipmentPageState extends State<EquipmentPage> {
                           }),
                           onDecrease: () => _changeDraftQuantity(item.id, -1),
                           onIncrease: () => _changeDraftQuantity(item.id, 1),
+                          onUnitPriceChanged: (int cents) => _setUnitPrice(item.id, cents),
                         ),
                       AddCard(
                         label: "Add new equipment",
-                        onTap: () => widget.router.goTo(
-                          EquipmentCreateRoute(draftId: widget.draftId),
-                        ),
+                        onTap: () =>
+                            widget.router.goTo(EquipmentCreateRoute(draftId: widget.draftId)),
                       ),
                     ],
                   ),
@@ -108,6 +114,20 @@ class _EquipmentPageState extends State<EquipmentPage> {
       for (final QuoteLine line in widget.store.listQuoteLines(widget.draftId))
         if (line.type == CatalogItemType.equipment) line.refId: line.quantity,
     };
+  }
+
+  /// Map of equipment refId -> unit price (cents) for the lines in the draft.
+  Map<int, int> _draftUnitPrices() {
+    return {
+      for (final QuoteLine line in widget.store.listQuoteLines(widget.draftId))
+        if (line.type == CatalogItemType.equipment) line.refId: line.unitPriceCents,
+    };
+  }
+
+  void _setUnitPrice(int refId, int cents) {
+    if (!widget.store.setDraftLineUnitPrice(widget.draftId, .equipment, refId, cents)) {
+      _showSnack(widget.store.latestErrorMessage());
+    }
   }
 
   void _changeDraftQuantity(int refId, int delta) {

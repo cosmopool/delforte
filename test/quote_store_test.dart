@@ -225,7 +225,10 @@ void main() {
       expect(store.listPaymentMethods().length, 2);
       final int pixId = store.listPaymentMethods().firstWhere((p) => p.name == "PIX").id;
       expect(store.updatePaymentMethod(pixId, "Bank Transfer (PIX)"), isTrue);
-      expect(store.listPaymentMethods().firstWhere((p) => p.id == pixId).name, "Bank Transfer (PIX)");
+      expect(
+        store.listPaymentMethods().firstWhere((p) => p.id == pixId).name,
+        "Bank Transfer (PIX)",
+      );
       expect(store.deletePaymentMethod(pixId), isTrue);
       expect(store.listPaymentMethods().length, 1);
     });

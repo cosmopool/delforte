@@ -16,7 +16,7 @@ String formatMoney(int cents) {
 
 int moneyStringToCents(String money) {
   final String digits = money.replaceAll(RegExp(r"\D"), "");
-  return int.parse(digits);
+  return int.tryParse(digits) ?? 0;
 }
 
 String initials(String value) {

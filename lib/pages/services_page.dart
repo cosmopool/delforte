@@ -44,6 +44,7 @@ class _ServicesPageState extends State<ServicesPage> {
             builder: (BuildContext context, Widget? _) {
               final String query = _searchController.text.trim();
               final Map<int, int> quantities = _draftQuantities();
+              final Map<int, int> unitPrices = _draftUnitPrices();
               final List<CatalogItem> items = query.isEmpty
                   ? [
                       for (final int refId in quantities.keys)
@@ -78,7 +79,8 @@ class _ServicesPageState extends State<ServicesPage> {
                           CatalogCard(
                             name: item.name,
                             description: item.description,
-                            price: formatMoney(item.priceCents),
+                            price: formatMoney(unitPrices[item.id] ?? item.priceCents),
+                            unitPrice: unitPrices[item.id] ?? item.priceCents,
                             icon: _catalogIcon(item.name),
                             expanded: _expandedId == item.id,
                             selectedQuantity: quantities[item.id] ?? 0,
@@ -87,12 +89,12 @@ class _ServicesPageState extends State<ServicesPage> {
                             }),
                             onDecrease: () => _changeDraftQuantity(item.id, -1),
                             onIncrease: () => _changeDraftQuantity(item.id, 1),
+                            onUnitPriceChanged: (int cents) => _setUnitPrice(item.id, cents),
                           ),
                         AddCard(
                           label: "Add new service",
-                          onTap: () => widget.router.goTo(
-                            ServiceCreateRoute(draftId: widget.draftId),
-                          ),
+                          onTap: () =>
+                              widget.router.goTo(ServiceCreateRoute(draftId: widget.draftId)),
                         ),
                       ],
                     ),
@@ -112,6 +114,20 @@ class _ServicesPageState extends State<ServicesPage> {
       for (final QuoteLine line in widget.store.listQuoteLines(widget.draftId))
         if (line.type == CatalogItemType.service) line.refId: line.quantity,
     };
+  }
+
+  /// Map of service refId -> unit price (cents) for the lines in the draft.
+  Map<int, int> _draftUnitPrices() {
+    return {
+      for (final QuoteLine line in widget.store.listQuoteLines(widget.draftId))
+        if (line.type == CatalogItemType.service) line.refId: line.unitPriceCents,
+    };
+  }
+
+  void _setUnitPrice(int refId, int cents) {
+    if (!widget.store.setDraftLineUnitPrice(widget.draftId, .service, refId, cents)) {
+      _showSnack(widget.store.latestErrorMessage());
+    }
   }
 
   void _changeDraftQuantity(int refId, int delta) {

@@ -69,38 +69,42 @@ class QuoteCard extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Text(
-                      clientName,
-                      style: VigilType.body(
-                        color: VigilColors.textPrimary,
-                        size: 14,
-                        weight: weight,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          clientName,
+                          style: VigilType.body(
+                            color: VigilColors.textPrimary,
+                            size: 14,
+                            weight: weight,
+                          ),
+                        ),
                       ),
-                    ),
+                      Text(
+                        total,
+                        style: VigilType.small(color: color, size: 13, weight: weight2),
+                      ),
+                    ],
                   ),
-                  Text(
-                    total,
-                    style: VigilType.small(color: color, size: 13, weight: weight2),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          meta,
+                          style: VigilType.small(color: color2, size: 11, weight: FontWeight.w600),
+                        ),
+                      ),
+                      VigilPill(
+                        label: status.toUpperCase(),
+                        color: statusColor,
+                        background: statusBg,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      meta,
-                      style: VigilType.small(color: color2, size: 11, weight: FontWeight.w600),
-                    ),
-                  ),
-                  VigilPill(label: status.toUpperCase(), color: statusColor, background: statusBg),
-                ],
-              ),
                 ],
               ),
             ),

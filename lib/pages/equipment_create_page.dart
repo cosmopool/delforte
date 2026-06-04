@@ -50,7 +50,11 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
               children: [
                 const FormSectionDivider(label: "Product"),
                 const SizedBox(height: 16),
-                FormFieldWidget(controller: _name, label: "Equipment Name", hint: "e.g. IP Camera 4MP"),
+                FormFieldWidget(
+                  controller: _name,
+                  label: "Equipment Name",
+                  hint: "e.g. IP Camera 4MP",
+                ),
                 const SizedBox(height: 16),
                 FormFieldWidget(
                   controller: _description,
@@ -101,7 +105,12 @@ class _EquipmentCreatePageState extends State<EquipmentCreatePage> {
       return;
     }
     final int cents = _parseMoneyCents(_price.text);
-    final bool catalogSaved = widget.store.addEquipment(name, _description.text.trim(), cents, _unitId);
+    final bool catalogSaved = widget.store.addEquipment(
+      name,
+      _description.text.trim(),
+      cents,
+      _unitId,
+    );
     if (!catalogSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;
