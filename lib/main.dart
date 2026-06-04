@@ -5,6 +5,7 @@ import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
@@ -60,6 +61,7 @@ class _AppMainWidgetState extends State<AppMainWidget> {
   }
 
   void _seedEmptyStore() {
+    if (!kDebugMode) return;
     if (_store.listClients().isEmpty) {
       _store.addClient("Residencial Oliveira", "(11) 98888-1010", "", "Rua das Flores, 142", "");
       _store.addClient("Comercio Santos", "(11) 97777-2020", "", "Av. Central, 88 - Bloco B", "");
