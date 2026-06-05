@@ -10,11 +10,21 @@ import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 
 class ClientCreatePage extends StatefulWidget {
-  const ClientCreatePage({required this.store, required this.router, this.draftId, super.key});
+  const ClientCreatePage({
+    required this.store,
+    required this.router,
+    this.draftId,
+    this.back,
+    super.key,
+  });
 
   final QuoteStore store;
   final AppRouterDelegate router;
   final int? draftId;
+
+  /// Where to return after saving, when opened from the Clients manager.
+  /// `null` returns to the quote-flow client step (the default flow).
+  final AppRoute? back;
 
   @override
   State<ClientCreatePage> createState() => _ClientCreatePageState();
@@ -44,8 +54,9 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
         children: [
           FlowHeader(
             title: strings.newClient,
-            onBack: () =>
-                widget.router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: widget.draftId)),
+            onBack: () => widget.router.goTo(
+              widget.back ?? QuoteFlowRoute(QuoteStep.client, draftId: widget.draftId),
+            ),
           ),
           Expanded(
             child: ListView(
@@ -111,6 +122,12 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
     );
     if (!ok) {
       _showSnack(widget.store.latestErrorMessage());
+      return;
+    }
+    // From the Clients manager: just save and return to the list.
+    final AppRoute? back = widget.back;
+    if (back != null) {
+      widget.router.goTo(back);
       return;
     }
     final int newId = widget.store.lastClientId();

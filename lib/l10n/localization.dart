@@ -97,6 +97,12 @@ abstract class Localization {
   late final String noEquipmentYet;
   late final String catalogEmptySubtitle;
 
+  // Clients manager
+  late final String clients;
+  late final String clientsSubtitle;
+  late final String noClientsYet;
+  late final String clientsEmptySubtitle;
+
   // Equipment create
   late final String newEquipment;
   late final String sectionProduct;

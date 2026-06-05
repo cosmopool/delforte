@@ -199,10 +199,10 @@ class _QuickActions extends StatelessWidget {
       children: [
         Expanded(
           child: _QuickAction(
-            icon: Icons.edit_note_rounded,
-            label: strings.continueLabel,
-            subtitle: strings.resumeDraftSubtitle,
-            onTap: () => router.goTo(const QuotesListRoute()),
+            icon: Icons.people_alt_rounded,
+            label: strings.clients,
+            subtitle: strings.clientsSubtitle,
+            onTap: () => router.goTo(const ClientsRoute()),
           ),
         ),
         const SizedBox(width: 10),

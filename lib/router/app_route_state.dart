@@ -16,8 +16,16 @@ class QuoteFlowRoute extends AppRoute {
 }
 
 class ClientCreateRoute extends AppRoute {
-  const ClientCreateRoute({this.draftId});
+  const ClientCreateRoute({this.draftId, this.back});
   final int? draftId;
+
+  /// Where to return after creating, when reached outside the quote flow (the
+  /// Clients manager). `null` keeps the default client-step return.
+  final AppRoute? back;
+}
+
+class ClientsRoute extends AppRoute {
+  const ClientsRoute();
 }
 
 class ServiceCreateRoute extends AppRoute {

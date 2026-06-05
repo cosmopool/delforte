@@ -152,6 +152,15 @@ class English implements Localization {
   String catalogEmptySubtitle = "Tap New to add your first item.";
 
   @override
+  String clients = "Clients";
+  @override
+  String clientsSubtitle = "View & edit clients";
+  @override
+  String noClientsYet = "No clients yet";
+  @override
+  String clientsEmptySubtitle = "Tap New to add your first client.";
+
+  @override
   String newEquipment = "New Equipment";
   @override
   String sectionProduct = "Product";

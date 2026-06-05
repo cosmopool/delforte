@@ -153,6 +153,15 @@ class Portuguese implements Localization {
   String catalogEmptySubtitle = "Toque em Novo para adicionar seu primeiro item.";
 
   @override
+  String clients = "Clientes";
+  @override
+  String clientsSubtitle = "Ver e editar clientes";
+  @override
+  String noClientsYet = "Nenhum cliente ainda";
+  @override
+  String clientsEmptySubtitle = "Toque em Novo para adicionar seu primeiro cliente.";
+
+  @override
   String newEquipment = "Novo Equipamento";
   @override
   String sectionProduct = "Produto";
