@@ -9,6 +9,7 @@ dependencies:
   cupertino_icons: 1.0.8
   flutter:
     sdk: flutter
+  image_picker: 1.1.2
   path_provider: 2.1.5
   pdf: 3.11.3
   printing: 5.13.4

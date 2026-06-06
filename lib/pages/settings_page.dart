@@ -12,6 +12,7 @@ import "package:delforte/store/pdf_settings_data.dart";
 import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
+import "package:image_picker/image_picker.dart";
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({required this.store, required this.router, super.key});
@@ -37,6 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController _terms = TextEditingController();
 
   String _accentColour = "";
+  Uint8List _logo = Uint8List(0);
 
   bool _loaded = false;
 
@@ -67,6 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
     _state.text = info.state;
     _phone.text = info.phone;
     _email.text = info.email;
+    _logo = info.logo;
 
     final QuoteDefaultsData defaults = widget.store.quoteDefaults;
     _paymentMethod.text = defaults.paymentMethod;
@@ -95,7 +98,7 @@ class _SettingsPageState extends State<SettingsPage> {
               _SectionLabel(label: strings.sectionBusiness),
               _SettingsCard(
                 children: [
-                  _LogoRow(),
+                  _LogoRow(logo: _logo, onUpload: _pickLogo),
                   _FieldRow(
                     icon: Icons.storefront_rounded,
                     label: strings.businessName,
@@ -203,7 +206,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _state.text.trim(),
       _phone.text.trim(),
       _email.text.trim(),
-      Uint8List(0),
+      _logo,
     );
     widget.store.saveQuoteDefaults(
       _paymentMethod.text.trim(),
@@ -213,6 +216,14 @@ class _SettingsPageState extends State<SettingsPage> {
     );
     widget.store.savePdfSettings(_accentColour.trim());
     widget.router.goTo(const HomeRoute());
+  }
+
+  Future<void> _pickLogo() async {
+    final XFile? file = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (file == null) return;
+    final Uint8List bytes = await file.readAsBytes();
+    if (!mounted) return;
+    setState(() => _logo = bytes);
   }
 }
 
@@ -355,46 +366,28 @@ class _RowCaption extends StatelessWidget {
 
 /// First row inside the Business card: company logo avatar + upload action.
 class _LogoRow extends StatelessWidget {
+  const _LogoRow({required this.logo, required this.onUpload});
+
+  final Uint8List logo;
+  final VoidCallback onUpload;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
       child: Row(
         children: [
-          SizedBox(
+          Container(
             width: 48,
             height: 48,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: VigilColors.inkElevated,
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  child: Icon(
-                    Icons.business_rounded,
-                    size: 22,
-                    color: Colors.white.withValues(alpha: 0.4),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 18,
-                    height: 18,
-                    decoration: BoxDecoration(
-                      color: VigilColors.primary,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Icon(Icons.edit_rounded, size: 10, color: Colors.white),
-                  ),
-                ),
-              ],
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: VigilColors.inkElevated,
+              borderRadius: BorderRadius.circular(13),
             ),
+            child: logo.isEmpty
+                ? Icon(Icons.business_rounded, size: 22, color: Colors.white.withValues(alpha: 0.4))
+                : Image.memory(logo, fit: BoxFit.cover),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -414,14 +407,14 @@ class _LogoRow extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () {},
+            onPressed: onUpload,
             style: TextButton.styleFrom(
               minimumSize: Size.zero,
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(
-              strings.upload,
+              strings.change,
               style: VigilType.body(color: VigilColors.primary, size: 12, weight: FontWeight.w600),
             ),
           ),

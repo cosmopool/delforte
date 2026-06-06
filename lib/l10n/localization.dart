@@ -158,7 +158,7 @@ abstract class Localization {
   late final String saveSettings;
   late final String companyLogo;
   late final String companyLogoNote;
-  late final String upload;
+  late final String change;
   late final String showLogoOnPdf;
   late final String includeQrCode;
   late final String includeQrCodeNote;

@@ -256,7 +256,7 @@ class English implements Localization {
   @override
   String companyLogoNote = "Shown on PDF header · PNG or SVG";
   @override
-  String upload = "Upload";
+  String change = "Change";
   @override
   String showLogoOnPdf = "Show logo on PDF";
   @override
