@@ -31,11 +31,11 @@ class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController _state = TextEditingController();
   final TextEditingController _phone = TextEditingController();
   final TextEditingController _email = TextEditingController();
+  final TextEditingController _paymentMethod = TextEditingController();
+  final TextEditingController _validity = TextEditingController();
   final TextEditingController _warranty = TextEditingController();
   final TextEditingController _terms = TextEditingController();
 
-  String _paymentMethod = "";
-  String _validity = "";
   String _accentColour = "";
 
   // PDF appearance toggles (visual defaults matching the reference design).
@@ -54,6 +54,8 @@ class _SettingsPageState extends State<SettingsPage> {
     _state.dispose();
     _phone.dispose();
     _email.dispose();
+    _paymentMethod.dispose();
+    _validity.dispose();
     _warranty.dispose();
     _terms.dispose();
     super.dispose();
@@ -72,8 +74,8 @@ class _SettingsPageState extends State<SettingsPage> {
     _email.text = info.email;
 
     final QuoteDefaultsData defaults = widget.store.quoteDefaults;
-    _paymentMethod = defaults.paymentMethod;
-    _validity = defaults.validity;
+    _paymentMethod.text = defaults.paymentMethod;
+    _validity.text = defaults.validity;
     _warranty.text = defaults.warranty;
     _terms.text = defaults.terms;
 
@@ -143,25 +145,27 @@ class _SettingsPageState extends State<SettingsPage> {
               _SectionLabel(label: strings.sectionQuoteDefaults),
               _SettingsCard(
                 children: [
-                  _SelectRow(
-                    icon: Icons.payments_rounded,
-                    label: strings.paymentMethod,
-                    value: _paymentMethod,
-                    options: strings.paymentMethodOptions,
-                    onChanged: (v) => setState(() => _paymentMethod = v),
-                  ),
-                  _SelectRow(
+                  _FieldRow(
                     icon: Icons.event_available_rounded,
                     label: strings.quoteValidity,
-                    value: _validity,
-                    options: strings.quoteValidityOptions,
-                    onChanged: (v) => setState(() => _validity = v),
+                    controller: _validity,
+                    hint: strings.quoteValidityHint,
+                  ),
+                  _FieldRow(
+                    icon: Icons.payments_rounded,
+                    label: strings.paymentMethod,
+                    controller: _paymentMethod,
+                    hint: strings.paymentMethodHint,
+                    minLines: 2,
+                    maxLines: 4,
                   ),
                   _FieldRow(
                     icon: Icons.verified_user_rounded,
                     label: strings.warranty,
                     controller: _warranty,
                     hint: strings.warrantyHint,
+                    minLines: 2,
+                    maxLines: 4,
                   ),
                   _FieldRow(
                     icon: Icons.gavel_rounded,
@@ -240,8 +244,8 @@ class _SettingsPageState extends State<SettingsPage> {
       Uint8List(0),
     );
     widget.store.saveQuoteDefaults(
-      _paymentMethod.trim(),
-      _validity.trim(),
+      _paymentMethod.text.trim(),
+      _validity.text.trim(),
       _warranty.text.trim(),
       _terms.text.trim(),
     );
@@ -412,16 +416,17 @@ class _SelectRow extends StatelessWidget {
                       options.isNotEmpty ? options.first : "",
                       style: VigilType.body(color: VigilColors.textMuted, size: 14),
                     ),
-                    icon: const Icon(Icons.expand_more_rounded, size: 16, color: VigilColors.textMuted),
+                    icon: const Icon(
+                      Icons.expand_more_rounded,
+                      size: 16,
+                      color: VigilColors.textMuted,
+                    ),
                     style: VigilType.body(
                       color: VigilColors.textPrimary,
                       weight: FontWeight.w500,
                       size: 14,
                     ),
-                    items: [
-                      for (final o in items)
-                        DropdownMenuItem(value: o, child: Text(o)),
-                    ],
+                    items: [for (final o in items) DropdownMenuItem(value: o, child: Text(o))],
                     onChanged: (v) {
                       if (v != null) onChanged(v);
                     },
@@ -474,10 +479,7 @@ class _ToggleRow extends StatelessWidget {
                 ),
                 if (sub != null) ...[
                   const SizedBox(height: 2),
-                  Text(
-                    sub!,
-                    style: VigilType.small(color: VigilColors.textMuted, size: 11),
-                  ),
+                  Text(sub!, style: VigilType.small(color: VigilColors.textMuted, size: 11)),
                 ],
               ],
             ),
@@ -515,10 +517,7 @@ class _Toggle extends StatelessWidget {
           child: Container(
             width: 20,
             height: 20,
-            decoration: const BoxDecoration(
-              color: VigilColors.surface,
-              shape: BoxShape.circle,
-            ),
+            decoration: const BoxDecoration(color: VigilColors.surface, shape: BoxShape.circle),
           ),
         ),
       ),
@@ -666,14 +665,12 @@ class _FooterPreview extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          info.name.isNotEmpty ? info.name : strings.footerBusinessNamePlaceholder,
+                          info.name,
                           style: VigilType.title(color: VigilColors.surface, size: 13),
                         ),
                         const SizedBox(height: 1),
                         Text(
-                          info.cnpj.isNotEmpty
-                              ? strings.cnpjLabel(info.cnpj)
-                              : strings.footerCnpjPlaceholder,
+                          strings.cnpjLabel(info.cnpj),
                           style: VigilType.small(
                             color: Colors.white.withValues(alpha: 0.35),
                             size: 10,
@@ -689,43 +686,19 @@ class _FooterPreview extends StatelessWidget {
               const SizedBox(height: 12),
               _FooterGrid(
                 items: [
-                  (
-                    Icons.location_on_rounded,
-                    "${info.address.isNotEmpty ? info.address : strings.footerAddressPlaceholder} — ${info.state.isNotEmpty ? info.state : strings.footerStatePlaceholder}",
-                  ),
-                  (
-                    Icons.phone_rounded,
-                    info.phone.isNotEmpty ? info.phone : strings.footerPhonePlaceholder,
-                  ),
-                  (
-                    Icons.mail_outline_rounded,
-                    info.email.isNotEmpty ? info.email : strings.footerEmailPlaceholder,
-                  ),
-                  (
-                    Icons.payments_rounded,
-                    defaults.paymentMethod.isNotEmpty
-                        ? defaults.paymentMethod
-                        : strings.footerPaymentPlaceholder,
-                  ),
-                  (
-                    Icons.verified_user_rounded,
-                    defaults.warranty.isNotEmpty
-                        ? defaults.warranty
-                        : strings.footerWarrantyPlaceholder,
-                  ),
-                  (
-                    Icons.event_available_rounded,
-                    defaults.validity.isNotEmpty
-                        ? strings.validFor(defaults.validity)
-                        : strings.footerValidityPlaceholder,
-                  ),
+                  (Icons.location_on_rounded, "${info.address} — ${info.state}"),
+                  (Icons.phone_rounded, info.phone),
+                  (Icons.mail_outline_rounded, info.email),
+                  (Icons.payments_rounded, defaults.paymentMethod),
+                  (Icons.verified_user_rounded, defaults.warranty),
+                  (Icons.event_available_rounded, defaults.validity),
                 ],
               ),
               const SizedBox(height: 12),
               Container(height: 1, color: Colors.white.withValues(alpha: 0.07)),
               const SizedBox(height: 10),
               Text(
-                defaults.terms.isNotEmpty ? defaults.terms : strings.footerTermsPlaceholder,
+                defaults.terms,
                 style: VigilType.small(color: Colors.white.withValues(alpha: 0.25), size: 9),
               ),
             ],

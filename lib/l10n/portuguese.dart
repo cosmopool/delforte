@@ -273,22 +273,6 @@ class Portuguese implements Localization {
   @override
   String upload = "Enviar";
   @override
-  List<String> paymentMethodOptions = const [
-    "Transferência Bancária (PIX)",
-    "Dinheiro",
-    "Cartão de Crédito (até 12x)",
-    "Boleto",
-    "Misto",
-  ];
-  @override
-  List<String> quoteValidityOptions = const [
-    "30 dias",
-    "7 dias",
-    "15 dias",
-    "45 dias",
-    "60 dias",
-  ];
-  @override
   List<String> accentColourOptions = const [
     "Azul Marinho (padrão)",
     "Verde Escuro",
@@ -305,28 +289,6 @@ class Portuguese implements Localization {
   String showItemCostPrice = "Exibir preço de custo dos itens";
   @override
   String showItemCostPriceNote = "Oculto dos clientes por padrão";
-
-  @override
-  String footerBusinessNamePlaceholder = "Delforte Sistemas";
-  @override
-  String footerCnpjPlaceholder = "CNPJ 12.345.678/0001-90";
-  @override
-  String footerAddressPlaceholder = "Rua das Palmeiras, 200";
-  @override
-  String footerStatePlaceholder = "SP";
-  @override
-  String footerPhonePlaceholder = "+55 (11) 98888-0000";
-  @override
-  String footerEmailPlaceholder = "contato@delforte.com.br";
-  @override
-  String footerPaymentPlaceholder = "PIX · Cartão de Crédito · Boleto";
-  @override
-  String footerWarrantyPlaceholder = "Garantia de 90 dias";
-  @override
-  String footerValidityPlaceholder = "Válido por 30 dias";
-  @override
-  String footerTermsPlaceholder =
-      "Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção.";
 
   @override
   String templates = "Modelos";

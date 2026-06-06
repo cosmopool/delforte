@@ -165,26 +165,12 @@ abstract class Localization {
   late final String companyLogo;
   late final String companyLogoNote;
   late final String upload;
-  late final List<String> paymentMethodOptions;
-  late final List<String> quoteValidityOptions;
   late final List<String> accentColourOptions;
   late final String showLogoOnPdf;
   late final String includeQrCode;
   late final String includeQrCodeNote;
   late final String showItemCostPrice;
   late final String showItemCostPriceNote;
-
-  // Settings footer preview placeholders (shown until the user fills the field)
-  late final String footerBusinessNamePlaceholder;
-  late final String footerCnpjPlaceholder;
-  late final String footerAddressPlaceholder;
-  late final String footerStatePlaceholder;
-  late final String footerPhonePlaceholder;
-  late final String footerEmailPlaceholder;
-  late final String footerPaymentPlaceholder;
-  late final String footerWarrantyPlaceholder;
-  late final String footerValidityPlaceholder;
-  late final String footerTermsPlaceholder;
 
   // Templates
   late final String templates;
