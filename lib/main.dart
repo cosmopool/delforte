@@ -3,6 +3,7 @@ import "dart:async";
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/l10n/localization.dart";
+import "package:delforte/pdf/quote_pdf.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
 import "package:delforte/store/quote_store.dart";
@@ -52,6 +53,7 @@ class _AppMainWidgetState extends State<AppMainWidget> {
   void initState() {
     super.initState();
     unawaited(_openStore());
+    unawaited(loadPdfFonts());
   }
 
   Future<void> _openStore() async {

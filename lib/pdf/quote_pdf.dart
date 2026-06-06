@@ -27,24 +27,12 @@ const PdfColor _text = PdfColor.fromInt(0xFF2A3050);
 const PdfColor _textSec = PdfColor.fromInt(0xFF5A6480);
 const PdfColor _textMuted = PdfColor.fromInt(0xFF9AA3BA);
 
-/// The DelforteApp.jsx typefaces: Syne (display), DM Sans (body), DM Mono (numbers).
-class _Fonts {
-  _Fonts({
-    required this.syne,
-    required this.sans,
-    required this.sansSemi,
-    required this.sansBold,
-    required this.mono,
-    required this.monoMed,
-  });
-
-  final pw.Font syne;
-  final pw.Font sans;
-  final pw.Font sansSemi;
-  final pw.Font sansBold;
-  final pw.Font mono;
-  final pw.Font monoMed;
-}
+late final pw.Font syne;
+late final pw.Font sans;
+late final pw.Font sansSemi;
+late final pw.Font sansBold;
+late final pw.Font mono;
+late final pw.Font monoMed;
 
 class _Line {
   _Line(this.name, this.qty, this.unit, this.priceCents, this.subtotalCents);
@@ -62,8 +50,7 @@ Future<Uint8List> buildQuotePdf(
   QuotePdfData data,
   int quoteId,
 ) async {
-  final _Fonts fonts = await _loadFonts();
-
+  await _finishedLoadingFonts;
   final Client? client = data.client;
 
   final List<_Line> services = _linesOf(data, CatalogItemType.service);
@@ -99,7 +86,7 @@ Future<Uint8List> buildQuotePdf(
           mainAxisSize: pw.MainAxisSize.min,
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            _headerBand(brand, logo, code, date, validity, warranty, fonts),
+            _headerBand(brand, logo, code, date, validity, warranty),
             pw.Container(
               height: 3,
               decoration: const pw.BoxDecoration(
@@ -116,19 +103,19 @@ Future<Uint8List> buildQuotePdf(
                 mainAxisSize: pw.MainAxisSize.min,
                 crossAxisAlignment: pw.CrossAxisAlignment.stretch,
                 children: [
-                  _billPaymentRow(client, defaults, fonts),
+                  _billPaymentRow(client, defaults),
                   _docDivider(),
-                  _linesSection(strings.services, services, subtotalServices, fonts),
+                  _linesSection(strings.services, services, subtotalServices),
                   _docDivider(),
-                  _linesSection(strings.equipment, equipment, subtotalEquipment, fonts),
+                  _linesSection(strings.equipment, equipment, subtotalEquipment),
                   _docDivider(),
-                  _totalBox(total, fonts),
+                  _totalBox(total),
                   pw.SizedBox(height: 12),
-                  _termsBox(defaults, fonts),
+                  _termsBox(defaults),
                 ],
               ),
             ),
-            _footer(business, defaults, code, date, fonts),
+            _footer(business, defaults, code, date),
           ],
         ),
       ),
@@ -139,18 +126,17 @@ Future<Uint8List> buildQuotePdf(
 
 /// The PDF fonts, loaded from assets once and reused across every quote PDF.
 /// Caching the future also collapses concurrent first calls into one load.
-Future<_Fonts>? _fontsFuture;
+Future<void> _finishedLoadingFonts = Future.delayed(const Duration(minutes: 10));
 
-Future<_Fonts> _loadFonts() => _fontsFuture ??= _buildFonts();
-
-Future<_Fonts> _buildFonts() async => _Fonts(
-  syne: pw.Font.ttf(await rootBundle.load("assets/fonts/Syne-ExtraBold.ttf")),
-  sans: pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Regular.ttf")),
-  sansSemi: pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-SemiBold.ttf")),
-  sansBold: pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Bold.ttf")),
-  mono: pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Regular.ttf")),
-  monoMed: pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Medium.ttf")),
-);
+Future<void> loadPdfFonts() async {
+  syne = pw.Font.ttf(await rootBundle.load("assets/fonts/Syne-ExtraBold.ttf"));
+  sans = pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Regular.ttf"));
+  sansSemi = pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-SemiBold.ttf"));
+  sansBold = pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Bold.ttf"));
+  mono = pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Regular.ttf"));
+  monoMed = pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Medium.ttf"));
+  _finishedLoadingFonts = Future<bool>.value(true);
+}
 
 List<_Line> _linesOf(QuotePdfData data, CatalogItemType type) {
   return [
@@ -171,7 +157,6 @@ pw.Widget _headerBand(
   String date,
   String validity,
   String warranty,
-  _Fonts fonts,
 ) {
   pw.Widget brandArea;
   if (logo == null) {
@@ -180,12 +165,7 @@ pw.Widget _headerBand(
       maxLines: 1,
       softWrap: false,
       overflow: pw.TextOverflow.clip,
-      style: pw.TextStyle(
-        font: fonts.syne,
-        fontSize: 22,
-        color: PdfColors.white,
-        letterSpacing: -0.3,
-      ),
+      style: pw.TextStyle(font: syne, fontSize: 22, color: PdfColors.white, letterSpacing: -0.3),
     );
   } else {
     // Fit by height: fixed tall, width follows the logo's own aspect ratio.
@@ -206,7 +186,7 @@ pw.Widget _headerBand(
             softWrap: false,
             overflow: pw.TextOverflow.clip,
             style: pw.TextStyle(
-              font: fonts.syne,
+              font: syne,
               fontSize: 13,
               color: PdfColors.white,
               letterSpacing: -0.2,
@@ -231,26 +211,21 @@ pw.Widget _headerBand(
           children: [
             pw.Text(
               strings.pdfQuote,
-              style: pw.TextStyle(
-                font: fonts.sans,
-                fontSize: 9,
-                color: _alpha(0.35),
-                letterSpacing: 0.5,
-              ),
+              style: pw.TextStyle(font: sans, fontSize: 9, color: _alpha(0.35), letterSpacing: 0.5),
             ),
             pw.SizedBox(height: 2),
             pw.Text(
               code,
-              style: pw.TextStyle(font: fonts.monoMed, fontSize: 14, color: PdfColors.white),
+              style: pw.TextStyle(font: monoMed, fontSize: 14, color: PdfColors.white),
             ),
             pw.SizedBox(height: 12),
             pw.Row(
               children: [
-                _metaItem(date, fonts),
+                _metaItem(date),
                 pw.SizedBox(width: 18),
-                _metaItem(validity, fonts),
+                _metaItem(validity),
                 pw.SizedBox(width: 18),
-                _metaItem(warranty, fonts),
+                _metaItem(warranty),
               ],
             ),
           ],
@@ -260,20 +235,20 @@ pw.Widget _headerBand(
   );
 }
 
-pw.Widget _metaItem(String text, _Fonts fonts) => pw.Text(
+pw.Widget _metaItem(String text) => pw.Text(
   text,
-  style: pw.TextStyle(font: fonts.sans, fontSize: 9, color: _alpha(0.5)),
+  style: pw.TextStyle(font: sans, fontSize: 9, color: _alpha(0.5)),
 );
 
 pw.Widget _docDivider() =>
     pw.Container(height: 1, color: _divider, margin: const pw.EdgeInsets.symmetric(vertical: 14));
 
-pw.Widget _label(String text, _Fonts fonts, {PdfColor color = _textMuted}) => pw.Text(
+pw.Widget _label(String text, {PdfColor color = _textMuted}) => pw.Text(
   text.toUpperCase(),
-  style: pw.TextStyle(font: fonts.sansBold, fontSize: 9, color: color, letterSpacing: 0.6),
+  style: pw.TextStyle(font: sansBold, fontSize: 9, color: color, letterSpacing: 0.6),
 );
 
-pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults, _Fonts fonts) {
+pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults) {
   final String payment = defaults.paymentMethod.isNotEmpty ? defaults.paymentMethod : "—";
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -282,17 +257,17 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults, _Fonts fon
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            _label(strings.pdfBillTo, fonts),
+            _label(strings.pdfBillTo),
             pw.SizedBox(height: 6),
             pw.Text(
               client?.name ?? "—",
-              style: pw.TextStyle(font: fonts.sansBold, fontSize: 12, color: _ink),
+              style: pw.TextStyle(font: sansBold, fontSize: 12, color: _ink),
             ),
             if (client != null && client.address.isNotEmpty) ...[
               pw.SizedBox(height: 2),
               pw.Text(
                 client.address,
-                style: pw.TextStyle(font: fonts.sans, fontSize: 10, color: _textSec),
+                style: pw.TextStyle(font: sans, fontSize: 10, color: _textSec),
               ),
             ],
           ],
@@ -303,12 +278,12 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults, _Fonts fon
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
-            _label(strings.pdfPayment, fonts),
+            _label(strings.pdfPayment),
             pw.SizedBox(height: 6),
             pw.Text(
               payment,
               textAlign: pw.TextAlign.right,
-              style: pw.TextStyle(font: fonts.sans, fontSize: 10, color: _text),
+              style: pw.TextStyle(font: sans, fontSize: 10, color: _text),
             ),
           ],
         ),
@@ -317,11 +292,11 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults, _Fonts fon
   );
 }
 
-pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents, _Fonts fonts) {
+pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
-      _label(title, fonts, color: _ink),
+      _label(title, color: _ink),
       pw.SizedBox(height: 8),
       pw.Table(
         columnWidths: const {
@@ -337,11 +312,11 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents, _Fon
               border: pw.Border(bottom: pw.BorderSide(color: _ink, width: 1.5)),
             ),
             children: [
-              _th(strings.description, fonts, pw.TextAlign.left),
-              _th(strings.pdfQty, fonts, pw.TextAlign.left),
-              _th(strings.unit, fonts, pw.TextAlign.right),
-              _th(strings.pdfPrice, fonts, pw.TextAlign.right),
-              _th(strings.total, fonts, pw.TextAlign.right),
+              _th(strings.description, pw.TextAlign.left),
+              _th(strings.pdfQty, pw.TextAlign.left),
+              _th(strings.unit, pw.TextAlign.right),
+              _th(strings.pdfPrice, pw.TextAlign.right),
+              _th(strings.total, pw.TextAlign.right),
             ],
           ),
           for (var i = 0; i < lines.length; i++)
@@ -355,11 +330,11 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents, _Fon
                 ),
               ),
               children: [
-                _td(lines[i].name, fonts.sans, _text, pw.TextAlign.left),
-                _td("${lines[i].qty}", fonts.mono, _textSec, pw.TextAlign.right),
-                _td(lines[i].unit, fonts.sans, _textMuted, pw.TextAlign.right),
-                _td(formatMoney(lines[i].priceCents), fonts.mono, _textSec, pw.TextAlign.right),
-                _td(formatMoney(lines[i].subtotalCents), fonts.monoMed, _ink, pw.TextAlign.right),
+                _td(lines[i].name, sans, _text, pw.TextAlign.left),
+                _td("${lines[i].qty}", mono, _textSec, pw.TextAlign.right),
+                _td(lines[i].unit, sans, _textMuted, pw.TextAlign.right),
+                _td(formatMoney(lines[i].priceCents), mono, _textSec, pw.TextAlign.right),
+                _td(formatMoney(lines[i].subtotalCents), monoMed, _ink, pw.TextAlign.right),
               ],
             ),
         ],
@@ -375,11 +350,11 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents, _Fon
             children: [
               pw.TextSpan(
                 text: "${strings.pdfSubtotal}  ",
-                style: pw.TextStyle(font: fonts.mono, fontSize: 10, color: _textSec),
+                style: pw.TextStyle(font: mono, fontSize: 10, color: _textSec),
               ),
               pw.TextSpan(
                 text: formatMoney(subtotalCents),
-                style: pw.TextStyle(font: fonts.monoMed, fontSize: 10, color: _ink),
+                style: pw.TextStyle(font: monoMed, fontSize: 10, color: _ink),
               ),
             ],
           ),
@@ -389,12 +364,12 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents, _Fon
   );
 }
 
-pw.Widget _th(String text, _Fonts fonts, pw.TextAlign align) => pw.Padding(
+pw.Widget _th(String text, pw.TextAlign align) => pw.Padding(
   padding: const pw.EdgeInsets.symmetric(vertical: 5),
   child: pw.Text(
     text.toUpperCase(),
     textAlign: align,
-    style: pw.TextStyle(font: fonts.sansBold, fontSize: 9, color: _ink, letterSpacing: 0.5),
+    style: pw.TextStyle(font: sansBold, fontSize: 9, color: _ink, letterSpacing: 0.5),
   ),
 );
 
@@ -407,7 +382,7 @@ pw.Widget _td(String text, pw.Font font, PdfColor color, pw.TextAlign align) => 
   ),
 );
 
-pw.Widget _totalBox(int total, _Fonts fonts) => pw.Container(
+pw.Widget _totalBox(int total) => pw.Container(
   decoration: pw.BoxDecoration(color: _ink, borderRadius: pw.BorderRadius.circular(10)),
   padding: const pw.EdgeInsets.symmetric(horizontal: 16, vertical: 13),
   child: pw.Row(
@@ -415,17 +390,17 @@ pw.Widget _totalBox(int total, _Fonts fonts) => pw.Container(
     children: [
       pw.Text(
         strings.total,
-        style: pw.TextStyle(font: fonts.sansSemi, fontSize: 11, color: _alpha(0.7)),
+        style: pw.TextStyle(font: sansSemi, fontSize: 11, color: _alpha(0.7)),
       ),
       pw.Text(
         formatMoney(total),
-        style: pw.TextStyle(font: fonts.monoMed, fontSize: 18, color: PdfColors.white),
+        style: pw.TextStyle(font: monoMed, fontSize: 18, color: PdfColors.white),
       ),
     ],
   ),
 );
 
-pw.Widget _termsBox(QuoteDefaultsData defaults, _Fonts fonts) {
+pw.Widget _termsBox(QuoteDefaultsData defaults) {
   final String terms = defaults.terms.isNotEmpty ? defaults.terms : strings.pdfDefaultTerms;
   return pw.Container(
     decoration: pw.BoxDecoration(color: _lightBg, borderRadius: pw.BorderRadius.circular(8)),
@@ -433,24 +408,18 @@ pw.Widget _termsBox(QuoteDefaultsData defaults, _Fonts fonts) {
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        _label(strings.termsConditions, fonts),
+        _label(strings.termsConditions),
         pw.SizedBox(height: 4),
         pw.Text(
           terms,
-          style: pw.TextStyle(font: fonts.sans, fontSize: 9, color: _textSec, lineSpacing: 2),
+          style: pw.TextStyle(font: sans, fontSize: 9, color: _textSec, lineSpacing: 2),
         ),
       ],
     ),
   );
 }
 
-pw.Widget _footer(
-  BusinessInfoData business,
-  QuoteDefaultsData defaults,
-  String code,
-  String date,
-  _Fonts fonts,
-) {
+pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String code, String date) {
   final List<String> contacts = [
     [business.address, business.city, business.state].where((s) => s.isNotEmpty).join(" — "),
     if (business.phone.isNotEmpty) business.phone,
@@ -474,7 +443,7 @@ pw.Widget _footer(
               for (final String c in contacts)
                 pw.Text(
                   c,
-                  style: pw.TextStyle(font: fonts.sans, fontSize: 8.5, color: _alpha(0.35)),
+                  style: pw.TextStyle(font: sans, fontSize: 8.5, color: _alpha(0.35)),
                 ),
             ],
           ),
@@ -487,7 +456,7 @@ pw.Widget _footer(
               code,
               date,
             ),
-            style: pw.TextStyle(font: fonts.sans, fontSize: 8, color: _alpha(0.18)),
+            style: pw.TextStyle(font: sans, fontSize: 8, color: _alpha(0.18)),
           ),
         ),
       ],
