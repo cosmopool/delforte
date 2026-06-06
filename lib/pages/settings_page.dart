@@ -3,7 +3,7 @@ import "dart:typed_data";
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
-import "package:delforte/design_system/widgets/primary_button_widget.dart";
+import "package:delforte/design_system/widgets/secondary_button_widget.dart";
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
@@ -41,6 +41,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Uint8List _logo = Uint8List(0);
 
   bool _loaded = false;
+  String _baseline = "";
+  bool _logoChanged = false;
 
   @override
   void dispose() {
@@ -79,7 +81,27 @@ class _SettingsPageState extends State<SettingsPage> {
 
     final PdfSettingsData pdf = widget.store.pdfSettings;
     _accentColour = pdf.accentColour;
+
+    _baseline = _formSignature();
   }
+
+  /// Snapshot of every editable text field, used to detect unsaved edits.
+  String _formSignature() => [
+    _businessName.text,
+    _cnpj.text,
+    _address.text,
+    _city.text,
+    _state.text,
+    _phone.text,
+    _email.text,
+    _paymentMethod.text,
+    _validity.text,
+    _warranty.text,
+    _terms.text,
+    _accentColour,
+  ].join(" ");
+
+  bool _isDirty() => _logoChanged || _formSignature() != _baseline;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +109,10 @@ class _SettingsPageState extends State<SettingsPage> {
     return AppShell(
       header: FlowHeader(
         title: strings.settings,
-        onBack: () => widget.router.goTo(const HomeRoute()),
+        onBack: _onBack,
+        continueLabel: strings.save,
+        continueIcon: Icons.check_rounded,
+        onContinue: _save,
       ),
       body: AnimatedBuilder(
         animation: widget.store.settingsNotifier,
@@ -184,12 +209,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 textAlign: TextAlign.center,
                 style: VigilType.small(color: VigilColors.textMuted, size: 11),
               ),
-              const SizedBox(height: 24),
-              PrimaryButton(
-                label: strings.saveSettings,
-                icon: Icons.check_rounded,
-                onPressed: _save,
-              ),
             ],
           );
         },
@@ -223,7 +242,80 @@ class _SettingsPageState extends State<SettingsPage> {
     if (file == null) return;
     final Uint8List bytes = await file.readAsBytes();
     if (!mounted) return;
-    setState(() => _logo = bytes);
+    setState(() {
+      _logo = bytes;
+      _logoChanged = true;
+    });
+  }
+
+  Future<void> _onBack() async {
+    if (!_isDirty()) {
+      widget.router.goTo(const HomeRoute());
+      return;
+    }
+    final bool? discard = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => const _DiscardDialog(),
+    );
+    if (discard != true || !mounted) return;
+    widget.router.goTo(const HomeRoute());
+  }
+}
+
+/// Confirmation modal shown when leaving Settings with unsaved edits.
+///
+/// Pops `true` to discard and leave, `false`/dismiss to keep editing.
+class _DiscardDialog extends StatelessWidget {
+  const _DiscardDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: VigilColors.surface,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+      shape: const RoundedRectangleBorder(borderRadius: VigilRadius.featureRadius),
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(strings.discardChangesTitle, style: VigilType.title(size: 18)),
+            const SizedBox(height: 8),
+            Text(
+              strings.discardChangesMessage,
+              style: VigilType.body(color: VigilColors.textSecondary),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: VigilColors.danger,
+                      foregroundColor: VigilColors.surface,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
+                    ),
+                    onPressed: () => Navigator.pop(context, true),
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    label: Text(strings.discard),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SecondaryButton(
+                    label: strings.cancel,
+                    icon: Icons.close_rounded,
+                    onPressed: () => Navigator.pop(context, false),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

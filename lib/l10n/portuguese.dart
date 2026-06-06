@@ -252,7 +252,14 @@ class Portuguese implements Localization {
   @override
   String footerPreviewNote = "Este rodapé aparece no final de cada PDF gerado";
   @override
-  String saveSettings = "Salvar Configurações";
+  String save = "Salvar";
+  @override
+  String discardChangesTitle = "Descartar alterações?";
+  @override
+  String discardChangesMessage =
+      "Você tem alterações não salvas. Se voltar agora, elas serão perdidas.";
+  @override
+  String discard = "Descartar";
   @override
   String companyLogo = "Logo da Empresa";
   @override

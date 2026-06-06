@@ -155,7 +155,10 @@ abstract class Localization {
   late final String termsHint;
   late final String sectionPdfFooterPreview;
   late final String footerPreviewNote;
-  late final String saveSettings;
+  late final String save;
+  late final String discardChangesTitle;
+  late final String discardChangesMessage;
+  late final String discard;
   late final String companyLogo;
   late final String companyLogoNote;
   late final String change;

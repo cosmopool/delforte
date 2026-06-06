@@ -250,7 +250,13 @@ class English implements Localization {
   @override
   String footerPreviewNote = "This footer appears at the bottom of every generated PDF";
   @override
-  String saveSettings = "Save Settings";
+  String save = "Save";
+  @override
+  String discardChangesTitle = "Discard changes?";
+  @override
+  String discardChangesMessage = "You have unsaved changes. If you go back now, they will be lost.";
+  @override
+  String discard = "Discard";
   @override
   String companyLogo = "Company Logo";
   @override

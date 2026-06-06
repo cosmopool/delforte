@@ -69,11 +69,15 @@ class FlowHeader extends StatelessWidget {
     this.total,
     this.totalLabel,
     this.continueLabel,
+    this.continueIcon,
     this.onContinue,
   });
 
   /// The header title text.
   final String title;
+
+  /// Icon for the continue/action button. Defaults to a forward arrow.
+  final IconData? continueIcon;
 
   /// The optional current step index.
   final int? stepIndex;
@@ -131,7 +135,7 @@ class FlowHeader extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                     ),
                     onPressed: onContinue,
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                    icon: Icon(continueIcon ?? Icons.arrow_forward_rounded, size: 16),
                     label: Text(continueLabel ?? strings.continueLabel),
                   ),
               ],

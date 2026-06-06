@@ -8,6 +8,8 @@ abstract final class VigilColors {
   static const Color primarySoft = Color(0xFFEEF4FF);
   static const Color success = Color(0xFF0DBE84);
   static const Color successSoft = Color(0xFFE7F8F3);
+  static const Color danger = Color(0xFFE54040);
+  static const Color dangerSoft = Color(0xFFFFF5F5);
   static const Color canvas = Color(0xFFF3F5FB);
   static const Color surface = Color(0xFFFFFFFF);
   static const Color textPrimary = Color(0xFF080F26);
