@@ -40,13 +40,11 @@ abstract class Localization {
 
   // Quotes list
   late final String quotes;
-  late final String searchQuotes;
   late final String noQuotesFound;
   late final String noQuotesFoundSubtitle;
 
   // Client select
   late final String selectClient;
-  late final String searchClients;
   late final String createNewClient;
 
   // Client create
@@ -62,10 +60,12 @@ abstract class Localization {
   late final String saveClient;
   late final String clientNameRequired;
 
+  late final String search;
+  late final String searchAdd;
+
   // Services
   late final String services;
   late final String servicesTotal;
-  late final String searchAddService;
   late final String createNewService;
 
   // Service create
@@ -83,14 +83,11 @@ abstract class Localization {
   // Equipment
   late final String equipment;
   late final String equipmentTotal;
-  late final String searchAddEquipment;
   late final String createNewEquipment;
 
   // Catalog
   late final String catalog;
   late final String catalogNew;
-  late final String searchServices;
-  late final String searchEquipment;
   late final String saveChanges;
   late final String changesSaved;
   late final String noServicesYet;
@@ -156,16 +153,12 @@ abstract class Localization {
   late final String warrantyHint;
   late final String termsConditions;
   late final String termsHint;
-  late final String sectionPdfAppearance;
-  late final String accentColour;
-  late final String accentColourHint;
   late final String sectionPdfFooterPreview;
   late final String footerPreviewNote;
   late final String saveSettings;
   late final String companyLogo;
   late final String companyLogoNote;
   late final String upload;
-  late final List<String> accentColourOptions;
   late final String showLogoOnPdf;
   late final String includeQrCode;
   late final String includeQrCodeNote;

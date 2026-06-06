@@ -73,7 +73,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                     children: [
                       SearchField(
                         controller: _searchController,
-                        hintText: strings.searchAddEquipment,
+                        hintText: strings.searchAdd,
                         onChanged: (name) => setState(() {}),
                       ),
                       const SizedBox(height: 10),

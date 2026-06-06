@@ -57,16 +57,12 @@ class English implements Localization {
   @override
   String quotes = "Quotes";
   @override
-  String searchQuotes = "Search quotes...";
-  @override
   String noQuotesFound = "No quotes found";
   @override
   String noQuotesFoundSubtitle = "Drafts and saved quotes will appear here.";
 
   @override
   String selectClient = "Select Client";
-  @override
-  String searchClients = "Search clients...";
   @override
   String createNewClient = "Create new client";
 
@@ -94,11 +90,14 @@ class English implements Localization {
   String clientNameRequired = "Client name is required";
 
   @override
+  String searchAdd = "Search to add...";
+  @override
+  String search = "Search...";
+
+  @override
   String services = "Services";
   @override
   String servicesTotal = "Services Total";
-  @override
-  String searchAddService = "Search to add a service...";
   @override
   String createNewService = "Create new service";
 
@@ -128,18 +127,12 @@ class English implements Localization {
   @override
   String equipmentTotal = "Equipment Total";
   @override
-  String searchAddEquipment = "Search to add equipment...";
-  @override
   String createNewEquipment = "Create new equipment";
 
   @override
   String catalog = "Catalog";
   @override
   String catalogNew = "New";
-  @override
-  String searchServices = "Search services...";
-  @override
-  String searchEquipment = "Search equipment...";
   @override
   String saveChanges = "Save Changes";
   @override
@@ -253,12 +246,6 @@ class English implements Localization {
   @override
   String termsHint = "Enter terms…";
   @override
-  String sectionPdfAppearance = "PDF Appearance";
-  @override
-  String accentColour = "Accent Colour";
-  @override
-  String accentColourHint = "e.g. Navy Blue (default)";
-  @override
   String sectionPdfFooterPreview = "PDF Footer Preview";
   @override
   String footerPreviewNote = "This footer appears at the bottom of every generated PDF";
@@ -270,29 +257,6 @@ class English implements Localization {
   String companyLogoNote = "Shown on PDF header · PNG or SVG";
   @override
   String upload = "Upload";
-  @override
-  List<String> paymentMethodOptions = const [
-    "Bank Transfer (PIX)",
-    "Cash",
-    "Credit Card (up to 12x)",
-    "Boleto",
-    "Mixed",
-  ];
-  @override
-  List<String> quoteValidityOptions = const [
-    "30 days",
-    "7 days",
-    "15 days",
-    "45 days",
-    "60 days",
-  ];
-  @override
-  List<String> accentColourOptions = const [
-    "Navy Blue (default)",
-    "Dark Green",
-    "Charcoal",
-    "Custom…",
-  ];
   @override
   String showLogoOnPdf = "Show logo on PDF";
   @override

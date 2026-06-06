@@ -48,7 +48,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
               children: [
                 SearchField(
                   controller: _searchController,
-                  hintText: strings.searchQuotes,
+                  hintText: strings.search,
                   onChanged: (_) => setState(() {}),
                 ),
                 const SizedBox(height: 10),

@@ -80,7 +80,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     children: [
                       SearchField(
                         controller: _search,
-                        hintText: _isServices ? strings.searchServices : strings.searchEquipment,
+                        hintText: strings.search,
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: 10),

@@ -72,7 +72,7 @@ class _ServicesPageState extends State<ServicesPage> {
                       children: [
                         SearchField(
                           controller: _searchController,
-                          hintText: strings.searchAddService,
+                          hintText: strings.searchAdd,
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 10),

@@ -63,7 +63,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                 children: [
                   SearchField(
                     controller: _searchController,
-                    hintText: strings.searchClients,
+                    hintText: strings.search,
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 10),

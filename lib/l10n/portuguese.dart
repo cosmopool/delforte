@@ -58,16 +58,12 @@ class Portuguese implements Localization {
   @override
   String quotes = "Orçamentos";
   @override
-  String searchQuotes = "Buscar orçamentos...";
-  @override
   String noQuotesFound = "Nenhum orçamento encontrado";
   @override
   String noQuotesFoundSubtitle = "Rascunhos e orçamentos salvos aparecerão aqui.";
 
   @override
   String selectClient = "Selecionar Cliente";
-  @override
-  String searchClients = "Buscar clientes...";
   @override
   String createNewClient = "Criar novo cliente";
 
@@ -95,11 +91,14 @@ class Portuguese implements Localization {
   String clientNameRequired = "O nome do cliente é obrigatório";
 
   @override
+  String searchAdd = "Busque para adicionar no orçamento...";
+  @override
+  String search = "Buscar...";
+
+  @override
   String services = "Serviços";
   @override
   String servicesTotal = "Total de Serviços";
-  @override
-  String searchAddService = "Busque para adicionar um serviço...";
   @override
   String createNewService = "Criar novo serviço";
 
@@ -129,18 +128,12 @@ class Portuguese implements Localization {
   @override
   String equipmentTotal = "Total de Equipamentos";
   @override
-  String searchAddEquipment = "Busque para adicionar equipamentos...";
-  @override
   String createNewEquipment = "Criar novo equipamento";
 
   @override
   String catalog = "Catálogo";
   @override
   String catalogNew = "Novo";
-  @override
-  String searchServices = "Buscar serviços...";
-  @override
-  String searchEquipment = "Buscar equipamentos...";
   @override
   String saveChanges = "Salvar Alterações";
   @override
@@ -255,12 +248,6 @@ class Portuguese implements Localization {
   @override
   String termsHint = "Digite os termos…";
   @override
-  String sectionPdfAppearance = "Aparência do PDF";
-  @override
-  String accentColour = "Cor de Destaque";
-  @override
-  String accentColourHint = "ex. Azul Marinho (padrão)";
-  @override
   String sectionPdfFooterPreview = "Pré-visualização do Rodapé do PDF";
   @override
   String footerPreviewNote = "Este rodapé aparece no final de cada PDF gerado";
@@ -272,13 +259,6 @@ class Portuguese implements Localization {
   String companyLogoNote = "Exibido no cabeçalho do PDF · PNG ou SVG";
   @override
   String upload = "Enviar";
-  @override
-  List<String> accentColourOptions = const [
-    "Azul Marinho (padrão)",
-    "Verde Escuro",
-    "Carvão",
-    "Personalizado…",
-  ];
   @override
   String showLogoOnPdf = "Exibir logo no PDF";
   @override
