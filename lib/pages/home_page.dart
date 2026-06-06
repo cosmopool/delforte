@@ -25,34 +25,41 @@ class HomePage extends StatelessWidget {
           body: Column(
             children: [
               _BrandHeader(onSettings: () => router.goTo(const SettingsRoute())),
+              // Pulled up to float over the header's bottom edge.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Transform.translate(
+                  offset: const Offset(0, -16),
+                  child: _NewQuoteCard(
+                    onTap: () => router.goTo(const QuoteFlowRoute(QuoteStep.client)),
+                  ),
+                ),
+              ),
               Expanded(
-                child: ListView(
+                child: Padding(
                   padding: const EdgeInsets.fromLTRB(14, 0, 14, 20),
-                  children: [
-                    Transform.translate(
-                      offset: const Offset(0, -16),
-                      child: _NewQuoteCard(
-                        onTap: () => router.goTo(const QuoteFlowRoute(QuoteStep.client)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 12),
+                      _QuickActions(router: router),
+                      const SizedBox(height: 12),
+                      _SectionTitle(
+                        title: strings.recentQuotes,
+                        action: strings.seeAll,
+                        onAction: () => router.goTo(const QuotesListRoute()),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    _QuickActions(router: router),
-                    const SizedBox(height: 12),
-                    _SectionTitle(
-                      title: strings.recentQuotes,
-                      action: strings.seeAll,
-                      onAction: () => router.goTo(const QuotesListRoute()),
-                    ),
-                    const SizedBox(height: 12),
-                    if (quotes.isEmpty)
-                      EmptyPanel(
-                        icon: Icons.receipt_long_rounded,
-                        title: strings.noQuotesYet,
-                        subtitle: strings.noQuotesYetSubtitle,
-                      )
-                    else
-                      for (final QuoteSummary quote in quotes) _quoteCard(quote),
-                  ],
+                      const SizedBox(height: 12),
+                      if (quotes.isEmpty)
+                        EmptyPanel(
+                          icon: Icons.receipt_long_rounded,
+                          title: strings.noQuotesYet,
+                          subtitle: strings.noQuotesYetSubtitle,
+                        )
+                      else
+                        for (final QuoteSummary quote in quotes) _quoteCard(quote),
+                    ],
+                  ),
                 ),
               ),
             ],
