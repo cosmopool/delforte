@@ -442,7 +442,8 @@ class QuoteStore {
     if (db == null) return _fail(errDbOpen, "DB not open");
     final int current = _lineQuantity(db, quoteId, type, refId);
     if (current < 0) return _fail(errMissingId, "Quote line missing");
-    final int next = math.max(1, math.min(9999, current + delta));
+    if (current + delta < 1) return removeDraftLine(quoteId, type, refId);
+    final int next = math.min(9999, current + delta);
     try {
       db.execute(
         "UPDATE quote_lines SET quantity = ?, subtotal_cents = unit_price_cents * ? "
