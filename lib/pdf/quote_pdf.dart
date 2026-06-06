@@ -9,10 +9,12 @@ import "package:flutter/services.dart" show rootBundle;
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pw;
 
-// Smartphone-style portrait page (iPhone-class 414×896 pt, ~9:19.5) instead of
-// A4: this layout was designed for mobile viewing, so the page mirrors a phone
-// screen. The flexible Column below stretches the content to whatever height.
-const PdfPageFormat _phonePage = PdfPageFormat(414, 896);
+// Smartphone-width page (414 pt, iPhone-class) with a dynamic height: passing
+// double.infinity makes the pdf package shrink the page to fit the content
+// exactly — one continuous mobile-style sheet, no trailing whitespace. The
+// content Columns must size to their content (MainAxisSize.min, no Expanded or
+// Spacer) since the page height is unbounded during layout.
+const PdfPageFormat _phonePage = PdfPageFormat(414, double.infinity);
 
 // Palette copied from the PdfPreviewScreen in DelforteApp.jsx.
 const PdfColor _navy = PdfColor.fromInt(0xFF0A0F2C);
@@ -94,6 +96,7 @@ Future<Uint8List> buildQuotePdf(
       build: (pw.Context context) => pw.DecoratedBox(
         decoration: const pw.BoxDecoration(color: PdfColors.white),
         child: pw.Column(
+          mainAxisSize: pw.MainAxisSize.min,
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
             _headerBand(brand, logo, code, date, validity, warranty, fonts),
@@ -107,24 +110,22 @@ Future<Uint8List> buildQuotePdf(
                 ),
               ),
             ),
-            pw.Expanded(
-              child: pw.Padding(
-                padding: const pw.EdgeInsets.fromLTRB(28, 24, 28, 24),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.stretch,
-                  children: [
-                    _billPaymentRow(client, defaults, fonts),
-                    _docDivider(),
-                    _linesSection(strings.services, services, subtotalServices, fonts),
-                    _docDivider(),
-                    _linesSection(strings.equipment, equipment, subtotalEquipment, fonts),
-                    _docDivider(),
-                    _totalBox(total, fonts),
-                    pw.SizedBox(height: 12),
-                    _termsBox(defaults, fonts),
-                    pw.Spacer(),
-                  ],
-                ),
+            pw.Padding(
+              padding: const pw.EdgeInsets.fromLTRB(28, 24, 28, 24),
+              child: pw.Column(
+                mainAxisSize: pw.MainAxisSize.min,
+                crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                children: [
+                  _billPaymentRow(client, defaults, fonts),
+                  _docDivider(),
+                  _linesSection(strings.services, services, subtotalServices, fonts),
+                  _docDivider(),
+                  _linesSection(strings.equipment, equipment, subtotalEquipment, fonts),
+                  _docDivider(),
+                  _totalBox(total, fonts),
+                  pw.SizedBox(height: 12),
+                  _termsBox(defaults, fonts),
+                ],
               ),
             ),
             _footer(business, defaults, code, date, fonts),
