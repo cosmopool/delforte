@@ -7,6 +7,8 @@ import "package:delforte/l10n/localization.dart";
 import "package:delforte/pdf/quote_pdf.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
+import "package:delforte/store/business_info_data.dart";
+import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
 import "package:printing/printing.dart";
@@ -37,7 +39,10 @@ class PdfPreviewPage extends StatefulWidget {
 }
 
 class _PdfPreviewPageState extends State<PdfPreviewPage> {
-  late final Future<Uint8List> _doc = buildQuotePdf(widget.store, widget.quoteId);
+  late final BusinessInfoData business = widget.store.businessInfo;
+  late final QuoteDefaultsData defaults = widget.store.quoteDefaults;
+  late final QuotePdfData pdfData = widget.store.quotePdfData(widget.quoteId);
+  late final Future<Uint8List> _doc = buildQuotePdf(business, defaults, pdfData, widget.quoteId);
 
   Future<void> _share() async {
     final Uint8List bytes = await _doc;

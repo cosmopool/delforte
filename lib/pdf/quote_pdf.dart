@@ -9,6 +9,11 @@ import "package:flutter/services.dart" show rootBundle;
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pw;
 
+// Smartphone-style portrait page (iPhone-class 414×896 pt, ~9:19.5) instead of
+// A4: this layout was designed for mobile viewing, so the page mirrors a phone
+// screen. The flexible Column below stretches the content to whatever height.
+const PdfPageFormat _phonePage = PdfPageFormat(414, 896);
+
 // Palette copied from the PdfPreviewScreen in DelforteApp.jsx.
 const PdfColor _navy = PdfColor.fromInt(0xFF0A0F2C);
 const PdfColor _accent = PdfColor.fromInt(0xFF1E66E1);
@@ -49,22 +54,14 @@ class _Line {
 }
 
 /// Builds the quote PDF for [quoteId], laid out like PdfPreviewScreen.
-Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
-  final _Fonts fonts = _Fonts(
-    syne: await _loadFont("assets/fonts/Syne-ExtraBold.ttf"),
-    sans: await _loadFont("assets/fonts/DMSans-Regular.ttf"),
-    sansSemi: await _loadFont("assets/fonts/DMSans-SemiBold.ttf"),
-    sansBold: await _loadFont("assets/fonts/DMSans-Bold.ttf"),
-    mono: await _loadFont("assets/fonts/DMMono-Regular.ttf"),
-    monoMed: await _loadFont("assets/fonts/DMMono-Medium.ttf"),
-  );
+Future<Uint8List> buildQuotePdf(
+  BusinessInfoData business,
+  QuoteDefaultsData defaults,
+  QuotePdfData data,
+  int quoteId,
+) async {
+  final _Fonts fonts = await _loadFonts();
 
-  final BusinessInfoData business = store.businessInfo;
-  final QuoteDefaultsData defaults = store.quoteDefaults;
-
-  // One query fetches the quote, its client and every resolved line; the
-  // subtotals are summed in Dart from those lines (no extra round-trips).
-  final QuotePdfData data = store.quotePdfData(quoteId);
   final Client? client = data.client;
 
   final List<_Line> services = _linesOf(data, CatalogItemType.service);
@@ -73,20 +70,26 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
   final int subtotalEquipment = equipment.fold(0, (sum, line) => sum + line.subtotalCents);
   final int total = subtotalServices + subtotalEquipment;
 
-  final String brand = business.name.isNotEmpty ? business.name.toUpperCase() : strings.appName.toUpperCase();
+  final String brand = business.name.isNotEmpty
+      ? business.name.toUpperCase()
+      : strings.appName.toUpperCase();
   final pw.MemoryImage? logo = business.logo.isNotEmpty ? pw.MemoryImage(business.logo) : null;
   final String code = "#$quoteId";
   final int createdAt = data.createdAt;
   final String date = _fmtDate(
     createdAt > 0 ? DateTime.fromMillisecondsSinceEpoch(createdAt) : DateTime.now(),
   );
-  final String validity = defaults.validity.isNotEmpty ? defaults.validity : strings.pdfDefaultValidity;
-  final String warranty = defaults.warranty.isNotEmpty ? defaults.warranty : strings.pdfDefaultWarranty;
+  final String validity = defaults.validity.isNotEmpty
+      ? defaults.validity
+      : strings.pdfDefaultValidity;
+  final String warranty = defaults.warranty.isNotEmpty
+      ? defaults.warranty
+      : strings.pdfDefaultWarranty;
 
   final pw.Document doc = pw.Document();
   doc.addPage(
     pw.Page(
-      pageFormat: PdfPageFormat.a4,
+      pageFormat: _phonePage,
       margin: pw.EdgeInsets.zero,
       build: (pw.Context context) => pw.DecoratedBox(
         decoration: const pw.BoxDecoration(color: PdfColors.white),
@@ -133,7 +136,20 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
   return doc.save();
 }
 
-Future<pw.Font> _loadFont(String asset) async => pw.Font.ttf(await rootBundle.load(asset));
+/// The PDF fonts, loaded from assets once and reused across every quote PDF.
+/// Caching the future also collapses concurrent first calls into one load.
+Future<_Fonts>? _fontsFuture;
+
+Future<_Fonts> _loadFonts() => _fontsFuture ??= _buildFonts();
+
+Future<_Fonts> _buildFonts() async => _Fonts(
+  syne: pw.Font.ttf(await rootBundle.load("assets/fonts/Syne-ExtraBold.ttf")),
+  sans: pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Regular.ttf")),
+  sansSemi: pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-SemiBold.ttf")),
+  sansBold: pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Bold.ttf")),
+  mono: pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Regular.ttf")),
+  monoMed: pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Medium.ttf")),
+);
 
 List<_Line> _linesOf(QuotePdfData data, CatalogItemType type) {
   return [
@@ -465,7 +481,11 @@ pw.Widget _footer(
         pw.Align(
           alignment: pw.Alignment.center,
           child: pw.Text(
-            strings.pdfGeneratedBy(business.name.isNotEmpty ? business.name : strings.appName, code, date),
+            strings.pdfGeneratedBy(
+              business.name.isNotEmpty ? business.name : strings.appName,
+              code,
+              date,
+            ),
             style: pw.TextStyle(font: fonts.sans, fontSize: 8, color: _alpha(0.18)),
           ),
         ),
