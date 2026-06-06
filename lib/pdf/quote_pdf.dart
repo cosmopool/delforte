@@ -1,5 +1,6 @@
 import "dart:typed_data";
 
+import "package:delforte/l10n/localization.dart";
 import "package:delforte/store/business_info_data.dart";
 import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
@@ -18,21 +19,6 @@ const PdfColor _ink = PdfColor.fromInt(0xFF0A0F2C);
 const PdfColor _text = PdfColor.fromInt(0xFF2A3050);
 const PdfColor _textSec = PdfColor.fromInt(0xFF5A6480);
 const PdfColor _textMuted = PdfColor.fromInt(0xFF9AA3BA);
-
-const List<String> _ptMonths = [
-  "jan.",
-  "fev.",
-  "mar.",
-  "abr.",
-  "mai.",
-  "jun.",
-  "jul.",
-  "ago.",
-  "set.",
-  "out.",
-  "nov.",
-  "dez.",
-];
 
 /// The DelforteApp.jsx typefaces: Syne (display), DM Sans (body), DM Mono (numbers).
 class _Fonts {
@@ -87,15 +73,15 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
   final int subtotalEquipment = equipment.fold(0, (sum, line) => sum + line.subtotalCents);
   final int total = subtotalServices + subtotalEquipment;
 
-  final String brand = business.name.isNotEmpty ? business.name.toUpperCase() : "DELFORTE";
+  final String brand = business.name.isNotEmpty ? business.name.toUpperCase() : strings.appName.toUpperCase();
   final pw.MemoryImage? logo = business.logo.isNotEmpty ? pw.MemoryImage(business.logo) : null;
   final String code = "#$quoteId";
   final int createdAt = data.createdAt;
   final String date = _fmtDate(
     createdAt > 0 ? DateTime.fromMillisecondsSinceEpoch(createdAt) : DateTime.now(),
   );
-  final String validity = defaults.validity.isNotEmpty ? defaults.validity : "Validade 30 dias";
-  final String warranty = defaults.warranty.isNotEmpty ? defaults.warranty : "Garantia 90 dias";
+  final String validity = defaults.validity.isNotEmpty ? defaults.validity : strings.pdfDefaultValidity;
+  final String warranty = defaults.warranty.isNotEmpty ? defaults.warranty : strings.pdfDefaultWarranty;
 
   final pw.Document doc = pw.Document();
   doc.addPage(
@@ -126,9 +112,9 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
                   children: [
                     _billPaymentRow(client, defaults, fonts),
                     _docDivider(),
-                    _linesSection("Services", services, subtotalServices, fonts),
+                    _linesSection(strings.services, services, subtotalServices, fonts),
                     _docDivider(),
-                    _linesSection("Equipment", equipment, subtotalEquipment, fonts),
+                    _linesSection(strings.equipment, equipment, subtotalEquipment, fonts),
                     _docDivider(),
                     _totalBox(total, fonts),
                     pw.SizedBox(height: 12),
@@ -157,7 +143,7 @@ List<_Line> _linesOf(QuotePdfData data, CatalogItemType type) {
   ];
 }
 
-String _fmtDate(DateTime d) => "${d.day} ${_ptMonths[d.month - 1]} ${d.year}";
+String _fmtDate(DateTime d) => "${d.day} ${strings.monthAbbreviations[d.month - 1]} ${d.year}";
 
 PdfColor _alpha(double a) => PdfColor(1, 1, 1, a);
 
@@ -227,7 +213,7 @@ pw.Widget _headerBand(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
             pw.Text(
-              "QUOTE",
+              strings.pdfQuote,
               style: pw.TextStyle(
                 font: fonts.sans,
                 fontSize: 9,
@@ -279,7 +265,7 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults, _Fonts fon
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            _label("Bill To", fonts),
+            _label(strings.pdfBillTo, fonts),
             pw.SizedBox(height: 6),
             pw.Text(
               client?.name ?? "—",
@@ -300,7 +286,7 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults, _Fonts fon
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
-            _label("Payment", fonts),
+            _label(strings.pdfPayment, fonts),
             pw.SizedBox(height: 6),
             pw.Text(
               payment,
@@ -334,11 +320,11 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents, _Fon
               border: pw.Border(bottom: pw.BorderSide(color: _ink, width: 1.5)),
             ),
             children: [
-              _th("Description", fonts, pw.TextAlign.left),
-              _th("Qty", fonts, pw.TextAlign.left),
-              _th("Unit", fonts, pw.TextAlign.right),
-              _th("Price", fonts, pw.TextAlign.right),
-              _th("Total", fonts, pw.TextAlign.right),
+              _th(strings.description, fonts, pw.TextAlign.left),
+              _th(strings.pdfQty, fonts, pw.TextAlign.left),
+              _th(strings.unit, fonts, pw.TextAlign.right),
+              _th(strings.pdfPrice, fonts, pw.TextAlign.right),
+              _th(strings.total, fonts, pw.TextAlign.right),
             ],
           ),
           for (var i = 0; i < lines.length; i++)
@@ -371,7 +357,7 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents, _Fon
           text: pw.TextSpan(
             children: [
               pw.TextSpan(
-                text: "Subtotal  ",
+                text: "${strings.pdfSubtotal}  ",
                 style: pw.TextStyle(font: fonts.mono, fontSize: 10, color: _textSec),
               ),
               pw.TextSpan(
@@ -411,7 +397,7 @@ pw.Widget _totalBox(int total, _Fonts fonts) => pw.Container(
     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
     children: [
       pw.Text(
-        "Total",
+        strings.total,
         style: pw.TextStyle(font: fonts.sansSemi, fontSize: 11, color: _alpha(0.7)),
       ),
       pw.Text(
@@ -423,17 +409,14 @@ pw.Widget _totalBox(int total, _Fonts fonts) => pw.Container(
 );
 
 pw.Widget _termsBox(QuoteDefaultsData defaults, _Fonts fonts) {
-  final String terms = defaults.terms.isNotEmpty
-      ? defaults.terms
-      : "Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção. "
-            "A instalação inclui apenas os materiais listados acima.";
+  final String terms = defaults.terms.isNotEmpty ? defaults.terms : strings.pdfDefaultTerms;
   return pw.Container(
     decoration: pw.BoxDecoration(color: _lightBg, borderRadius: pw.BorderRadius.circular(8)),
     padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        _label("Terms & Conditions", fonts),
+        _label(strings.termsConditions, fonts),
         pw.SizedBox(height: 4),
         pw.Text(
           terms,
@@ -457,7 +440,7 @@ pw.Widget _footer(
     if (business.email.isNotEmpty) business.email,
     if (defaults.paymentMethod.isNotEmpty) defaults.paymentMethod,
     if (defaults.warranty.isNotEmpty) defaults.warranty,
-    if (business.cnpj.isNotEmpty) "CNPJ ${business.cnpj}",
+    if (business.cnpj.isNotEmpty) strings.cnpjLabel(business.cnpj),
   ].where((s) => s.isNotEmpty).toList();
 
   return pw.Container(
@@ -482,7 +465,7 @@ pw.Widget _footer(
         pw.Align(
           alignment: pw.Alignment.center,
           child: pw.Text(
-            "Generated by ${business.name.isNotEmpty ? business.name : "Delforte"} · $code · $date",
+            strings.pdfGeneratedBy(business.name.isNotEmpty ? business.name : strings.appName, code, date),
             style: pw.TextStyle(font: fonts.sans, fontSize: 8, color: _alpha(0.18)),
           ),
         ),

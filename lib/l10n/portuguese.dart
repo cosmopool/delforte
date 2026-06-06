@@ -205,6 +205,41 @@ class Portuguese implements Localization {
   String backToHome = "Voltar ao Início";
 
   @override
+  String pdfQuote = "ORÇAMENTO";
+  @override
+  String pdfBillTo = "Cliente";
+  @override
+  String pdfPayment = "Pagamento";
+  @override
+  String pdfQty = "Qtd";
+  @override
+  String pdfPrice = "Preço";
+  @override
+  String pdfSubtotal = "Subtotal";
+  @override
+  String pdfDefaultValidity = "Validade 30 dias";
+  @override
+  String pdfDefaultWarranty = "Garantia 90 dias";
+  @override
+  String pdfDefaultTerms =
+      "Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção. "
+      "A instalação inclui apenas os materiais listados acima.";
+  @override
+  List<String> monthAbbreviations = const [
+    "jan.",
+    "fev.",
+    "mar.",
+    "abr.",
+    "mai.",
+    "jun.",
+    "jul.",
+    "ago.",
+    "set.",
+    "out.",
+    "nov.",
+    "dez.",
+  ];
+  @override
   String pdfPreview = "Pré-visualização do PDF";
   @override
   String share = "Compartilhar";
@@ -320,4 +355,7 @@ class Portuguese implements Localization {
   String editGroup(String title) => "Editar $title";
   @override
   String deleteCatalogItemConfirm(String name) => "Excluir \"$name\"? Isso não pode ser desfeito.";
+  @override
+  String pdfGeneratedBy(String business, String code, String date) =>
+      "Gerado por $business · $code · $date";
 }

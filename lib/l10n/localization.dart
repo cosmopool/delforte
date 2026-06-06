@@ -133,6 +133,18 @@ abstract class Localization {
   late final String pdfPreview;
   late final String share;
 
+  // PDF document
+  late final String pdfQuote;
+  late final String pdfBillTo;
+  late final String pdfPayment;
+  late final String pdfQty;
+  late final String pdfPrice;
+  late final String pdfSubtotal;
+  late final String pdfDefaultValidity;
+  late final String pdfDefaultWarranty;
+  late final String pdfDefaultTerms;
+  late final List<String> monthAbbreviations;
+
   // Settings
   late final String settings;
   late final String sectionBusiness;
@@ -194,4 +206,5 @@ abstract class Localization {
   String cnpjLabel(String cnpj);
   String editGroup(String title);
   String deleteCatalogItemConfirm(String name);
+  String pdfGeneratedBy(String business, String code, String date);
 }
