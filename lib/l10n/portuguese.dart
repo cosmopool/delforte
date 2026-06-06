@@ -240,7 +240,7 @@ class Portuguese implements Localization {
     "dez.",
   ];
   @override
-  String pdfPreview = "Pré-visualização do PDF";
+  String pdfPreview = "PDF";
   @override
   String share = "Compartilhar";
 

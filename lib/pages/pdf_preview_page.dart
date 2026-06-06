@@ -89,6 +89,22 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
               canChangeOrientation: false,
               canDebug: false,
               scrollViewDecoration: const BoxDecoration(color: Color(0xFFE8EBF2)),
+              previewPageMargin: const EdgeInsets.fromLTRB(12, 16, 12, 24),
+              // The page is clipped to rounded transparent corners in the PDF,
+              // so this white, rounded, shadowed card shows through them —
+              // copied from the preview card in DelforteApp.jsx
+              // (borderRadius 10/16, boxShadow 0 4px 24px rgba(0,0,0,0.12)).
+              pdfPreviewPageDecoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    blurRadius: 24,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
               loadingWidget: const Center(
                 child: CircularProgressIndicator(color: VigilColors.primary),
               ),
