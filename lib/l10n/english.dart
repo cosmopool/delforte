@@ -68,7 +68,7 @@ class English implements Localization {
   @override
   String searchClients = "Search clients...";
   @override
-  String addNewClient = "Add new client";
+  String createNewClient = "Create new client";
 
   @override
   String newClient = "New Client";
@@ -100,7 +100,7 @@ class English implements Localization {
   @override
   String searchAddService = "Search to add a service...";
   @override
-  String addNewService = "Add new service";
+  String createNewService = "Create new service";
 
   @override
   String newService = "New Service";
@@ -130,7 +130,7 @@ class English implements Localization {
   @override
   String searchAddEquipment = "Search to add equipment...";
   @override
-  String addNewEquipment = "Add new equipment";
+  String createNewEquipment = "Create new equipment";
 
   @override
   String catalog = "Catalog";
@@ -270,6 +270,22 @@ class English implements Localization {
   String companyLogoNote = "Shown on PDF header · PNG or SVG";
   @override
   String upload = "Upload";
+  @override
+  List<String> paymentMethodOptions = const [
+    "Bank Transfer (PIX)",
+    "Cash",
+    "Credit Card (up to 12x)",
+    "Boleto",
+    "Mixed",
+  ];
+  @override
+  List<String> quoteValidityOptions = const [
+    "30 days",
+    "7 days",
+    "15 days",
+    "45 days",
+    "60 days",
+  ];
   @override
   List<String> accentColourOptions = const [
     "Navy Blue (default)",

@@ -69,7 +69,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
                   const SizedBox(height: 10),
                   for (final Client client in clients) _clientCard(client),
                   AddCard(
-                    label: strings.addNewClient,
+                    label: strings.createNewClient,
                     onTap: () => widget.router.goTo(ClientCreateRoute(draftId: widget.draftId)),
                   ),
                 ],

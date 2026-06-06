@@ -47,7 +47,7 @@ abstract class Localization {
   // Client select
   late final String selectClient;
   late final String searchClients;
-  late final String addNewClient;
+  late final String createNewClient;
 
   // Client create
   late final String newClient;
@@ -66,7 +66,7 @@ abstract class Localization {
   late final String services;
   late final String servicesTotal;
   late final String searchAddService;
-  late final String addNewService;
+  late final String createNewService;
 
   // Service create
   late final String newService;
@@ -84,7 +84,7 @@ abstract class Localization {
   late final String equipment;
   late final String equipmentTotal;
   late final String searchAddEquipment;
-  late final String addNewEquipment;
+  late final String createNewEquipment;
 
   // Catalog
   late final String catalog;

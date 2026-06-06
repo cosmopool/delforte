@@ -69,7 +69,7 @@ class Portuguese implements Localization {
   @override
   String searchClients = "Buscar clientes...";
   @override
-  String addNewClient = "Adicionar novo cliente";
+  String createNewClient = "Criar novo cliente";
 
   @override
   String newClient = "Novo Cliente";
@@ -101,7 +101,7 @@ class Portuguese implements Localization {
   @override
   String searchAddService = "Busque para adicionar um serviço...";
   @override
-  String addNewService = "Adicionar novo serviço";
+  String createNewService = "Criar novo serviço";
 
   @override
   String newService = "Novo Serviço";
@@ -131,7 +131,7 @@ class Portuguese implements Localization {
   @override
   String searchAddEquipment = "Busque para adicionar equipamentos...";
   @override
-  String addNewEquipment = "Adicionar novo equipamento";
+  String createNewEquipment = "Criar novo equipamento";
 
   @override
   String catalog = "Catálogo";

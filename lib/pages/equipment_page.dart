@@ -94,7 +94,7 @@ class _EquipmentPageState extends State<EquipmentPage> {
                           onUnitPriceChanged: (int cents) => _setUnitPrice(item.id, cents),
                         ),
                       AddCard(
-                        label: strings.addNewEquipment,
+                        label: strings.createNewEquipment,
                         onTap: () =>
                             widget.router.goTo(EquipmentCreateRoute(draftId: widget.draftId)),
                       ),

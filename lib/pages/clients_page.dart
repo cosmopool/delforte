@@ -130,7 +130,7 @@ class _ClientsHeader extends StatelessWidget {
               icon: const Icon(Icons.add_rounded, size: 16),
               label: Text(strings.catalogNew),
             ),
-          ],
+          ]
         ),
       ),
     );

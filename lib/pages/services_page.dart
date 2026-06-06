@@ -93,7 +93,7 @@ class _ServicesPageState extends State<ServicesPage> {
                             onUnitPriceChanged: (int cents) => _setUnitPrice(item.id, cents),
                           ),
                         AddCard(
-                          label: strings.addNewService,
+                          label: strings.createNewService,
                           onTap: () =>
                               widget.router.goTo(ServiceCreateRoute(draftId: widget.draftId)),
                         ),
