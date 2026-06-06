@@ -98,3 +98,32 @@ class QuoteLine {
   final int unitPriceCents;
   final int subtotalCents;
 }
+
+/// A quote line fully resolved for PDF rendering: the catalog name and unit
+/// abbreviation are already joined in, so rendering needs no follow-up queries.
+class QuotePdfLine {
+  const QuotePdfLine({
+    required this.type,
+    required this.name,
+    required this.quantity,
+    required this.unit,
+    required this.unitPriceCents,
+    required this.subtotalCents,
+  });
+
+  final CatalogItemType type;
+  final String name;
+  final int quantity;
+  final String unit;
+  final int unitPriceCents;
+  final int subtotalCents;
+}
+
+/// Everything the quote PDF reads from SQLite, gathered by a single query.
+class QuotePdfData {
+  const QuotePdfData({required this.createdAt, required this.client, required this.lines});
+
+  final int createdAt;
+  final Client? client;
+  final List<QuotePdfLine> lines;
+}

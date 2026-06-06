@@ -90,6 +90,40 @@ void main() {
       expect(lines.first.type, CatalogItemType.equipment);
     });
 
+    test("quotePdfData resolves client, lines, names and units in one query", () async {
+      final QuoteStore store = await openStore();
+      expect(store.addClient("Client", "111", "c@x.com", "Rua C", "City C"), isTrue);
+      final int clientId = store.lastClientId();
+      expect(store.addUnit("h", "hora"), isTrue);
+      final int unitId = store.lastUnitId();
+
+      expect(store.addEquipment("Camera", "4MP", 42000, unitId), isTrue);
+      final int itemId = store.lastCatalogId(.equipment);
+      expect(store.addService("Install", "Point", 28000, unitId), isTrue);
+      final int serviceId = store.lastCatalogId(.service);
+
+      final int draftId = store.createDraft(clientId);
+      expect(store.addDraftLine(draftId, .equipment, itemId, 2), isTrue);
+      expect(store.addDraftLine(draftId, .service, serviceId, 1), isTrue);
+
+      final QuotePdfData data = store.quotePdfData(draftId);
+      expect(data.client?.name, "Client");
+      expect(data.createdAt, greaterThan(0));
+      expect(data.lines.length, 2);
+
+      final QuotePdfLine equipmentLine =
+          data.lines.firstWhere((l) => l.type == CatalogItemType.equipment);
+      expect(equipmentLine.name, "Camera");
+      expect(equipmentLine.unit, "h");
+      expect(equipmentLine.quantity, 2);
+      expect(equipmentLine.subtotalCents, 84000);
+
+      final QuotePdfLine serviceLine =
+          data.lines.firstWhere((l) => l.type == CatalogItemType.service);
+      expect(serviceLine.name, "Install");
+      expect(serviceLine.unit, "h");
+    });
+
     test("draft lines increment, clamp, and remove", () async {
       final QuoteStore store = await openStore();
       expect(store.addClient("Client", "", "", "", ""), isTrue);

@@ -523,6 +523,57 @@ class QuoteStore {
     ];
   }
 
+  /// Gathers everything the quote PDF needs in a single query: the quote's
+  /// timestamp, its client, and every line with the catalog name and unit
+  /// abbreviation already resolved. Replaces the per-line catalog/unit fan-out.
+  QuotePdfData quotePdfData(int quoteId) {
+    final Database? db = _db;
+    if (db == null) return const QuotePdfData(createdAt: 0, client: null, lines: []);
+    // equipments = line_type 0, services = line_type 1 (CatalogItemType order).
+    final ResultSet rows = db.select(
+      "SELECT q.created_at, "
+      "c.id AS client_id, c.name AS client_name, c.phone, c.email, c.address, c.city, "
+      "l.line_type, l.quantity, l.unit_price_cents, l.subtotal_cents, "
+      "COALESCE(e.name, s.name, '') AS item_name, "
+      "COALESCE(eu.abbreviation, su.abbreviation, '') AS unit_abbr "
+      "FROM quotes q "
+      "LEFT JOIN clients c ON c.id = q.client_id "
+      "LEFT JOIN quote_lines l ON l.quote_id = q.id "
+      "LEFT JOIN equipments e ON l.line_type = 0 AND e.id = l.ref_id "
+      "LEFT JOIN services s ON l.line_type = 1 AND s.id = l.ref_id "
+      "LEFT JOIN units eu ON eu.id = e.unit_id "
+      "LEFT JOIN units su ON su.id = s.unit_id "
+      "WHERE q.id = ? ORDER BY l.rowid ASC",
+      [quoteId],
+    );
+    if (rows.isEmpty) return const QuotePdfData(createdAt: 0, client: null, lines: []);
+    final Row head = rows.first;
+    final Object? clientId = head["client_id"];
+    final Client? client = clientId == null
+        ? null
+        : Client(
+            id: clientId as int,
+            name: head["client_name"] as String,
+            phone: head["phone"] as String,
+            email: head["email"] as String,
+            address: head["address"] as String,
+            city: head["city"] as String,
+          );
+    final List<QuotePdfLine> lines = [
+      for (final Row row in rows)
+        if (row["line_type"] != null)
+          QuotePdfLine(
+            type: CatalogItemType.values[row["line_type"] as int],
+            name: row["item_name"] as String,
+            quantity: row["quantity"] as int,
+            unit: row["unit_abbr"] as String,
+            unitPriceCents: row["unit_price_cents"] as int,
+            subtotalCents: row["subtotal_cents"] as int,
+          ),
+    ];
+    return QuotePdfData(createdAt: head["created_at"] as int, client: client, lines: lines);
+  }
+
   /// Returns the total in cents for [quoteId].
   int quoteTotal(int quoteId) {
     return _sumSubtotals(db: _db, quoteId: quoteId);

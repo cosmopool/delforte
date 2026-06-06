@@ -75,18 +75,22 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
 
   final BusinessInfoData business = store.businessInfo;
   final QuoteDefaultsData defaults = store.quoteDefaults;
-  final Client? client = store.clientById(store.draftClientId(quoteId));
 
-  final List<_Line> services = _linesOf(store, quoteId, CatalogItemType.service);
-  final List<_Line> equipment = _linesOf(store, quoteId, CatalogItemType.equipment);
-  final int subtotalServices = store.quoteSubtotal(quoteId, CatalogItemType.service);
-  final int subtotalEquipment = store.quoteSubtotal(quoteId, CatalogItemType.equipment);
-  final int total = store.quoteTotal(quoteId);
+  // One query fetches the quote, its client and every resolved line; the
+  // subtotals are summed in Dart from those lines (no extra round-trips).
+  final QuotePdfData data = store.quotePdfData(quoteId);
+  final Client? client = data.client;
+
+  final List<_Line> services = _linesOf(data, CatalogItemType.service);
+  final List<_Line> equipment = _linesOf(data, CatalogItemType.equipment);
+  final int subtotalServices = services.fold(0, (sum, line) => sum + line.subtotalCents);
+  final int subtotalEquipment = equipment.fold(0, (sum, line) => sum + line.subtotalCents);
+  final int total = subtotalServices + subtotalEquipment;
 
   final String brand = business.name.isNotEmpty ? business.name.toUpperCase() : "DELFORTE";
   final pw.MemoryImage? logo = business.logo.isNotEmpty ? pw.MemoryImage(business.logo) : null;
   final String code = "#$quoteId";
-  final int createdAt = store.quoteCreatedAt(quoteId);
+  final int createdAt = data.createdAt;
   final String date = _fmtDate(
     createdAt > 0 ? DateTime.fromMillisecondsSinceEpoch(createdAt) : DateTime.now(),
   );
@@ -145,17 +149,11 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
 
 Future<pw.Font> _loadFont(String asset) async => pw.Font.ttf(await rootBundle.load(asset));
 
-List<_Line> _linesOf(QuoteStore store, int quoteId, CatalogItemType type) {
+List<_Line> _linesOf(QuotePdfData data, CatalogItemType type) {
   return [
-    for (final QuoteLine line in store.listQuoteLines(quoteId))
+    for (final QuotePdfLine line in data.lines)
       if (line.type == type)
-        _Line(
-          line.name,
-          line.quantity,
-          store.unitAbbreviationFor(store.catalogById(type, line.refId)?.unitId ?? 0),
-          line.unitPriceCents,
-          line.subtotalCents,
-        ),
+        _Line(line.name, line.quantity, line.unit, line.unitPriceCents, line.subtotalCents),
   ];
 }
 
