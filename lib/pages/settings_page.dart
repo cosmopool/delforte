@@ -479,7 +479,7 @@ class _LogoRow extends StatelessWidget {
             ),
             child: logo.isEmpty
                 ? Icon(Icons.business_rounded, size: 22, color: Colors.white.withValues(alpha: 0.4))
-                : Image.memory(logo, fit: BoxFit.cover),
+                : Image.memory(logo, fit: .fitHeight),
           ),
           const SizedBox(width: 12),
           Expanded(

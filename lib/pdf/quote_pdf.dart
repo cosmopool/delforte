@@ -84,6 +84,7 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
   final int total = store.quoteTotal(quoteId);
 
   final String brand = business.name.isNotEmpty ? business.name.toUpperCase() : "DELFORTE";
+  final pw.MemoryImage? logo = business.logo.isNotEmpty ? pw.MemoryImage(business.logo) : null;
   final String code = "#$quoteId";
   final int createdAt = store.quoteCreatedAt(quoteId);
   final String date = _fmtDate(
@@ -102,7 +103,7 @@ Future<Uint8List> buildQuotePdf(QuoteStore store, int quoteId) async {
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            _headerBand(brand, code, date, validity, warranty, fonts),
+            _headerBand(brand, logo, code, date, validity, warranty, fonts),
             pw.Container(
               height: 3,
               decoration: const pw.BoxDecoration(
@@ -164,60 +165,93 @@ PdfColor _alpha(double a) => PdfColor(1, 1, 1, a);
 
 pw.Widget _headerBand(
   String brand,
+  pw.MemoryImage? logo,
   String code,
   String date,
   String validity,
   String warranty,
   _Fonts fonts,
 ) {
+  pw.Widget brandArea;
+  if (logo == null) {
+    brandArea = pw.Text(
+      brand,
+      maxLines: 1,
+      softWrap: false,
+      overflow: pw.TextOverflow.clip,
+      style: pw.TextStyle(
+        font: fonts.syne,
+        fontSize: 22,
+        color: PdfColors.white,
+        letterSpacing: -0.3,
+      ),
+    );
+  } else {
+    // Fit by height: fixed tall, width follows the logo's own aspect ratio.
+    // Passing both width and height (instead of height alone) gives the image a
+    // bounded box so it can't overflow the Row and get clipped on the right.
+    const double height = 56;
+    final double ratio = (logo.width ?? 1) / (logo.height ?? 1);
+    final double width = height * ratio;
+    brandArea = pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
+      children: [
+        pw.Image(logo, width: width, height: height, fit: .fitHeight),
+        pw.SizedBox(width: 12),
+        pw.Flexible(
+          child: pw.Text(
+            brand,
+            maxLines: 1,
+            softWrap: false,
+            overflow: pw.TextOverflow.clip,
+            style: pw.TextStyle(
+              font: fonts.syne,
+              fontSize: 13,
+              color: PdfColors.white,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
   return pw.Container(
     color: _navy,
     padding: const pw.EdgeInsets.fromLTRB(28, 26, 28, 24),
-    child: pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
+    child: pw.Row(
+      crossAxisAlignment: pw.CrossAxisAlignment.center,
       children: [
-        pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        // Brand area owns the full header height and centers in it, so the logo
+        // expands vertically against the taller QUOTE / #code / meta stack.
+        pw.Expanded(child: brandArea),
+        pw.SizedBox(width: 12),
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
             pw.Text(
-              brand,
+              "QUOTE",
               style: pw.TextStyle(
-                font: fonts.syne,
-                fontSize: 22,
-                color: PdfColors.white,
-                letterSpacing: -0.3,
+                font: fonts.sans,
+                fontSize: 9,
+                color: _alpha(0.35),
+                letterSpacing: 0.5,
               ),
             ),
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.end,
+            pw.SizedBox(height: 2),
+            pw.Text(
+              code,
+              style: pw.TextStyle(font: fonts.monoMed, fontSize: 14, color: PdfColors.white),
+            ),
+            pw.SizedBox(height: 12),
+            pw.Row(
               children: [
-                pw.Text(
-                  "QUOTE",
-                  style: pw.TextStyle(
-                    font: fonts.sans,
-                    fontSize: 9,
-                    color: _alpha(0.35),
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                pw.SizedBox(height: 2),
-                pw.Text(
-                  code,
-                  style: pw.TextStyle(font: fonts.monoMed, fontSize: 14, color: PdfColors.white),
-                ),
+                _metaItem(date, fonts),
+                pw.SizedBox(width: 18),
+                _metaItem(validity, fonts),
+                pw.SizedBox(width: 18),
+                _metaItem(warranty, fonts),
               ],
             ),
-          ],
-        ),
-        pw.SizedBox(height: 16),
-        pw.Row(
-          children: [
-            _metaItem(date, fonts),
-            pw.SizedBox(width: 18),
-            _metaItem(validity, fonts),
-            pw.SizedBox(width: 18),
-            _metaItem(warranty, fonts),
           ],
         ),
       ],
