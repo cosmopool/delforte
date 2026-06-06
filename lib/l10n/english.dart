@@ -270,6 +270,39 @@ class English implements Localization {
   String companyLogoNote = "Shown on PDF header · PNG or SVG";
   @override
   String upload = "Upload";
+  @override
+  List<String> paymentMethodOptions = const [
+    "Bank Transfer (PIX)",
+    "Cash",
+    "Credit Card (up to 12x)",
+    "Boleto",
+    "Mixed",
+  ];
+  @override
+  List<String> quoteValidityOptions = const [
+    "30 days",
+    "7 days",
+    "15 days",
+    "45 days",
+    "60 days",
+  ];
+  @override
+  List<String> accentColourOptions = const [
+    "Navy Blue (default)",
+    "Dark Green",
+    "Charcoal",
+    "Custom…",
+  ];
+  @override
+  String showLogoOnPdf = "Show logo on PDF";
+  @override
+  String includeQrCode = "Include QR code";
+  @override
+  String includeQrCodeNote = "Links to the digital version of the quote";
+  @override
+  String showItemCostPrice = "Show item cost price";
+  @override
+  String showItemCostPriceNote = "Hidden from clients by default";
 
   @override
   String footerBusinessNamePlaceholder = "Delforte Sistemas";

@@ -272,6 +272,39 @@ class Portuguese implements Localization {
   String companyLogoNote = "Exibido no cabeçalho do PDF · PNG ou SVG";
   @override
   String upload = "Enviar";
+  @override
+  List<String> paymentMethodOptions = const [
+    "Transferência Bancária (PIX)",
+    "Dinheiro",
+    "Cartão de Crédito (até 12x)",
+    "Boleto",
+    "Misto",
+  ];
+  @override
+  List<String> quoteValidityOptions = const [
+    "30 dias",
+    "7 dias",
+    "15 dias",
+    "45 dias",
+    "60 dias",
+  ];
+  @override
+  List<String> accentColourOptions = const [
+    "Azul Marinho (padrão)",
+    "Verde Escuro",
+    "Carvão",
+    "Personalizado…",
+  ];
+  @override
+  String showLogoOnPdf = "Exibir logo no PDF";
+  @override
+  String includeQrCode = "Incluir QR code";
+  @override
+  String includeQrCodeNote = "Leva à versão digital do orçamento";
+  @override
+  String showItemCostPrice = "Exibir preço de custo dos itens";
+  @override
+  String showItemCostPriceNote = "Oculto dos clientes por padrão";
 
   @override
   String footerBusinessNamePlaceholder = "Delforte Sistemas";

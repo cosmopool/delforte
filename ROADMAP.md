@@ -13,7 +13,7 @@
 [ ] easy way of editing `equipment` price during quote
 [ ] easy way of editing `service` price during quote
 [x] add pages should display only added `clients`/`services`/`equipments` in current draft quote
-[ ] order `recent quotes` by latest first
+[x] order `recent quotes` by latest first
 [x] open `recent quote` by clicking
 [ ] openening `saved` quote only shows up `review` & `send` steps
 [x] display pdf
@@ -21,4 +21,4 @@
 [ ] improve fonts
 [ ] improve `add buttons` in `clients`/`services`/`equipments` page
 [ ] remove continue button from home
-[ ] translate to portuguese
+[x] translate to portuguese

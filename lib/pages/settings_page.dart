@@ -3,8 +3,6 @@ import "dart:typed_data";
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
-import "package:delforte/design_system/widgets/form_field_widget.dart";
-import "package:delforte/design_system/widgets/form_section_divider.dart";
 import "package:delforte/design_system/widgets/primary_button_widget.dart";
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
@@ -33,11 +31,17 @@ class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController _state = TextEditingController();
   final TextEditingController _phone = TextEditingController();
   final TextEditingController _email = TextEditingController();
-  final TextEditingController _paymentMethod = TextEditingController();
-  final TextEditingController _validity = TextEditingController();
   final TextEditingController _warranty = TextEditingController();
   final TextEditingController _terms = TextEditingController();
-  final TextEditingController _accentColour = TextEditingController();
+
+  String _paymentMethod = "";
+  String _validity = "";
+  String _accentColour = "";
+
+  // PDF appearance toggles (visual defaults matching the reference design).
+  bool _showLogo = true;
+  bool _includeQrCode = true;
+  bool _showCostPrice = false;
 
   bool _loaded = false;
 
@@ -50,11 +54,8 @@ class _SettingsPageState extends State<SettingsPage> {
     _state.dispose();
     _phone.dispose();
     _email.dispose();
-    _paymentMethod.dispose();
-    _validity.dispose();
     _warranty.dispose();
     _terms.dispose();
-    _accentColour.dispose();
     super.dispose();
   }
 
@@ -71,13 +72,13 @@ class _SettingsPageState extends State<SettingsPage> {
     _email.text = info.email;
 
     final QuoteDefaultsData defaults = widget.store.quoteDefaults;
-    _paymentMethod.text = defaults.paymentMethod;
-    _validity.text = defaults.validity;
+    _paymentMethod = defaults.paymentMethod;
+    _validity = defaults.validity;
     _warranty.text = defaults.warranty;
     _terms.text = defaults.terms;
 
     final PdfSettingsData pdf = widget.store.pdfSettings;
-    _accentColour.text = pdf.accentColour;
+    _accentColour = pdf.accentColour;
   }
 
   @override
@@ -92,86 +93,123 @@ class _SettingsPageState extends State<SettingsPage> {
         animation: widget.store.settingsNotifier,
         builder: (context, _) {
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
             children: [
-              _LogoPickerRow(),
-              const SizedBox(height: 16),
-              FormSectionDivider(label: strings.sectionBusiness),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _businessName,
-                label: strings.businessName,
-                hint: strings.businessNameHint,
+              _SectionLabel(label: strings.sectionBusiness),
+              _SettingsCard(
+                children: [
+                  _LogoRow(),
+                  _FieldRow(
+                    icon: Icons.storefront_rounded,
+                    label: strings.businessName,
+                    controller: _businessName,
+                    hint: strings.businessNameHint,
+                  ),
+                  _FieldRow(
+                    icon: Icons.badge_rounded,
+                    label: strings.cnpj,
+                    controller: _cnpj,
+                    hint: strings.cnpjHint,
+                  ),
+                  _FieldRow(
+                    icon: Icons.location_on_rounded,
+                    label: strings.address,
+                    controller: _address,
+                    hint: strings.addressHint,
+                  ),
+                  _FieldRow(
+                    icon: Icons.location_city_rounded,
+                    label: strings.cityState,
+                    controller: _city,
+                    hint: strings.cityStateHint,
+                  ),
+                  _FieldRow(
+                    icon: Icons.phone_rounded,
+                    label: strings.phone,
+                    controller: _phone,
+                    hint: strings.businessPhoneHint,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  _FieldRow(
+                    icon: Icons.mail_outline_rounded,
+                    label: strings.email,
+                    controller: _email,
+                    hint: strings.businessEmailHint,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              FormFieldWidget(controller: _cnpj, label: strings.cnpj, hint: strings.cnpjHint),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _address,
-                label: strings.address,
-                hint: strings.addressHint,
+              const SizedBox(height: 18),
+              _SectionLabel(label: strings.sectionQuoteDefaults),
+              _SettingsCard(
+                children: [
+                  _SelectRow(
+                    icon: Icons.payments_rounded,
+                    label: strings.paymentMethod,
+                    value: _paymentMethod,
+                    options: strings.paymentMethodOptions,
+                    onChanged: (v) => setState(() => _paymentMethod = v),
+                  ),
+                  _SelectRow(
+                    icon: Icons.event_available_rounded,
+                    label: strings.quoteValidity,
+                    value: _validity,
+                    options: strings.quoteValidityOptions,
+                    onChanged: (v) => setState(() => _validity = v),
+                  ),
+                  _FieldRow(
+                    icon: Icons.verified_user_rounded,
+                    label: strings.warranty,
+                    controller: _warranty,
+                    hint: strings.warrantyHint,
+                  ),
+                  _FieldRow(
+                    icon: Icons.gavel_rounded,
+                    label: strings.termsConditions,
+                    controller: _terms,
+                    hint: strings.termsHint,
+                    minLines: 2,
+                    maxLines: 4,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _city,
-                label: strings.cityState,
-                hint: strings.cityStateHint,
+              const SizedBox(height: 18),
+              _SectionLabel(label: strings.sectionPdfAppearance),
+              _SettingsCard(
+                children: [
+                  _SelectRow(
+                    icon: Icons.palette_rounded,
+                    label: strings.accentColour,
+                    value: _accentColour,
+                    options: strings.accentColourOptions,
+                    onChanged: (v) => setState(() => _accentColour = v),
+                  ),
+                  _ToggleRow(
+                    icon: Icons.image_rounded,
+                    label: strings.showLogoOnPdf,
+                    value: _showLogo,
+                    onChanged: (v) => setState(() => _showLogo = v),
+                  ),
+                  _ToggleRow(
+                    icon: Icons.qr_code_2_rounded,
+                    label: strings.includeQrCode,
+                    sub: strings.includeQrCodeNote,
+                    value: _includeQrCode,
+                    onChanged: (v) => setState(() => _includeQrCode = v),
+                  ),
+                  _ToggleRow(
+                    icon: Icons.sell_rounded,
+                    label: strings.showItemCostPrice,
+                    sub: strings.showItemCostPriceNote,
+                    value: _showCostPrice,
+                    onChanged: (v) => setState(() => _showCostPrice = v),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _phone,
-                label: strings.phone,
-                hint: strings.businessPhoneHint,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _email,
-                label: strings.email,
-                hint: strings.businessEmailHint,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 24),
-              FormSectionDivider(label: strings.sectionQuoteDefaults),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _paymentMethod,
-                label: strings.paymentMethod,
-                hint: strings.paymentMethodHint,
-              ),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _validity,
-                label: strings.quoteValidity,
-                hint: strings.quoteValidityHint,
-              ),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _warranty,
-                label: strings.warranty,
-                hint: strings.warrantyHint,
-              ),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _terms,
-                label: strings.termsConditions,
-                hint: strings.termsHint,
-                minLines: 2,
-                maxLines: 4,
-              ),
-              const SizedBox(height: 24),
-              FormSectionDivider(label: strings.sectionPdfAppearance),
-              const SizedBox(height: 16),
-              FormFieldWidget(
-                controller: _accentColour,
-                label: strings.accentColour,
-                hint: strings.accentColourHint,
-              ),
-              const SizedBox(height: 24),
-              FormSectionDivider(label: strings.sectionPdfFooterPreview),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
+              _SectionLabel(label: strings.sectionPdfFooterPreview),
               _FooterPreview(store: widget.store),
-              const SizedBox(height: 6),
+              const SizedBox(height: 7),
               Text(
                 strings.footerPreviewNote,
                 textAlign: TextAlign.center,
@@ -202,34 +240,352 @@ class _SettingsPageState extends State<SettingsPage> {
       Uint8List(0),
     );
     widget.store.saveQuoteDefaults(
-      _paymentMethod.text.trim(),
-      _validity.text.trim(),
+      _paymentMethod.trim(),
+      _validity.trim(),
       _warranty.text.trim(),
       _terms.text.trim(),
     );
-    widget.store.savePdfSettings(_accentColour.text.trim());
+    widget.store.savePdfSettings(_accentColour.trim());
     widget.router.goTo(const HomeRoute());
   }
 }
 
-class _LogoPickerRow extends StatelessWidget {
+/// Left-aligned uppercase label that introduces a settings card.
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel({required this.label});
+
+  final String label;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 14, 15, 14),
+      padding: const EdgeInsets.fromLTRB(4, 4, 0, 8),
+      child: Text(
+        label.toUpperCase(),
+        style: VigilType.small(
+          color: VigilColors.textMuted,
+          weight: FontWeight.w700,
+          size: 11,
+        ).copyWith(letterSpacing: 0.7),
+      ),
+    );
+  }
+}
+
+/// Rounded, bordered container that stacks rows separated by hairline dividers.
+class _SettingsCard extends StatelessWidget {
+  const _SettingsCard({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> rows = [];
+    for (int i = 0; i < children.length; i++) {
+      rows.add(children[i]);
+      if (i < children.length - 1) {
+        rows.add(const Divider(height: 1, thickness: 1, color: VigilColors.border));
+      }
+    }
+    return Container(
+      decoration: BoxDecoration(
+        color: VigilColors.surface,
+        borderRadius: VigilRadius.cardRadius,
+        border: Border.all(color: VigilColors.border, width: 1.5),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
+    );
+  }
+}
+
+/// A row with a leading icon, an uppercase caption, and an inline text field.
+class _FieldRow extends StatelessWidget {
+  const _FieldRow({
+    required this.icon,
+    required this.label,
+    required this.controller,
+    this.hint,
+    this.keyboardType,
+    this.minLines,
+    this.maxLines = 1,
+  });
+
+  final IconData icon;
+  final String label;
+  final TextEditingController controller;
+  final String? hint;
+  final TextInputType? keyboardType;
+  final int? minLines;
+  final int? maxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool multiline = (maxLines ?? 1) > 1;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+      child: Row(
+        crossAxisAlignment: multiline ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: multiline ? 2 : 0),
+            child: Icon(icon, size: 17, color: VigilColors.textMuted),
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _RowCaption(label: label),
+                const SizedBox(height: 3),
+                TextField(
+                  controller: controller,
+                  keyboardType: keyboardType,
+                  minLines: minLines,
+                  maxLines: maxLines,
+                  style: VigilType.body(
+                    color: VigilColors.textPrimary,
+                    weight: FontWeight.w500,
+                    size: 14,
+                  ),
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    border: InputBorder.none,
+                    hintText: hint,
+                    hintStyle: VigilType.body(
+                      color: VigilColors.textMuted,
+                      weight: FontWeight.w400,
+                      size: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A row with a leading icon, an uppercase caption, and a dropdown selector.
+class _SelectRow extends StatelessWidget {
+  const _SelectRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final List<String> options;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    // Ensure the current (possibly custom) value is always selectable.
+    final List<String> items = [
+      if (value.isNotEmpty && !options.contains(value)) value,
+      ...options,
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: VigilColors.inkElevated,
-              borderRadius: BorderRadius.circular(13),
+          Icon(icon, size: 17, color: VigilColors.textMuted),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _RowCaption(label: label),
+                const SizedBox(height: 3),
+                DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    isDense: true,
+                    value: value.isEmpty ? null : value,
+                    hint: Text(
+                      options.isNotEmpty ? options.first : "",
+                      style: VigilType.body(color: VigilColors.textMuted, size: 14),
+                    ),
+                    icon: const Icon(Icons.expand_more_rounded, size: 16, color: VigilColors.textMuted),
+                    style: VigilType.body(
+                      color: VigilColors.textPrimary,
+                      weight: FontWeight.w500,
+                      size: 14,
+                    ),
+                    items: [
+                      for (final o in items)
+                        DropdownMenuItem(value: o, child: Text(o)),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) onChanged(v);
+                    },
+                  ),
+                ),
+              ],
             ),
-            child: Icon(
-              Icons.business_rounded,
-              size: 22,
-              color: Colors.white.withValues(alpha: 0.4),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A row with a leading icon, a title, optional subtitle, and a switch.
+class _ToggleRow extends StatelessWidget {
+  const _ToggleRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    this.sub,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? sub;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 13),
+      child: Row(
+        children: [
+          Icon(icon, size: 17, color: VigilColors.textMuted),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: VigilType.body(
+                    color: VigilColors.textPrimary,
+                    weight: FontWeight.w600,
+                    size: 14,
+                  ),
+                ),
+                if (sub != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    sub!,
+                    style: VigilType.small(color: VigilColors.textMuted, size: 11),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 11),
+          _Toggle(value: value, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pill switch matching the reference design (44×26, white knob).
+class _Toggle extends StatelessWidget {
+  const _Toggle({required this.value, required this.onChanged});
+
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 44,
+        height: 26,
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: value ? VigilColors.primary : VigilColors.borderStrong,
+          borderRadius: BorderRadius.circular(13),
+        ),
+        child: Align(
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            width: 20,
+            height: 20,
+            decoration: const BoxDecoration(
+              color: VigilColors.surface,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Uppercase caption shown above an inline field or selector value.
+class _RowCaption extends StatelessWidget {
+  const _RowCaption({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label.toUpperCase(),
+      style: VigilType.small(
+        color: VigilColors.textMuted,
+        weight: FontWeight.w700,
+        size: 10,
+      ).copyWith(letterSpacing: 0.5),
+    );
+  }
+}
+
+/// First row inside the Business card: company logo avatar + upload action.
+class _LogoRow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 48,
+            height: 48,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: VigilColors.inkElevated,
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: Icon(
+                    Icons.business_rounded,
+                    size: 22,
+                    color: Colors.white.withValues(alpha: 0.4),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: VigilColors.primary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(Icons.edit_rounded, size: 10, color: Colors.white),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 12),
@@ -251,6 +607,11 @@ class _LogoPickerRow extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {},
+            style: TextButton.styleFrom(
+              minimumSize: Size.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             child: Text(
               strings.upload,
               style: VigilType.body(color: VigilColors.primary, size: 12, weight: FontWeight.w600),
