@@ -101,7 +101,6 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
               // (borderRadius 10/16, boxShadow 0 4px 24px rgba(0,0,0,0.12)).
               pdfPreviewPageDecoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.12),
