@@ -1,7 +1,6 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/design_system/widgets/round_button_widget.dart";
-import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:delforte/utils.dart";
 import "package:flutter/material.dart";
 
@@ -112,7 +111,7 @@ class _CatalogCardState extends State<CatalogCard> {
     const FontWeight weight3 = FontWeight.w700;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: TapCard(
+      child: VigilSurface(
         selected: widget.expanded || selected,
         onTap: widget.onToggle,
         child: Column(

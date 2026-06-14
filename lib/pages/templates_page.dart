@@ -1,4 +1,4 @@
-import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/l10n/localization.dart";
@@ -44,39 +44,22 @@ class _TemplatesPageState extends State<TemplatesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(gradient: VigilGradients.appBackdrop),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: ClipRRect(
-                borderRadius: VigilRadius.appFrameRadius,
-                child: ColoredBox(color: VigilColors.canvas, child: _buildBody()),
+    return AppShell(
+      body: Column(
+        children: [
+          FlowHeader(title: strings.templates, onBack: () => widget.router.goTo(const HomeRoute())),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: EmptyPanel(
+                icon: Icons.block_rounded,
+                title: strings.pageUnavailable,
+                subtitle: strings.templatesEmptySubtitle,
               ),
             ),
           ),
-        ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildBody() {
-    return Column(
-      children: [
-        FlowHeader(title: strings.templates, onBack: () => widget.router.goTo(const HomeRoute())),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: EmptyPanel(
-              icon: Icons.block_rounded,
-              title: strings.pageUnavailable,
-              subtitle: strings.templatesEmptySubtitle,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

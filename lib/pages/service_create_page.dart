@@ -1,9 +1,6 @@
 import "package:delforte/design_system/widgets/app_shell.dart";
+import "package:delforte/design_system/widgets/catalog_item_form_widget.dart";
 import "package:delforte/design_system/widgets/flow_header_widget.dart";
-import "package:delforte/design_system/widgets/form_field_widget.dart";
-import "package:delforte/design_system/widgets/form_section_divider.dart";
-import "package:delforte/design_system/widgets/primary_button_widget.dart";
-import "package:delforte/design_system/widgets/unit_dropdown_widget.dart";
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
@@ -43,68 +40,20 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
         children: [
           FlowHeader(title: strings.newService, onBack: () => widget.router.goTo(_origin())),
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                FormSectionDivider(label: strings.sectionIdentity),
-                const SizedBox(height: 16),
-                FormFieldWidget(
-                  controller: _name,
-                  label: strings.serviceName,
-                  hint: strings.serviceNameHint,
-                ),
-                const SizedBox(height: 16),
-                FormFieldWidget(
-                  controller: _description,
-                  label: strings.description,
-                  hint: strings.serviceDescriptionHint,
-                  minLines: 3,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                ),
-                const SizedBox(height: 24),
-                FormSectionDivider(label: strings.sectionPricing),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FormFieldWidget(
-                        onChanged: _updatePrice,
-                        controller: _price,
-                        label: strings.defaultPrice,
-                        hint: strings.priceHint,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: UnitDropdownWidget(
-                        store: widget.store,
-                        label: strings.unit,
-                        selectedUnitId: _unitId,
-                        onChanged: (value) => setState(() => _unitId = value ?? 0),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                PrimaryButton(
-                  label: strings.saveService,
-                  icon: Icons.check_rounded,
-                  onPressed: _save,
-                ),
-              ],
+            child: CatalogItemForm(
+              store: widget.store,
+              type: .service,
+              nameController: _name,
+              descriptionController: _description,
+              priceController: _price,
+              selectedUnitId: _unitId,
+              onUnitChanged: (value) => setState(() => _unitId = value ?? 0),
+              onSave: _save,
             ),
           ),
         ],
       ),
     );
-  }
-
-  void _updatePrice(String text) {
-    final int digits = moneyStringToCents(text);
-    final String decimal = formatMoney(digits);
-    _price.text = decimal;
   }
 
   void _save() {

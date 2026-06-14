@@ -42,11 +42,17 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
   late final BusinessInfoData business = widget.store.businessInfo;
   late final QuoteDefaultsData defaults = widget.store.quoteDefaults;
   late final QuotePdfData pdfData = widget.store.quotePdfData(widget.quoteId);
-  late final Future<Uint8List> _doc = buildQuotePdf(business, defaults, pdfData, widget.quoteId);
+  late Future<Uint8List>? _doc = buildQuotePdf(business, defaults, pdfData, widget.quoteId);
 
   Future<void> _share() async {
-    final Uint8List bytes = await _doc;
+    final Uint8List bytes = (await _doc)!;
     await Printing.sharePdf(bytes: bytes, filename: "orcamento_${widget.quoteId}.pdf");
+  }
+
+  @override
+  void dispose() {
+    _doc = null;
+    super.dispose();
   }
 
   @override
@@ -88,7 +94,7 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
           ),
           Expanded(
             child: PdfPreview(
-              build: (_) => _doc,
+              build: (_) => _doc!,
               useActions: false,
               canChangePageFormat: false,
               canChangeOrientation: false,

@@ -1,6 +1,32 @@
 import "package:delforte/design_system.dart";
 import "package:flutter/material.dart";
 
+InputDecoration formFieldDecoration({String? hintText, TextStyle? hintStyle}) {
+  return InputDecoration(
+    hintText: hintText,
+    hintStyle: hintStyle,
+    filled: true,
+    fillColor: VigilColors.surface,
+    border: OutlineInputBorder(
+      borderRadius: VigilRadius.inputRadius,
+      borderSide: VigilStroke.subtle,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: VigilRadius.inputRadius,
+      borderSide: VigilStroke.subtle,
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: VigilRadius.inputRadius,
+      borderSide: VigilStroke.primary,
+    ),
+    disabledBorder: OutlineInputBorder(
+      borderRadius: VigilRadius.inputRadius,
+      borderSide: VigilStroke.subtle,
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+  );
+}
+
 /// A labeled text field styled for full-page forms.
 ///
 /// Matches the JSX form input style: white background, 1.5 px border,
@@ -45,28 +71,13 @@ class FormFieldWidget extends StatelessWidget {
           keyboardType: keyboardType,
           minLines: minLines,
           maxLines: maxLines,
-          decoration: InputDecoration(
+          decoration: formFieldDecoration(
             hintText: hint,
             hintStyle: VigilType.body(
               color: VigilColors.textMuted,
               size: 14,
               weight: FontWeight.w400,
             ),
-            filled: true,
-            fillColor: VigilColors.surface,
-            border: OutlineInputBorder(
-              borderRadius: VigilRadius.inputRadius,
-              borderSide: const BorderSide(color: VigilColors.border, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: VigilRadius.inputRadius,
-              borderSide: const BorderSide(color: VigilColors.border, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: VigilRadius.inputRadius,
-              borderSide: const BorderSide(color: VigilColors.primary, width: 1.5),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
         ),
       ],

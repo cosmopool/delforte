@@ -1,4 +1,5 @@
 import "package:delforte/design_system.dart";
+import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:flutter/material.dart";
@@ -51,27 +52,7 @@ class UnitDropdownWidget extends StatelessWidget {
             style: VigilType.body(color: VigilColors.textMuted, size: 14, weight: FontWeight.w400),
           ),
           icon: const Icon(Icons.expand_more_rounded, color: VigilColors.textMuted),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: VigilColors.surface,
-            border: OutlineInputBorder(
-              borderRadius: VigilRadius.inputRadius,
-              borderSide: const BorderSide(color: VigilColors.border, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: VigilRadius.inputRadius,
-              borderSide: const BorderSide(color: VigilColors.border, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: VigilRadius.inputRadius,
-              borderSide: const BorderSide(color: VigilColors.primary, width: 1.5),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: VigilRadius.inputRadius,
-              borderSide: const BorderSide(color: VigilColors.border, width: 1.5),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          ),
+          decoration: formFieldDecoration(),
           style: VigilType.body(color: VigilColors.textPrimary, size: 14),
           dropdownColor: VigilColors.surface,
         ),

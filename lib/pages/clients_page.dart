@@ -1,11 +1,11 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
+import "package:delforte/design_system/widgets/destructive_icon_button.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
-import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/form_field_widget.dart";
 import "package:delforte/design_system/widgets/initials_avatar_widget.dart";
+import "package:delforte/design_system/widgets/manager_header_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
-import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
 import "package:delforte/router/app_router.dart";
@@ -44,9 +44,11 @@ class _ClientsPageState extends State<ClientsPage> {
         behavior: HitTestBehavior.translucent,
         child: Column(
           children: [
-            _ClientsHeader(
+            ManagerHeader(
+              title: strings.clients,
+              actionLabel: strings.catalogNew,
               onBack: () => widget.router.goTo(const HomeRoute()),
-              onNew: () => widget.router.goTo(const ClientCreateRoute(back: ClientsRoute())),
+              onAction: () => widget.router.goTo(const ClientCreateRoute(back: ClientsRoute())),
             ),
             Expanded(
               child: ListenableBuilder(
@@ -86,51 +88,6 @@ class _ClientsPageState extends State<ClientsPage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Navy header: back + title + "New" button.
-class _ClientsHeader extends StatelessWidget {
-  const _ClientsHeader({required this.onBack, required this.onNew});
-
-  final VoidCallback onBack;
-  final VoidCallback onNew;
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: VigilColors.ink,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-        child: Row(
-          children: [
-            HeaderIconButton(
-              icon: Icons.arrow_back_rounded,
-              tooltip: strings.back,
-              onPressed: onBack,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                strings.clients,
-                style: VigilType.title(color: VigilColors.surface, size: 19),
-              ),
-            ),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: VigilColors.primary,
-                foregroundColor: VigilColors.surface,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                shape: const StadiumBorder(),
-              ),
-              onPressed: onNew,
-              icon: const Icon(Icons.add_rounded, size: 16),
-              label: Text(strings.catalogNew),
-            ),
-          ]
         ),
       ),
     );
@@ -180,7 +137,7 @@ class _ClientEditCardState extends State<_ClientEditCard> {
     final Client client = widget.client;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: TapCard(
+      child: VigilSurface(
         selected: widget.expanded,
         onTap: widget.onToggle,
         child: Column(
@@ -269,7 +226,7 @@ class _ClientEditCardState extends State<_ClientEditCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          _DeleteButton(onPressed: _confirmDelete),
+                          DestructiveIconButton(onPressed: _confirmDelete),
                         ],
                       ),
                     ],
@@ -328,30 +285,5 @@ class _ClientEditCardState extends State<_ClientEditCard> {
   void _showSnack(String message) {
     if (message.isEmpty || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-}
-
-/// The small red trash button beside "Save Changes".
-class _DeleteButton extends StatelessWidget {
-  const _DeleteButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          backgroundColor: const Color(0xFFFFF5F5),
-          side: const BorderSide(color: Color(0xFFFFD0D0), width: 1.5),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
-        ),
-        onPressed: onPressed,
-        child: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFE54040)),
-      ),
-    );
   }
 }

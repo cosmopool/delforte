@@ -5,6 +5,7 @@ import "package:delforte/store/business_info_data.dart";
 import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:delforte/utils.dart";
+import "package:flutter/material.dart" show IconData, Icons;
 import "package:flutter/services.dart" show rootBundle;
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pw;
@@ -33,6 +34,7 @@ late final pw.Font sansSemi;
 late final pw.Font sansBold;
 late final pw.Font mono;
 late final pw.Font monoMed;
+late final pw.Font icons;
 
 class _Line {
   _Line(this.name, this.qty, this.unit, this.priceCents, this.subtotalCents);
@@ -135,6 +137,7 @@ Future<void> loadPdfFonts() async {
   sansBold = pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Bold.ttf"));
   mono = pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Regular.ttf"));
   monoMed = pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Medium.ttf"));
+  icons = pw.Font.ttf(await rootBundle.load("assets/fonts/MaterialIcons-Regular.otf"));
   _finishedLoadingFonts = Future<bool>.value(true);
 }
 
@@ -420,14 +423,21 @@ pw.Widget _termsBox(QuoteDefaultsData defaults) {
 }
 
 pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String code, String date) {
-  final List<String> contacts = [
-    [business.address, business.city, business.state].where((s) => s.isNotEmpty).join(" — "),
-    if (business.phone.isNotEmpty) business.phone,
-    if (business.email.isNotEmpty) business.email,
-    if (defaults.paymentMethod.isNotEmpty) defaults.paymentMethod,
-    if (defaults.warranty.isNotEmpty) defaults.warranty,
-    if (business.cnpj.isNotEmpty) strings.cnpjLabel(business.cnpj),
-  ].where((s) => s.isNotEmpty).toList();
+  final String address = [
+    business.address,
+    business.city,
+    business.state,
+  ].where((s) => s.isNotEmpty).join(" — ");
+
+  // Contact items as (icon, text) pairs, matching the footer in DelforteApp.jsx.
+  final List<(IconData, String)> items = [
+    if (address.isNotEmpty) (Icons.location_on, address),
+    if (business.phone.isNotEmpty) (Icons.phone, business.phone),
+    if (business.email.isNotEmpty) (Icons.mail_outline, business.email),
+    if (defaults.paymentMethod.isNotEmpty) (Icons.payments, defaults.paymentMethod),
+    if (defaults.warranty.isNotEmpty) (Icons.verified_user, defaults.warranty),
+    if (business.cnpj.isNotEmpty) (Icons.badge, strings.cnpjLabel(business.cnpj)),
+  ];
 
   return pw.Container(
     color: _navy,
@@ -435,19 +445,23 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String 
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        if (contacts.isNotEmpty)
-          pw.Wrap(
-            spacing: 16,
-            runSpacing: 5,
-            children: [
-              for (final String c in contacts)
-                pw.Text(
-                  c,
-                  style: pw.TextStyle(font: sans, fontSize: 8.5, color: _alpha(0.35)),
-                ),
-            ],
+        // Three-column grid of icon + contact text (rows of three cells).
+        for (int row = 0; row < items.length; row += 3)
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(bottom: 5),
+            child: pw.Row(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                for (int col = row; col < row + 3; col++)
+                  pw.Expanded(
+                    child: col < items.length
+                        ? _footerItem(items[col].$1, items[col].$2)
+                        : pw.SizedBox(),
+                  ),
+              ],
+            ),
           ),
-        pw.SizedBox(height: 10),
+        pw.SizedBox(height: 5),
         pw.Align(
           alignment: pw.Alignment.center,
           child: pw.Text(
@@ -463,3 +477,22 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String 
     ),
   );
 }
+
+pw.Widget _footerItem(IconData icon, String text) => pw.Padding(
+  padding: const pw.EdgeInsets.only(right: 10),
+  child: pw.Row(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Padding(
+        padding: const pw.EdgeInsets.only(top: 1.5, right: 4),
+        child: pw.Icon(pw.IconData(icon.codePoint), font: icons, size: 9, color: _alpha(0.25)),
+      ),
+      pw.Expanded(
+        child: pw.Text(
+          text,
+          style: pw.TextStyle(font: sans, fontSize: 8.5, color: _alpha(0.35), lineSpacing: 1.5),
+        ),
+      ),
+    ],
+  ),
+);

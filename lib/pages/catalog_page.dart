@@ -1,10 +1,10 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
+import "package:delforte/design_system/widgets/destructive_icon_button.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
-import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/form_field_widget.dart";
+import "package:delforte/design_system/widgets/manager_header_widget.dart";
 import "package:delforte/design_system/widgets/search_field_widget.dart";
-import "package:delforte/design_system/widgets/tap_card_widget.dart";
 import "package:delforte/design_system/widgets/unit_dropdown_widget.dart";
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
@@ -134,58 +134,26 @@ class _CatalogHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: VigilColors.ink,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-            child: Row(
-              children: [
-                HeaderIconButton(
-                  icon: Icons.arrow_back_rounded,
-                  tooltip: strings.back,
-                  onPressed: onBack,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    strings.catalog,
-                    style: VigilType.title(color: VigilColors.surface, size: 19),
-                  ),
-                ),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: VigilColors.primary,
-                    foregroundColor: VigilColors.surface,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    shape: const StadiumBorder(),
-                  ),
-                  onPressed: onNew,
-                  icon: const Icon(Icons.add_rounded, size: 16),
-                  label: Text(strings.catalogNew),
-                ),
-              ],
-            ),
+    return ManagerHeader(
+      title: strings.catalog,
+      actionLabel: strings.catalogNew,
+      onBack: onBack,
+      onAction: onNew,
+      bottom: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Container(
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(12),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Container(
-              padding: const EdgeInsets.all(3),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  _tabButton(CatalogItemType.service, strings.services),
-                  _tabButton(CatalogItemType.equipment, strings.equipment),
-                ],
-              ),
-            ),
+          child: Row(
+            children: [
+              _tabButton(CatalogItemType.service, strings.services),
+              _tabButton(CatalogItemType.equipment, strings.equipment),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -264,7 +232,7 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
     final CatalogItem item = widget.item;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: TapCard(
+      child: VigilSurface(
         selected: widget.expanded,
         onTap: widget.onToggle,
         child: Column(
@@ -274,7 +242,10 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
               child: Row(
                 children: [
                   VigilIconBox(
-                    icon: _catalogIcon(item.name),
+                    icon: catalogItemIcon(
+                      item.name,
+                      fallback: _isServices ? Icons.handyman_rounded : Icons.inventory_2_rounded,
+                    ),
                     color: widget.expanded ? VigilColors.primary : VigilColors.textMuted,
                     background: VigilColors.canvas,
                   ),
@@ -384,7 +355,7 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          _DeleteButton(onPressed: _confirmDelete),
+                          DestructiveIconButton(onPressed: _confirmDelete),
                         ],
                       ),
                     ],
@@ -451,42 +422,5 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
   void _showSnack(String message) {
     if (message.isEmpty || !mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  IconData _catalogIcon(String name) {
-    final String value = name.toLowerCase();
-    if (value.contains("camera") || value.contains("cctv")) return Icons.videocam_rounded;
-    if (value.contains("alarm")) return Icons.alarm_on_rounded;
-    if (value.contains("gate") || value.contains("motor")) return Icons.garage_rounded;
-    if (value.contains("panel")) return Icons.electrical_services_rounded;
-    if (value.contains("lock")) return Icons.lock_rounded;
-    if (value.contains("sensor")) return Icons.sensors_rounded;
-    if (value.contains("maint") || value.contains("install")) return Icons.build_circle_rounded;
-    return _isServices ? Icons.handyman_rounded : Icons.inventory_2_rounded;
-  }
-}
-
-/// The small red trash button beside "Save Changes".
-class _DeleteButton extends StatelessWidget {
-  const _DeleteButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: OutlinedButton(
-        style: OutlinedButton.styleFrom(
-          backgroundColor: const Color(0xFFFFF5F5),
-          side: const BorderSide(color: Color(0xFFFFD0D0), width: 1.5),
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
-        ),
-        onPressed: onPressed,
-        child: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFE54040)),
-      ),
-    );
   }
 }
