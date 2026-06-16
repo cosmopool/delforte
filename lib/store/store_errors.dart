@@ -27,6 +27,9 @@ const int errInvalidInput = 8;
 /// Error code used when saving an empty quote draft.
 const int errQuoteEmpty = 9;
 
+/// Error code used when exporting or importing a database backup fails.
+const int errDbBackup = 10;
+
 /// Fixed-size side-channel for store errors.
 class ErrorLogBuffer {
   /// Creates an error log with [capacity] entries.

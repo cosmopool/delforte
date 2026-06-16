@@ -1,3 +1,4 @@
+import "dart:io";
 import "dart:typed_data";
 
 import "package:delforte/design_system.dart";
@@ -11,6 +12,7 @@ import "package:delforte/store/business_info_data.dart";
 import "package:delforte/store/pdf_settings_data.dart";
 import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:file_picker/file_picker.dart";
 import "package:flutter/material.dart";
 import "package:image_picker/image_picker.dart";
 
@@ -43,6 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _loaded = false;
   String _baseline = "";
   bool _logoChanged = false;
+  bool _backupBusy = false;
 
   @override
   void dispose() {
@@ -204,6 +207,28 @@ class _SettingsPageState extends State<SettingsPage> {
                       ],
                     ),
                     const SizedBox(height: 18),
+                    _SectionLabel(label: strings.sectionBackup),
+                    _SettingsCard(
+                      children: [
+                        _BackupActionRow(
+                          icon: Icons.ios_share_rounded,
+                          title: strings.exportBackup,
+                          subtitle: strings.exportBackupNote,
+                          actionLabel: strings.exportBackupAction,
+                          actionIcon: Icons.upload_file_rounded,
+                          onPressed: _backupBusy ? null : _exportBackup,
+                        ),
+                        _BackupActionRow(
+                          icon: Icons.restore_rounded,
+                          title: strings.importBackup,
+                          subtitle: strings.importBackupNote,
+                          actionLabel: strings.importBackupAction,
+                          actionIcon: Icons.file_download_rounded,
+                          onPressed: _backupBusy ? null : _importBackup,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
                     _SectionLabel(label: strings.sectionPdfFooterPreview),
                     _FooterPreview(store: widget.store),
                     const SizedBox(height: 7),
@@ -252,6 +277,86 @@ class _SettingsPageState extends State<SettingsPage> {
       _logo = bytes;
       _logoChanged = true;
     });
+  }
+
+  Future<void> _exportBackup() async {
+    if (_backupBusy) return;
+    setState(() => _backupBusy = true);
+    try {
+      final Uint8List? bytes = await widget.store.exportBackupBytes();
+      if (!mounted) return;
+      if (bytes == null) {
+        _showBackupMessage(strings.backupExportFailed);
+        return;
+      }
+      final String fileName = widget.store.backupFileName();
+      final String? savedPath = await FilePicker.saveFile(
+        dialogTitle: strings.exportBackup,
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: const ["sqlite", "db"],
+        bytes: bytes,
+      );
+      if (!mounted || savedPath == null) return;
+      _showBackupMessage(strings.backupExported(savedPath));
+    } catch (_) {
+      if (mounted) _showBackupMessage(strings.backupExportFailed);
+    } finally {
+      if (mounted) setState(() => _backupBusy = false);
+    }
+  }
+
+  Future<void> _importBackup() async {
+    if (_backupBusy) return;
+    setState(() => _backupBusy = true);
+    try {
+      final FilePickerResult? result = await FilePicker.pickFiles(
+        dialogTitle: strings.importBackup,
+        type: FileType.any,
+        withData: true,
+      );
+      if (!mounted || result == null || result.files.isEmpty) return;
+      final PlatformFile file = result.files.single;
+      final bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) => _ImportBackupDialog(fileName: file.name),
+      );
+      if (confirmed != true || !mounted) return;
+
+      final Uint8List? bytes = await _pickedBackupBytes(file);
+      if (!mounted) return;
+      if (bytes == null || bytes.isEmpty) {
+        _showBackupMessage(strings.backupImportFailed);
+        return;
+      }
+      final bool imported = await widget.store.importBackupBytes(bytes);
+      if (!mounted) return;
+      if (!imported) {
+        _showBackupMessage(strings.backupImportFailed);
+        return;
+      }
+      setState(() {
+        _loaded = false;
+        _logoChanged = false;
+      });
+      _showBackupMessage(strings.backupImported);
+    } catch (_) {
+      if (mounted) _showBackupMessage(strings.backupImportFailed);
+    } finally {
+      if (mounted) setState(() => _backupBusy = false);
+    }
+  }
+
+  Future<Uint8List?> _pickedBackupBytes(PlatformFile file) async {
+    final Uint8List? bytes = file.bytes;
+    if (bytes != null) return bytes;
+    final String? path = file.path;
+    if (path == null) return null;
+    return File(path).readAsBytes();
+  }
+
+  void _showBackupMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _onBack() async {
@@ -438,6 +543,114 @@ class _FieldRow extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BackupActionRow extends StatelessWidget {
+  const _BackupActionRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.actionLabel,
+    required this.actionIcon,
+    required this.onPressed,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String actionLabel;
+  final IconData actionIcon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 14),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: VigilColors.textMuted),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: VigilType.body(color: VigilColors.textPrimary, size: 13)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: VigilType.small(color: VigilColors.textMuted, size: 11)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          TextButton.icon(
+            onPressed: onPressed,
+            style: TextButton.styleFrom(
+              minimumSize: Size.zero,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            icon: Icon(actionIcon, size: 16),
+            label: Text(actionLabel, style: VigilType.body(size: 12, weight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ImportBackupDialog extends StatelessWidget {
+  const _ImportBackupDialog({required this.fileName});
+
+  final String fileName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: VigilColors.surface,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+      shape: const RoundedRectangleBorder(borderRadius: VigilRadius.featureRadius),
+      child: Padding(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(strings.importBackupTitle, style: VigilType.title(size: 18)),
+            const SizedBox(height: 8),
+            Text(
+              strings.importBackupMessage(fileName),
+              style: VigilType.body(color: VigilColors.textSecondary),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: VigilColors.danger,
+                      foregroundColor: VigilColors.surface,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
+                    ),
+                    onPressed: () => Navigator.pop(context, true),
+                    icon: const Icon(Icons.restore_rounded),
+                    label: Text(strings.replaceBackup),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SecondaryButton(
+                    label: strings.cancel,
+                    icon: Icons.close_rounded,
+                    onPressed: () => Navigator.pop(context, false),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

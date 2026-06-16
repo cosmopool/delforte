@@ -311,6 +311,30 @@ class Portuguese implements Localization {
   String showItemCostPrice = "Exibir preço de custo dos itens";
   @override
   String showItemCostPriceNote = "Oculto dos clientes por padrão";
+  @override
+  String sectionBackup = "Backup";
+  @override
+  String exportBackup = "Exportar backup";
+  @override
+  String exportBackupNote = "Salve clientes, catálogo, orçamentos e configurações";
+  @override
+  String exportBackupAction = "Exportar";
+  @override
+  String importBackup = "Importar backup";
+  @override
+  String importBackupNote = "Substitua os dados deste aparelho por um backup salvo";
+  @override
+  String importBackupAction = "Importar";
+  @override
+  String importBackupTitle = "Importar backup?";
+  @override
+  String replaceBackup = "Substituir dados";
+  @override
+  String backupImported = "Backup importado";
+  @override
+  String backupImportFailed = "Não foi possível importar o backup";
+  @override
+  String backupExportFailed = "Não foi possível exportar o backup";
 
   @override
   String templates = "Modelos";
@@ -355,6 +379,11 @@ class Portuguese implements Localization {
   String editGroup(String title) => "Editar $title";
   @override
   String deleteCatalogItemConfirm(String name) => "Excluir \"$name\"? Isso não pode ser desfeito.";
+  @override
+  String importBackupMessage(String fileName) =>
+      "Importar \"$fileName\" e substituir todos os dados locais do Delforte neste aparelho?";
+  @override
+  String backupExported(String path) => "Backup exportado para $path";
   @override
   String pdfGeneratedBy(String business, String code, String date) =>
       "Gerado por $business · $code · $date";

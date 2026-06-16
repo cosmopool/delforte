@@ -337,6 +337,51 @@ void main() {
       expect(second.pdfSettings.accentColour, "Navy Blue (default)");
     });
 
+    test("database backup exports and restores through public store API", () async {
+      final QuoteStore source = await openStore();
+      expect(
+        source.saveBusinessInfo(
+          "Backup Co",
+          "12.345.678/0001-90",
+          "Rua Um, 10",
+          "São Paulo",
+          "SP",
+          "111",
+          "backup@co.com",
+          Uint8List.fromList([1, 2, 3]),
+        ),
+        isTrue,
+      );
+      expect(source.saveQuoteDefaults("PIX", "15 days", "30 days", "Terms"), isTrue);
+      expect(source.addClient("Backup Client", "", "", "", ""), isTrue);
+      final int clientId = source.lastClientId();
+      expect(source.addUnit("un", "Unit"), isTrue);
+      final int unitId = source.lastUnitId();
+      expect(source.addEquipment("Backup Camera", "4MP", 42000, unitId), isTrue);
+      final int itemId = source.lastCatalogId(.equipment);
+      final int draftId = source.createDraft(clientId);
+      expect(source.addDraftLine(draftId, .equipment, itemId, 2), isTrue);
+      expect(source.finalizeDraft(draftId), isTrue);
+
+      final Uint8List? backup = await source.exportBackupBytes();
+      expect(backup, isNotNull);
+      expect(String.fromCharCodes(backup!.take(13)), "SQLite format");
+
+      final QuoteStore restored = QuoteStore(databasePath: "${directory.path}/restored.sqlite");
+      addTearDown(restored.dispose);
+      expect(await restored.open(), isTrue);
+      expect(restored.addClient("Old Client", "", "", "", ""), isTrue);
+      expect(await restored.importBackupBytes(backup), isTrue);
+
+      expect(restored.businessInfo.name, "Backup Co");
+      expect(restored.businessInfo.logo, Uint8List.fromList([1, 2, 3]));
+      expect(restored.quoteDefaults.paymentMethod, "PIX");
+      expect(restored.listClients().single.name, "Backup Client");
+      expect(restored.listCatalog(.equipment).single.name, "Backup Camera");
+      expect(restored.listQuotes(status: "saved").single.id, draftId);
+      expect(restored.quoteTotal(draftId), 84000);
+    });
+
     test("search filters and returns all on empty query", () async {
       final QuoteStore store = await openStore();
       expect(store.addEquipment("Camera Pro", "8MP dome", 50000, 0), isTrue);

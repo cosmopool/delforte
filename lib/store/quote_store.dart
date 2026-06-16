@@ -72,6 +72,7 @@ class QuoteStore {
 
   final String? _databasePath;
   Database? _db;
+  String? _openDatabasePath;
 
   /// Opens SQLite, migrates schema, and loads the singleton settings rows.
   ///
@@ -86,6 +87,7 @@ class QuoteStore {
       } else {
         path = _databasePath;
       }
+      _openDatabasePath = path;
       final Database db = sqlite3.open(path);
       _db = db;
       db.execute("PRAGMA journal_mode = WAL;");
@@ -102,6 +104,7 @@ class QuoteStore {
   /// Closes SQLite and disposes all notifiers.
   void dispose() {
     _db?.close();
+    _openDatabasePath = null;
     equipmentNotifier.dispose();
     servicesNotifier.dispose();
     clientsNotifier.dispose();
@@ -554,6 +557,76 @@ class QuoteStore {
     return errors.messageAt(errors.count - 1);
   }
 
+  /// Default filename for a database backup created now.
+  String backupFileName([DateTime? now]) {
+    final DateTime stamp = now ?? DateTime.now();
+    final String date = "${stamp.year}${_twoDigits(stamp.month)}${_twoDigits(stamp.day)}";
+    final String time =
+        "${_twoDigits(stamp.hour)}${_twoDigits(stamp.minute)}${_twoDigits(stamp.second)}";
+    return "delforte_backup_${date}_$time.sqlite";
+  }
+
+  /// Returns a consistent SQLite database backup as bytes.
+  Future<Uint8List?> exportBackupBytes() async {
+    final Database? db = _db;
+    if (db == null) {
+      _fail(errDbOpen, "DB not open");
+      return null;
+    }
+    Directory? tempDirectory;
+    Database? backupDb;
+    try {
+      tempDirectory = await Directory.systemTemp.createTemp("delforte_backup_");
+      final String tempPath = "${tempDirectory.path}/backup.sqlite";
+      backupDb = sqlite3.open(tempPath);
+      await db.backup(backupDb, nPage: -1).drain<void>();
+      backupDb.close();
+      backupDb = null;
+      return File(tempPath).readAsBytes();
+    } catch (error) {
+      _fail(errDbBackup, error.toString());
+      return null;
+    } finally {
+      backupDb?.close();
+      if (tempDirectory != null && tempDirectory.existsSync()) {
+        tempDirectory.deleteSync(recursive: true);
+      }
+    }
+  }
+
+  /// Replaces the live database with a validated SQLite backup.
+  Future<bool> importBackupBytes(Uint8List bytes) async {
+    final Database? db = _db;
+    final String? path = _openDatabasePath;
+    if (db == null || path == null) return _fail(errDbOpen, "DB not open");
+    if (bytes.isEmpty) return _fail(errInvalidInput, "Backup is empty");
+    Directory? tempDirectory;
+    Database? sourceDb;
+    try {
+      tempDirectory = await Directory.systemTemp.createTemp("delforte_import_");
+      final String tempPath = "${tempDirectory.path}/import.sqlite";
+      await File(tempPath).writeAsBytes(bytes, flush: true);
+      sourceDb = sqlite3.open(tempPath);
+      if (!_validateBackup(sourceDb)) return false;
+
+      await sourceDb.backup(db, nPage: -1).drain<void>();
+      db.execute("PRAGMA journal_mode = WAL;");
+      db.execute("PRAGMA synchronous = NORMAL;");
+      db.execute("PRAGMA foreign_keys = ON;");
+      if (!_migrate(db)) return false;
+      if (!_loadSettings(db)) return false;
+      _markAllChanged();
+      return true;
+    } catch (error) {
+      return _fail(errDbBackup, error.toString());
+    } finally {
+      sourceDb?.close();
+      if (tempDirectory != null && tempDirectory.existsSync()) {
+        tempDirectory.deleteSync(recursive: true);
+      }
+    }
+  }
+
   // ── PAYMENT METHODS ─────────────────────────────────────────────────────────
 
   /// Returns all payment methods, newest first.
@@ -652,6 +725,8 @@ class QuoteStore {
   };
 
   int _nowMillis() => DateTime.now().millisecondsSinceEpoch;
+
+  String _twoDigits(int value) => value.toString().padLeft(2, "0");
 
   int _lastId(String table) {
     final Database? db = _db;
@@ -847,6 +922,43 @@ class QuoteStore {
     }, quotesNotifier);
   }
 
+  bool _validateBackup(Database backupDb) {
+    try {
+      final ResultSet checkRows = backupDb.select("PRAGMA quick_check");
+      if (checkRows.isEmpty || checkRows.first["quick_check"] != "ok") {
+        return _fail(errDbBackup, "Backup failed SQLite quick_check");
+      }
+
+      final ResultSet versionRows = backupDb.select("PRAGMA user_version");
+      if (versionRows.isEmpty || (versionRows.first["user_version"] as int) < 1) {
+        return _fail(errDbBackup, "Backup schema is not supported");
+      }
+
+      const List<String> requiredTables = [
+        "clients",
+        "units",
+        "equipments",
+        "services",
+        "quotes",
+        "quote_lines",
+        "business_info",
+        "payment_methods",
+        "quote_defaults",
+        "pdf_settings",
+      ];
+      for (final String table in requiredTables) {
+        final ResultSet tableRows = backupDb.select(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+          [table],
+        );
+        if (tableRows.isEmpty) return _fail(errDbBackup, "Backup is missing $table");
+      }
+      return true;
+    } catch (error) {
+      return _fail(errDbBackup, error.toString());
+    }
+  }
+
   bool _migrate(Database db) {
     try {
       final ResultSet versionRows = db.select("PRAGMA user_version");
@@ -953,7 +1065,7 @@ PRAGMA user_version = 1;
         businessInfo.phone = row["phone"] as String;
         businessInfo.email = row["email"] as String;
         final Object? logo = row["logo"];
-        if (logo is List<int>) businessInfo.logo = Uint8List.fromList(logo);
+        businessInfo.logo = logo is List<int> ? Uint8List.fromList(logo) : Uint8List(0);
       }
 
       final ResultSet defaultsRows = db.select(
@@ -985,6 +1097,16 @@ PRAGMA user_version = 1;
   }
 
   bool _validName(String value) => value.trim().isNotEmpty;
+
+  void _markAllChanged() {
+    equipmentNotifier.markChanged();
+    servicesNotifier.markChanged();
+    clientsNotifier.markChanged();
+    quotesNotifier.markChanged();
+    unitsNotifier.markChanged();
+    paymentMethodsNotifier.markChanged();
+    settingsNotifier.markChanged();
+  }
 
   bool _fail(int code, String message) {
     errors.add(code, message);

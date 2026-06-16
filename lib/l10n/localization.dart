@@ -179,6 +179,18 @@ abstract class Localization {
   late final String includeQrCodeNote;
   late final String showItemCostPrice;
   late final String showItemCostPriceNote;
+  late final String sectionBackup;
+  late final String exportBackup;
+  late final String exportBackupNote;
+  late final String exportBackupAction;
+  late final String importBackup;
+  late final String importBackupNote;
+  late final String importBackupAction;
+  late final String importBackupTitle;
+  late final String replaceBackup;
+  late final String backupImported;
+  late final String backupImportFailed;
+  late final String backupExportFailed;
 
   // Templates
   late final String templates;
@@ -206,5 +218,7 @@ abstract class Localization {
   String cnpjLabel(String cnpj);
   String editGroup(String title);
   String deleteCatalogItemConfirm(String name);
+  String importBackupMessage(String fileName);
+  String backupExported(String path);
   String pdfGeneratedBy(String business, String code, String date);
 }
