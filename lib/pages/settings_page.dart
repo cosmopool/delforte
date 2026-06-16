@@ -107,111 +107,117 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     _initFromStore();
     return AppShell(
-      header: FlowHeader(
-        title: strings.settings,
-        onBack: _onBack,
-        continueLabel: strings.save,
-        continueIcon: Icons.check_rounded,
-        onContinue: _save,
-      ),
-      body: AnimatedBuilder(
-        animation: widget.store.settingsNotifier,
-        builder: (context, _) {
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            children: [
-              _SectionLabel(label: strings.sectionBusiness),
-              _SettingsCard(
-                children: [
-                  _LogoRow(logo: _logo, onUpload: _pickLogo),
-                  _FieldRow(
-                    icon: Icons.storefront_rounded,
-                    label: strings.businessName,
-                    controller: _businessName,
-                    hint: strings.businessNameHint,
-                  ),
-                  _FieldRow(
-                    icon: Icons.badge_rounded,
-                    label: strings.cnpj,
-                    controller: _cnpj,
-                    hint: strings.cnpjHint,
-                  ),
-                  _FieldRow(
-                    icon: Icons.location_on_rounded,
-                    label: strings.address,
-                    controller: _address,
-                    hint: strings.addressHint,
-                  ),
-                  _FieldRow(
-                    icon: Icons.location_city_rounded,
-                    label: strings.cityState,
-                    controller: _city,
-                    hint: strings.cityStateHint,
-                  ),
-                  _FieldRow(
-                    icon: Icons.phone_rounded,
-                    label: strings.phone,
-                    controller: _phone,
-                    hint: strings.businessPhoneHint,
-                    keyboardType: TextInputType.phone,
-                  ),
-                  _FieldRow(
-                    icon: Icons.mail_outline_rounded,
-                    label: strings.email,
-                    controller: _email,
-                    hint: strings.businessEmailHint,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              _SectionLabel(label: strings.sectionQuoteDefaults),
-              _SettingsCard(
-                children: [
-                  _FieldRow(
-                    icon: Icons.event_available_rounded,
-                    label: strings.quoteValidity,
-                    controller: _validity,
-                    hint: strings.quoteValidityHint,
-                  ),
-                  _FieldRow(
-                    icon: Icons.payments_rounded,
-                    label: strings.paymentMethod,
-                    controller: _paymentMethod,
-                    hint: strings.paymentMethodHint,
-                    minLines: 2,
-                    maxLines: 4,
-                  ),
-                  _FieldRow(
-                    icon: Icons.verified_user_rounded,
-                    label: strings.warranty,
-                    controller: _warranty,
-                    hint: strings.warrantyHint,
-                    minLines: 2,
-                    maxLines: 4,
-                  ),
-                  _FieldRow(
-                    icon: Icons.gavel_rounded,
-                    label: strings.termsConditions,
-                    controller: _terms,
-                    hint: strings.termsHint,
-                    minLines: 2,
-                    maxLines: 4,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              _SectionLabel(label: strings.sectionPdfFooterPreview),
-              _FooterPreview(store: widget.store),
-              const SizedBox(height: 7),
-              Text(
-                strings.footerPreviewNote,
-                textAlign: TextAlign.center,
-                style: VigilType.small(color: VigilColors.textMuted, size: 11),
-              ),
-            ],
-          );
-        },
+      body: Column(
+        children: [
+          FlowHeader(
+            title: strings.settings,
+            onBack: _onBack,
+            continueLabel: strings.save,
+            continueIcon: Icons.check_rounded,
+            onContinue: _save,
+          ),
+          Expanded(
+            child: AnimatedBuilder(
+              animation: widget.store.settingsNotifier,
+              builder: (context, _) {
+                return ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  children: [
+                    _SectionLabel(label: strings.sectionBusiness),
+                    _SettingsCard(
+                      children: [
+                        _LogoRow(logo: _logo, onUpload: _pickLogo),
+                        _FieldRow(
+                          icon: Icons.storefront_rounded,
+                          label: strings.businessName,
+                          controller: _businessName,
+                          hint: strings.businessNameHint,
+                        ),
+                        _FieldRow(
+                          icon: Icons.badge_rounded,
+                          label: strings.cnpj,
+                          controller: _cnpj,
+                          hint: strings.cnpjHint,
+                        ),
+                        _FieldRow(
+                          icon: Icons.location_on_rounded,
+                          label: strings.address,
+                          controller: _address,
+                          hint: strings.addressHint,
+                        ),
+                        _FieldRow(
+                          icon: Icons.location_city_rounded,
+                          label: strings.cityState,
+                          controller: _city,
+                          hint: strings.cityStateHint,
+                        ),
+                        _FieldRow(
+                          icon: Icons.phone_rounded,
+                          label: strings.phone,
+                          controller: _phone,
+                          hint: strings.businessPhoneHint,
+                          keyboardType: TextInputType.phone,
+                        ),
+                        _FieldRow(
+                          icon: Icons.mail_outline_rounded,
+                          label: strings.email,
+                          controller: _email,
+                          hint: strings.businessEmailHint,
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    _SectionLabel(label: strings.sectionQuoteDefaults),
+                    _SettingsCard(
+                      children: [
+                        _FieldRow(
+                          icon: Icons.event_available_rounded,
+                          label: strings.quoteValidity,
+                          controller: _validity,
+                          hint: strings.quoteValidityHint,
+                        ),
+                        _FieldRow(
+                          icon: Icons.payments_rounded,
+                          label: strings.paymentMethod,
+                          controller: _paymentMethod,
+                          hint: strings.paymentMethodHint,
+                          minLines: 2,
+                          maxLines: 4,
+                        ),
+                        _FieldRow(
+                          icon: Icons.verified_user_rounded,
+                          label: strings.warranty,
+                          controller: _warranty,
+                          hint: strings.warrantyHint,
+                          minLines: 2,
+                          maxLines: 4,
+                        ),
+                        _FieldRow(
+                          icon: Icons.gavel_rounded,
+                          label: strings.termsConditions,
+                          controller: _terms,
+                          hint: strings.termsHint,
+                          minLines: 2,
+                          maxLines: 4,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    _SectionLabel(label: strings.sectionPdfFooterPreview),
+                    _FooterPreview(store: widget.store),
+                    const SizedBox(height: 7),
+                    Text(
+                      strings.footerPreviewNote,
+                      textAlign: TextAlign.center,
+                      style: VigilType.small(color: VigilColors.textMuted, size: 11),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

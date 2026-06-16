@@ -34,13 +34,15 @@ class SecondaryButton extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
+          backgroundColor: VigilColors.surface,
           foregroundColor: VigilColors.textPrimary,
           side: VigilStroke.strong,
           padding: const EdgeInsets.symmetric(vertical: 13),
           shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
+          textStyle: VigilType.body(size: 15, weight: FontWeight.w500),
         ),
         onPressed: onPressed,
-        icon: Icon(icon, color: VigilColors.textSecondary),
+        icon: Icon(icon, size: 19, color: VigilColors.textSecondary),
         label: Text(label),
       ),
     );

@@ -60,9 +60,12 @@ class _SearchFieldState extends State<SearchField> {
     return TextField(
       controller: widget.controller,
       onChanged: _onChanged,
+      style: VigilType.body(color: VigilColors.textPrimary, size: 14, weight: FontWeight.w500),
       decoration: InputDecoration(
         hintText: widget.hintText,
-        prefixIcon: const Icon(Icons.search_rounded, color: VigilColors.textMuted),
+        hintStyle: VigilType.body(color: VigilColors.textMuted, size: 14, weight: FontWeight.w400),
+        prefixIcon: const Icon(Icons.search_rounded, color: VigilColors.textMuted, size: 18),
+        prefixIconConstraints: const BoxConstraints(minWidth: 42),
       ),
     );
   }

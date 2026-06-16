@@ -30,25 +30,36 @@ abstract final class VigilTheme {
         style: FilledButton.styleFrom(
           backgroundColor: VigilColors.primary,
           foregroundColor: VigilColors.surface,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
-          textStyle: VigilType.body(color: VigilColors.surface, weight: FontWeight.w800),
+          textStyle: VigilType.body(size: 15, weight: FontWeight.w600),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
+          backgroundColor: VigilColors.surface,
           foregroundColor: VigilColors.textPrimary,
           side: VigilStroke.strong,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
           shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
-          textStyle: VigilType.body(weight: FontWeight.w700),
+          textStyle: VigilType.body(size: 15, weight: FontWeight.w500),
         ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: VigilColors.primary,
+          textStyle: VigilType.body(size: 13, weight: FontWeight.w600),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(foregroundColor: VigilColors.textSecondary),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: VigilColors.surface,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: VigilSpace.lg,
-          vertical: VigilSpace.md,
-        ),
+        hintStyle: VigilType.body(color: VigilColors.textMuted, size: 14, weight: FontWeight.w400),
+        prefixIconColor: VigilColors.textMuted,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: VigilSpace.md),
         enabledBorder: OutlineInputBorder(
           borderSide: VigilStroke.subtle,
           borderRadius: VigilRadius.inputRadius,

@@ -37,18 +37,15 @@ class ManagerHeader extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(title, style: VigilType.title(color: VigilColors.surface, size: 19)),
-                ),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: VigilColors.primary,
-                    foregroundColor: VigilColors.surface,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    shape: const StadiumBorder(),
+                  child: HeaderFittedText(
+                    text: title,
+                    style: VigilType.title(color: VigilColors.surface, size: 19),
                   ),
+                ),
+                HeaderActionButton(
+                  label: actionLabel,
+                  icon: Icons.add_rounded,
                   onPressed: onAction,
-                  icon: const Icon(Icons.add_rounded, size: 16),
-                  label: Text(actionLabel),
                 ),
               ],
             ),

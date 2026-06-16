@@ -51,7 +51,6 @@ class QuoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const FontWeight weight = FontWeight.w700;
     const Color color = VigilColors.textPrimary;
-    const FontWeight weight2 = FontWeight.w800;
     const Color color2 = VigilColors.textMuted;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -85,7 +84,7 @@ class QuoteCard extends StatelessWidget {
                       ),
                       Text(
                         total,
-                        style: VigilType.small(color: color, size: 13, weight: weight2),
+                        style: VigilType.mono(color: color, size: 13, weight: FontWeight.w500),
                       ),
                     ],
                   ),

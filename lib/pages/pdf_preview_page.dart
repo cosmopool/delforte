@@ -60,37 +60,12 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
     return AppShell(
       body: Column(
         children: [
-          ColoredBox(
-            color: VigilColors.ink,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-              child: Row(
-                children: [
-                  HeaderIconButton(
-                    icon: Icons.arrow_back_rounded,
-                    tooltip: strings.back,
-                    onPressed: () => widget.router.goTo(widget.back),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      strings.pdfPreview,
-                      style: VigilType.title(color: VigilColors.surface, size: 17),
-                    ),
-                  ),
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: VigilColors.primary,
-                      foregroundColor: VigilColors.surface,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    ),
-                    onPressed: _share,
-                    icon: const Icon(Icons.ios_share_rounded, size: 16),
-                    label: Text(strings.share),
-                  ),
-                ],
-              ),
-            ),
+          FlowHeader(
+            title: strings.pdfPreview,
+            onBack: () => widget.router.goTo(widget.back),
+            continueLabel: strings.share,
+            continueIcon: Icons.ios_share_rounded,
+            onContinue: _share,
           ),
           Expanded(
             child: PdfPreview(

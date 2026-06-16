@@ -38,9 +38,10 @@ class PrimaryButton extends StatelessWidget {
           foregroundColor: VigilColors.surface,
           padding: const EdgeInsets.symmetric(vertical: 15),
           shape: RoundedRectangleBorder(borderRadius: VigilRadius.cardRadius),
+          textStyle: VigilType.body(size: 15, weight: FontWeight.w600),
         ),
         onPressed: onPressed,
-        icon: Icon(icon),
+        icon: Icon(icon, size: 19),
         label: Text(label),
       ),
     );

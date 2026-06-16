@@ -24,4 +24,23 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/fonts/
+    - assets/fonts/DMSans-Regular.ttf
+    - assets/fonts/DMSans-SemiBold.ttf
+    - assets/fonts/DMSans-Bold.ttf
+    - assets/fonts/DMMono-Regular.ttf
+    - assets/fonts/DMMono-Medium.ttf
+  fonts:
+    - family: DM Sans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/DMSans-Bold.ttf
+          weight: 700
+    - family: DM Mono
+      fonts:
+        - asset: assets/fonts/DMMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMMono-Medium.ttf
+          weight: 500

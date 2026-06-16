@@ -39,9 +39,76 @@ class HeaderIconButton extends StatelessWidget {
         backgroundColor: Colors.white.withValues(alpha: 0.08),
         foregroundColor: Colors.white.withValues(alpha: 0.80),
         fixedSize: const Size(34, 34),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(11)),
+        minimumSize: const Size(34, 34),
+        padding: EdgeInsets.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(11),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+        ),
       ),
       icon: Icon(icon, size: 17),
+    );
+  }
+}
+
+/// Compact blue action used on navy app headers.
+class HeaderActionButton extends StatelessWidget {
+  const HeaderActionButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    super.key,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton(
+      style: FilledButton.styleFrom(
+        backgroundColor: VigilColors.primary,
+        foregroundColor: VigilColors.surface,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        minimumSize: const Size(0, 34),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        shape: const StadiumBorder(),
+        textStyle: VigilType.body(size: 13, weight: FontWeight.w600),
+      ),
+      onPressed: onPressed,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [Text(label), const SizedBox(width: 6), Icon(icon, size: 15)],
+      ),
+    );
+  }
+}
+
+class HeaderFittedText extends StatelessWidget {
+  const HeaderFittedText({
+    required this.text,
+    required this.style,
+    super.key,
+    this.alignment = Alignment.centerLeft,
+    this.textAlign = TextAlign.start,
+  });
+
+  final String text;
+  final TextStyle style;
+  final Alignment alignment;
+  final TextAlign textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: alignment,
+        child: Text(text, maxLines: 1, softWrap: false, textAlign: textAlign, style: style),
+      ),
     );
   }
 }
@@ -125,18 +192,16 @@ class FlowHeader extends StatelessWidget {
                   const SizedBox(width: 10),
                 ],
                 Expanded(
-                  child: Text(title, style: VigilType.title(color: VigilColors.surface, size: 19)),
+                  child: HeaderFittedText(
+                    text: title,
+                    style: VigilType.title(color: VigilColors.surface, size: 19),
+                  ),
                 ),
                 if (onContinue != null)
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: VigilColors.primary,
-                      foregroundColor: VigilColors.surface,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
-                    ),
-                    onPressed: onContinue,
-                    icon: Icon(continueIcon ?? Icons.arrow_forward_rounded, size: 16),
-                    label: Text(continueLabel ?? strings.continueLabel),
+                  HeaderActionButton(
+                    label: continueLabel ?? strings.continueLabel,
+                    icon: continueIcon ?? Icons.arrow_forward_rounded,
+                    onPressed: onContinue!,
                   ),
               ],
             ),
@@ -163,7 +228,7 @@ class FlowHeader extends StatelessWidget {
                   ),
                   Text(
                     formatMoney(total!),
-                    style: VigilType.body(
+                    style: VigilType.mono(
                       color: Colors.white.withValues(alpha: 0.85),
                       weight: FontWeight.w500,
                       size: 15,
@@ -199,19 +264,19 @@ class FlowHeader extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 7),
-                    Text(
-                      _steps[i],
-                      style: TextStyle(
-                        fontFamily: VigilType.fontFamily,
-                        fontSize: 10,
-                        fontWeight: i == stepIndex ? FontWeight.w600 : FontWeight.w400,
+                    HeaderFittedText(
+                      text: _steps[i],
+                      alignment: Alignment.center,
+                      textAlign: TextAlign.center,
+                      style: VigilType.small(
+                        size: 10,
+                        weight: i == stepIndex ? FontWeight.w600 : FontWeight.w400,
                         color: i == stepIndex
                             ? Colors.white.withValues(alpha: 0.95)
                             : i < stepIndex
                             ? Colors.white.withValues(alpha: 0.50)
                             : Colors.white.withValues(alpha: 0.25),
-                        letterSpacing: 0.3,
-                      ),
+                      ).copyWith(letterSpacing: 0.3),
                     ),
                   ],
                 ),

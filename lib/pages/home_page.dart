@@ -1,6 +1,7 @@
 import "package:delforte/design_system.dart";
 import "package:delforte/design_system/widgets/app_shell.dart";
 import "package:delforte/design_system/widgets/empty_panel.dart";
+import "package:delforte/design_system/widgets/flow_header_widget.dart";
 import "package:delforte/design_system/widgets/quote_card_widget.dart";
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/router/app_route_state.dart";
@@ -103,21 +104,22 @@ class _BrandHeader extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              strings.appName,
-              style: const TextStyle(
-                color: VigilColors.surface,
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-                height: 1.12,
+            Expanded(
+              child: HeaderFittedText(
+                text: strings.appName,
+                style: VigilType.title(color: VigilColors.surface, size: 22),
               ),
             ),
+            const SizedBox(width: 10),
             IconButton(
               onPressed: onSettings,
               style: IconButton.styleFrom(
                 backgroundColor: Colors.white.withValues(alpha: 0.07),
                 foregroundColor: Colors.white.withValues(alpha: 0.60),
                 fixedSize: const Size(36, 36),
+                minimumSize: const Size(36, 36),
+                padding: EdgeInsets.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
@@ -316,7 +318,17 @@ class _SectionTitle extends StatelessWidget {
             style: VigilType.body(color: VigilColors.textPrimary, size: 14, weight: weight),
           ),
         ),
-        TextButton(onPressed: onAction, child: Text(action)),
+        TextButton(
+          onPressed: onAction,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(action),
+              const SizedBox(width: 4),
+              const Icon(Icons.arrow_forward_rounded, size: 15),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -1,6 +1,7 @@
 import "dart:io";
 import "dart:typed_data";
 
+import "package:delforte/pdf/quote_pdf.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:delforte/store/store_errors.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -124,6 +125,43 @@ void main() {
       );
       expect(serviceLine.name, "Install");
       expect(serviceLine.unit, "h");
+    });
+
+    test("buildQuotePdf renders footer contact items without icon glyph errors", () async {
+      await loadPdfFonts();
+      final QuoteStore store = await openStore();
+      expect(
+        store.saveBusinessInfo(
+          "Delforte Sistemas",
+          "12.345.678/0001-90",
+          "Rua das Palmeiras, 200",
+          "São Paulo",
+          "SP",
+          "+55 (11) 98888-0000",
+          "contato@delforte.com.br",
+          Uint8List(0),
+        ),
+        isTrue,
+      );
+      expect(
+        store.saveQuoteDefaults("PIX", "30 dias", "90 dias", "Serviços sujeitos à visita técnica."),
+        isTrue,
+      );
+      expect(store.addClient("Client", "111", "c@x.com", "Rua C", "City C"), isTrue);
+      expect(store.addEquipment("Camera", "4MP", 42000, 0), isTrue);
+
+      final int draftId = store.createDraft(store.lastClientId());
+      expect(store.addDraftLine(draftId, .equipment, store.lastCatalogId(.equipment), 2), isTrue);
+
+      final Uint8List pdf = await buildQuotePdf(
+        store.businessInfo,
+        store.quoteDefaults,
+        store.quotePdfData(draftId),
+        draftId,
+      );
+
+      expect(pdf.length, greaterThan(1000));
+      expect(pdf.take(4), "%PDF".codeUnits);
     });
 
     test("draft lines increment, clamp, and remove", () async {

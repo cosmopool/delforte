@@ -33,9 +33,12 @@ class TotalBanner extends StatelessWidget {
           children: [
             Text(
               label,
-              style: VigilType.body(color: color2, size: 15, weight: weight),
+              style: VigilType.body(color: color2, size: 15, weight: FontWeight.w600),
             ),
-            Text(amount, style: VigilType.title(color: color, size: 26)),
+            Text(
+              amount,
+              style: VigilType.mono(color: color, size: 26, weight: weight),
+            ),
           ],
         ),
       ),

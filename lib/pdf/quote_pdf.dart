@@ -5,7 +5,6 @@ import "package:delforte/store/business_info_data.dart";
 import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:delforte/utils.dart";
-import "package:flutter/material.dart" show IconData, Icons;
 import "package:flutter/services.dart" show rootBundle;
 import "package:pdf/pdf.dart";
 import "package:pdf/widgets.dart" as pw;
@@ -28,13 +27,11 @@ const PdfColor _text = PdfColor.fromInt(0xFF2A3050);
 const PdfColor _textSec = PdfColor.fromInt(0xFF5A6480);
 const PdfColor _textMuted = PdfColor.fromInt(0xFF9AA3BA);
 
-late final pw.Font syne;
 late final pw.Font sans;
 late final pw.Font sansSemi;
 late final pw.Font sansBold;
 late final pw.Font mono;
 late final pw.Font monoMed;
-late final pw.Font icons;
 
 class _Line {
   _Line(this.name, this.qty, this.unit, this.priceCents, this.subtotalCents);
@@ -131,13 +128,11 @@ Future<Uint8List> buildQuotePdf(
 Future<void> _finishedLoadingFonts = Future.delayed(const Duration(minutes: 10));
 
 Future<void> loadPdfFonts() async {
-  syne = pw.Font.ttf(await rootBundle.load("assets/fonts/Syne-ExtraBold.ttf"));
   sans = pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Regular.ttf"));
   sansSemi = pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-SemiBold.ttf"));
   sansBold = pw.Font.ttf(await rootBundle.load("assets/fonts/DMSans-Bold.ttf"));
   mono = pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Regular.ttf"));
   monoMed = pw.Font.ttf(await rootBundle.load("assets/fonts/DMMono-Medium.ttf"));
-  icons = pw.Font.ttf(await rootBundle.load("assets/fonts/MaterialIcons-Regular.otf"));
   _finishedLoadingFonts = Future<bool>.value(true);
 }
 
@@ -168,7 +163,7 @@ pw.Widget _headerBand(
       maxLines: 1,
       softWrap: false,
       overflow: pw.TextOverflow.clip,
-      style: pw.TextStyle(font: syne, fontSize: 22, color: PdfColors.white, letterSpacing: -0.3),
+      style: pw.TextStyle(font: sansBold, fontSize: 22, color: PdfColors.white),
     );
   } else {
     // Fit by height: fixed tall, width follows the logo's own aspect ratio.
@@ -188,12 +183,7 @@ pw.Widget _headerBand(
             maxLines: 1,
             softWrap: false,
             overflow: pw.TextOverflow.clip,
-            style: pw.TextStyle(
-              font: syne,
-              fontSize: 13,
-              color: PdfColors.white,
-              letterSpacing: -0.2,
-            ),
+            style: pw.TextStyle(font: sansBold, fontSize: 13, color: PdfColors.white),
           ),
         ),
       ],
@@ -369,12 +359,25 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
 
 pw.Widget _th(String text, pw.TextAlign align) => pw.Padding(
   padding: const pw.EdgeInsets.symmetric(vertical: 5),
-  child: pw.Text(
-    text.toUpperCase(),
-    textAlign: align,
-    style: pw.TextStyle(font: sansBold, fontSize: 9, color: _ink, letterSpacing: 0.5),
+  child: pw.Container(
+    height: 11,
+    alignment: _fittedTextAlignment(align),
+    child: pw.FittedBox(
+      fit: pw.BoxFit.scaleDown,
+      alignment: _fittedTextAlignment(align),
+      child: pw.Text(
+        text.toUpperCase(),
+        style: pw.TextStyle(font: sansBold, fontSize: 9, color: _ink, letterSpacing: 0.5),
+      ),
+    ),
   ),
 );
+
+pw.Alignment _fittedTextAlignment(pw.TextAlign align) => switch (align) {
+  pw.TextAlign.right => pw.Alignment.centerRight,
+  pw.TextAlign.center => pw.Alignment.center,
+  _ => pw.Alignment.centerLeft,
+};
 
 pw.Widget _td(String text, pw.Font font, PdfColor color, pw.TextAlign align) => pw.Padding(
   padding: const pw.EdgeInsets.symmetric(vertical: 6),
@@ -429,14 +432,13 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String 
     business.state,
   ].where((s) => s.isNotEmpty).join(" — ");
 
-  // Contact items as (icon, text) pairs, matching the footer in DelforteApp.jsx.
-  final List<(IconData, String)> items = [
-    if (address.isNotEmpty) (Icons.location_on, address),
-    if (business.phone.isNotEmpty) (Icons.phone, business.phone),
-    if (business.email.isNotEmpty) (Icons.mail_outline, business.email),
-    if (defaults.paymentMethod.isNotEmpty) (Icons.payments, defaults.paymentMethod),
-    if (defaults.warranty.isNotEmpty) (Icons.verified_user, defaults.warranty),
-    if (business.cnpj.isNotEmpty) (Icons.badge, strings.cnpjLabel(business.cnpj)),
+  final List<String> items = [
+    if (address.isNotEmpty) address,
+    if (business.phone.isNotEmpty) business.phone,
+    if (business.email.isNotEmpty) business.email,
+    if (defaults.paymentMethod.isNotEmpty) defaults.paymentMethod,
+    if (defaults.warranty.isNotEmpty) defaults.warranty,
+    if (business.cnpj.isNotEmpty) strings.cnpjLabel(business.cnpj),
   ];
 
   return pw.Container(
@@ -445,7 +447,7 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String 
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        // Three-column grid of icon + contact text (rows of three cells).
+        // Three-column grid of contact text (rows of three cells).
         for (int row = 0; row < items.length; row += 3)
           pw.Padding(
             padding: const pw.EdgeInsets.only(bottom: 5),
@@ -453,11 +455,7 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String 
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 for (int col = row; col < row + 3; col++)
-                  pw.Expanded(
-                    child: col < items.length
-                        ? _footerItem(items[col].$1, items[col].$2)
-                        : pw.SizedBox(),
-                  ),
+                  pw.Expanded(child: col < items.length ? _footerItem(items[col]) : pw.SizedBox()),
               ],
             ),
           ),
@@ -478,14 +476,18 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String 
   );
 }
 
-pw.Widget _footerItem(IconData icon, String text) => pw.Padding(
+pw.Widget _footerItem(String text) => pw.Padding(
   padding: const pw.EdgeInsets.only(right: 10),
   child: pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
       pw.Padding(
-        padding: const pw.EdgeInsets.only(top: 1.5, right: 4),
-        child: pw.Icon(pw.IconData(icon.codePoint), font: icons, size: 9, color: _alpha(0.25)),
+        padding: const pw.EdgeInsets.only(top: 3.5, right: 5),
+        child: pw.Container(
+          width: 3,
+          height: 3,
+          decoration: pw.BoxDecoration(color: _alpha(0.25), shape: pw.BoxShape.circle),
+        ),
       ),
       pw.Expanded(
         child: pw.Text(
