@@ -1,6 +1,6 @@
 name: delforte
 description: "Delforte app"
-version: 1.0.0+1
+version: 1.0.0+3
 environment:
   sdk: 3.11.1
 
