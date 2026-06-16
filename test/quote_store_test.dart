@@ -79,7 +79,7 @@ void main() {
 
       // Editing the catalog price updates the open draft line.
       expect(store.updateEquipment(itemId, "Camera Pro", "8MP", 50000, 0), isTrue);
-      expect(store.nameFor(.equipment, itemId), "Camera Pro");
+      expect(store.catalogById(.equipment, itemId)!.name, "Camera Pro");
       expect(store.quoteTotal(draftId), 128000);
 
       // Deleting a catalog row drops its draft lines.
@@ -111,15 +111,17 @@ void main() {
       expect(data.createdAt, greaterThan(0));
       expect(data.lines.length, 2);
 
-      final QuotePdfLine equipmentLine =
-          data.lines.firstWhere((l) => l.type == CatalogItemType.equipment);
+      final QuotePdfLine equipmentLine = data.lines.firstWhere(
+        (l) => l.type == CatalogItemType.equipment,
+      );
       expect(equipmentLine.name, "Camera");
       expect(equipmentLine.unit, "h");
       expect(equipmentLine.quantity, 2);
       expect(equipmentLine.subtotalCents, 84000);
 
-      final QuotePdfLine serviceLine =
-          data.lines.firstWhere((l) => l.type == CatalogItemType.service);
+      final QuotePdfLine serviceLine = data.lines.firstWhere(
+        (l) => l.type == CatalogItemType.service,
+      );
       expect(serviceLine.name, "Install");
       expect(serviceLine.unit, "h");
     });
@@ -139,7 +141,8 @@ void main() {
       expect(lines.first.subtotalCents, 267000);
 
       expect(store.changeDraftLineQuantity(draftId, .equipment, itemId, -99), isTrue);
-      expect(store.listQuoteLines(draftId).first.quantity, 1);
+      expect(store.listQuoteLines(draftId), isEmpty);
+      expect(store.addDraftLine(draftId, .equipment, itemId, 1), isTrue);
       expect(store.changeDraftLineQuantity(draftId, .equipment, itemId, 20000), isTrue);
       expect(store.listQuoteLines(draftId).first.quantity, 9999);
 
@@ -244,7 +247,7 @@ void main() {
       expect(store.addUnit("m²", "Square meter"), isTrue);
       expect(store.listUnits().length, 2);
       final int hourId = store.listUnits().firstWhere((u) => u.abbreviation == "h").id;
-      expect(store.unitAbbreviationFor(hourId), "h");
+      expect(store.unitById(hourId)!.abbreviation, "h");
 
       expect(store.updateUnit(hourId, "hr", "Hour revised"), isTrue);
       expect(store.unitById(hourId)!.abbreviation, "hr");

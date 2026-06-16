@@ -15,9 +15,7 @@ export "package:delforte/store/models.dart";
 /// Public notifier wrapper used by store tables.
 class StoreNotifier extends ChangeNotifier {
   /// Notifies listeners that the associated store data changed.
-  void markChanged() {
-    notifyListeners();
-  }
+  void markChanged() => notifyListeners();
 }
 
 /// SQLite-backed quote module store.
@@ -144,15 +142,14 @@ class QuoteStore {
       "SELECT id, name, phone, email, address, city FROM clients WHERE id = ?",
       [id],
     );
-    return rows.isEmpty ? null : rows.first;
+    if (rows.isEmpty) return null;
+    return rows.first;
   }
 
   /// Inserts a client and returns whether it succeeded.
   bool addClient(String name, String phone, String email, String address, String city) {
     if (!_validName(name)) return _fail(errInvalidInput, "Client name required");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(clientsNotifier, (Database db) {
       db.execute("INSERT INTO clients (name, phone, email, address, city) VALUES (?, ?, ?, ?, ?)", [
         name,
         phone,
@@ -160,11 +157,7 @@ class QuoteStore {
         address,
         city,
       ]);
-      clientsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Returns the id of the most recently inserted client, or `0` when none.
@@ -173,31 +166,19 @@ class QuoteStore {
   /// Updates a client by [id].
   bool updateClient(int id, String name, String phone, String email, String address, String city) {
     if (!_validName(name)) return _fail(errInvalidInput, "Client name required");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(clientsNotifier, (Database db) {
       db.execute(
         "UPDATE clients SET name = ?, phone = ?, email = ?, address = ?, city = ? WHERE id = ?",
         [name, phone, email, address, city, id],
       );
-      clientsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Deletes a client by [id].
   bool deleteClient(int id) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(clientsNotifier, (Database db) {
       db.execute("DELETE FROM clients WHERE id = ?", [id]);
-      clientsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   // ── CATALOG (equipment + services) ──────────────────────────────────────────
@@ -229,7 +210,8 @@ class QuoteStore {
       "SELECT id, name, description, price_cents, unit_id FROM ${_catalogTable(type)} WHERE id = ?",
       [id],
     );
-    return rows.isEmpty ? null : rows.first;
+    if (rows.isEmpty) return null;
+    return rows.first;
   }
 
   /// Inserts equipment and returns whether it succeeded.
@@ -265,21 +247,6 @@ class QuoteStore {
   /// Returns the id of the most recently inserted catalog row of [type].
   int lastCatalogId(CatalogItemType type) => _lastId(_catalogTable(type));
 
-  /// Returns the catalog price for [type] and [refId], or `-1` if missing.
-  int priceFor(CatalogItemType type, int refId) {
-    return catalogById(type, refId)?.priceCents ?? -1;
-  }
-
-  /// Returns the catalog name for [type] and [refId], or `""` if missing.
-  String nameFor(CatalogItemType type, int refId) {
-    return catalogById(type, refId)?.name ?? "";
-  }
-
-  /// Returns the catalog description for [type] and [refId], or `""` if missing.
-  String descriptionFor(CatalogItemType type, int refId) {
-    return catalogById(type, refId)?.description ?? "";
-  }
-
   // ── UNITS ───────────────────────────────────────────────────────────────────
 
   /// Returns all units, newest first.
@@ -293,24 +260,19 @@ class QuoteStore {
       "SELECT id, abbreviation, description FROM units WHERE id = ?",
       [id],
     );
-    return rows.isEmpty ? null : rows.first;
+    if (rows.isEmpty) return null;
+    return rows.first;
   }
 
   /// Inserts a unit and returns whether it succeeded.
   bool addUnit(String abbreviation, String description) {
     if (!_validName(abbreviation)) return _fail(errInvalidInput, "Unit abbreviation required");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(unitsNotifier, (Database db) {
       db.execute("INSERT INTO units (abbreviation, description) VALUES (?, ?)", [
         abbreviation,
         description,
       ]);
-      unitsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Returns the id of the most recently inserted unit, or `0` when none.
@@ -319,37 +281,20 @@ class QuoteStore {
   /// Updates a unit by [id].
   bool updateUnit(int id, String abbreviation, String description) {
     if (!_validName(abbreviation)) return _fail(errInvalidInput, "Unit abbreviation required");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(unitsNotifier, (Database db) {
       db.execute("UPDATE units SET abbreviation = ?, description = ? WHERE id = ?", [
         abbreviation,
         description,
         id,
       ]);
-      unitsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Deletes a unit by [id].
   bool deleteUnit(int id) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(unitsNotifier, (Database db) {
       db.execute("DELETE FROM units WHERE id = ?", [id]);
-      unitsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
-  }
-
-  /// Returns the unit abbreviation for [unitId], or `""` if missing.
-  String unitAbbreviationFor(int unitId) {
-    return unitById(unitId)?.abbreviation ?? "";
+    });
   }
 
   // ── DRAFTS & QUOTES ─────────────────────────────────────────────────────────
@@ -379,27 +324,13 @@ class QuoteStore {
 
   /// Updates the client of a draft [quoteId].
   bool setDraftClient(int quoteId, int clientId) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(quotesNotifier, (Database db) {
       db.execute("UPDATE quotes SET client_id = ?, updated_at = ? WHERE id = ?", [
         clientId,
         _nowMillis(),
         quoteId,
       ]);
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
-  }
-
-  /// Returns the creation timestamp (millis since epoch) of [quoteId], or `0`.
-  int quoteCreatedAt(int quoteId) {
-    final Database? db = _db;
-    if (db == null) return 0;
-    final ResultSet rows = db.select("SELECT created_at FROM quotes WHERE id = ?", [quoteId]);
-    return rows.isEmpty ? 0 : rows.first["created_at"] as int;
+    });
   }
 
   /// Returns the client id of [quoteId], or `0` when absent.
@@ -407,17 +338,16 @@ class QuoteStore {
     final Database? db = _db;
     if (db == null) return 0;
     final ResultSet rows = db.select("SELECT client_id FROM quotes WHERE id = ?", [quoteId]);
-    return rows.isEmpty ? 0 : rows.first["client_id"] as int;
+    if (rows.isEmpty) return 0;
+    return rows.first["client_id"] as int;
   }
 
   /// Adds or increments a draft line for [type] and [refId].
   bool addDraftLine(int quoteId, CatalogItemType type, int refId, int quantity) {
     if (quantity <= 0) return _fail(errInvalidInput, "Invalid quantity");
-    final int price = priceFor(type, refId);
-    if (price < 0) return _fail(errMissingId, "Catalog ref missing");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    final CatalogItem? item = catalogById(type, refId);
+    if (item == null) return _fail(errMissingId, "Catalog ref missing");
+    return _write(quotesNotifier, (Database db) {
       // Increment when the line already exists, clamped to 9999; otherwise insert.
       db.execute(
         "INSERT INTO quote_lines (quote_id, line_type, ref_id, quantity, unit_price_cents, subtotal_cents) "
@@ -426,17 +356,15 @@ class QuoteStore {
         "quantity = min(9999, quote_lines.quantity + ?4), "
         "unit_price_cents = ?5, "
         "subtotal_cents = min(9999, quote_lines.quantity + ?4) * ?5",
-        [quoteId, type.index, refId, quantity, price],
+        [quoteId, type.index, refId, quantity, item.priceCents],
       );
       _touchQuote(db, quoteId);
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
-  /// Changes a draft line quantity by [delta], clamped to `1..9999`.
+  /// Changes a draft line quantity by [delta].
+  ///
+  /// Deletes the line below `1` and clamps it to `9999` at the upper bound.
   bool changeDraftLineQuantity(int quoteId, CatalogItemType type, int refId, int delta) {
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
@@ -444,18 +372,14 @@ class QuoteStore {
     if (current < 0) return _fail(errMissingId, "Quote line missing");
     if (current + delta < 1) return removeDraftLine(quoteId, type, refId);
     final int next = math.min(9999, current + delta);
-    try {
+    return _write(quotesNotifier, (Database db) {
       db.execute(
         "UPDATE quote_lines SET quantity = ?, subtotal_cents = unit_price_cents * ? "
         "WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
         [next, next, quoteId, type.index, refId],
       );
       _touchQuote(db, quoteId);
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Sets the unit price of an existing draft line and recomputes its subtotal.
@@ -463,38 +387,26 @@ class QuoteStore {
   /// A no-op (still returns `true`) when no matching line exists.
   bool setDraftLineUnitPrice(int quoteId, CatalogItemType type, int refId, int priceCents) {
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(quotesNotifier, (Database db) {
       db.execute(
         "UPDATE quote_lines SET unit_price_cents = ?, subtotal_cents = quantity * ? "
         "WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
         [priceCents, priceCents, quoteId, type.index, refId],
       );
       _touchQuote(db, quoteId);
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Removes a draft line by [type] and [refId].
   bool removeDraftLine(int quoteId, CatalogItemType type, int refId) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(quotesNotifier, (Database db) {
       db.execute("DELETE FROM quote_lines WHERE quote_id = ? AND line_type = ? AND ref_id = ?", [
         quoteId,
         type.index,
         refId,
       ]);
       _touchQuote(db, quoteId);
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Returns the lines of [quoteId] with catalog names resolved.
@@ -502,24 +414,24 @@ class QuoteStore {
     final Database? db = _db;
     if (db == null) return const <QuoteLine>[];
     final ResultSet rows = db.select(
-      "SELECT line_type, ref_id, quantity, unit_price_cents, subtotal_cents "
-      "FROM quote_lines WHERE quote_id = ? ORDER BY rowid ASC",
+      "SELECT l.line_type, l.ref_id, l.quantity, l.unit_price_cents, l.subtotal_cents, "
+      "COALESCE(e.name, s.name, '') AS item_name "
+      "FROM quote_lines l "
+      "LEFT JOIN equipments e ON l.line_type = 0 AND e.id = l.ref_id "
+      "LEFT JOIN services s ON l.line_type = 1 AND s.id = l.ref_id "
+      "WHERE l.quote_id = ? ORDER BY l.rowid ASC",
       [quoteId],
     );
     return [
       for (final Row row in rows)
-        () {
-          final CatalogItemType type = CatalogItemType.values[row["line_type"] as int];
-          final int refId = row["ref_id"] as int;
-          return QuoteLine(
-            type: type,
-            refId: refId,
-            name: nameFor(type, refId),
-            quantity: row["quantity"] as int,
-            unitPriceCents: row["unit_price_cents"] as int,
-            subtotalCents: row["subtotal_cents"] as int,
-          );
-        }(),
+        QuoteLine(
+          type: CatalogItemType.values[row["line_type"] as int],
+          refId: row["ref_id"] as int,
+          name: row["item_name"] as String,
+          quantity: row["quantity"] as int,
+          unitPriceCents: row["unit_price_cents"] as int,
+          subtotalCents: row["subtotal_cents"] as int,
+        ),
     ];
   }
 
@@ -549,16 +461,17 @@ class QuoteStore {
     if (rows.isEmpty) return const QuotePdfData(createdAt: 0, client: null, lines: []);
     final Row head = rows.first;
     final Object? clientId = head["client_id"];
-    final Client? client = clientId == null
-        ? null
-        : Client(
-            id: clientId as int,
-            name: head["client_name"] as String,
-            phone: head["phone"] as String,
-            email: head["email"] as String,
-            address: head["address"] as String,
-            city: head["city"] as String,
-          );
+    Client? client;
+    if (clientId != null) {
+      client = Client(
+        id: clientId as int,
+        name: head["client_name"] as String,
+        phone: head["phone"] as String,
+        email: head["email"] as String,
+        address: head["address"] as String,
+        city: head["city"] as String,
+      );
+    }
     final List<QuotePdfLine> lines = [
       for (final Row row in rows)
         if (row["line_type"] != null)
@@ -575,14 +488,10 @@ class QuoteStore {
   }
 
   /// Returns the total in cents for [quoteId].
-  int quoteTotal(int quoteId) {
-    return _sumSubtotals(db: _db, quoteId: quoteId);
-  }
+  int quoteTotal(int quoteId) => _sumSubtotals(quoteId);
 
   /// Returns the subtotal in cents for [quoteId] limited to [type].
-  int quoteSubtotal(int quoteId, CatalogItemType type) {
-    return _sumSubtotals(db: _db, quoteId: quoteId, type: type);
-  }
+  int quoteSubtotal(int quoteId, CatalogItemType type) => _sumSubtotals(quoteId, type);
 
   /// Returns the number of lines of [type] in [quoteId].
   int quoteLineCount(int quoteId, CatalogItemType type) {
@@ -592,41 +501,30 @@ class QuoteStore {
       "SELECT COUNT(*) AS c FROM quote_lines WHERE quote_id = ? AND line_type = ?",
       [quoteId, type.index],
     );
-    return rows.isEmpty ? 0 : rows.first["c"] as int;
+    if (rows.isEmpty) return 0;
+    return rows.first["c"] as int;
   }
 
   /// Finalises a draft: stamps the total and flips it to a saved quote.
   bool finalizeDraft(int quoteId) {
     final int clientId = draftClientId(quoteId);
     if (clientId == 0) return _fail(errMissingId, "Client missing");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
     final int total = quoteTotal(quoteId);
     if (total <= 0) return _fail(errQuoteEmpty, "Quote empty");
-    try {
+    return _write(quotesNotifier, (Database db) {
       db.execute(
         "UPDATE quotes SET total_cents = ?, status = 'saved', updated_at = ? WHERE id = ?",
         [total, _nowMillis(), quoteId],
       );
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Deletes a quote (and its lines) by [quoteId].
   bool deleteQuote(int quoteId) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(quotesNotifier, (Database db) {
       db.execute("DELETE FROM quote_lines WHERE quote_id = ?", [quoteId]);
       db.execute("DELETE FROM quotes WHERE id = ?", [quoteId]);
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   /// Deletes [quoteId] only if it is still a draft with no lines.
@@ -645,23 +543,14 @@ class QuoteStore {
   }
 
   /// Returns the most recent quotes (drafts and saved), newest first.
-  List<QuoteSummary> listRecentQuotes({int limit = 3}) {
-    return _queryQuotes(_quoteSummarySql("", "ORDER BY updated_at DESC LIMIT ?"), [limit]);
-  }
+  List<QuoteSummary> listRecentQuotes({int limit = 3}) => _queryQuotes(limit: limit);
 
   /// Returns all quotes, optionally filtered by [status], newest first.
-  List<QuoteSummary> listQuotes({String? status}) {
-    if (status == null) {
-      return _queryQuotes(_quoteSummarySql("", "ORDER BY updated_at DESC"));
-    }
-    return _queryQuotes(_quoteSummarySql("WHERE q.status = ?", "ORDER BY updated_at DESC"), [
-      status,
-    ]);
-  }
+  List<QuoteSummary> listQuotes({String? status}) => _queryQuotes(status: status);
 
   /// Returns the most recent error message, or `""` when there are no errors.
   String latestErrorMessage() {
-    if (errors.count <= 0) return "";
+    if (errors.count == 0) return "";
     return errors.messageAt(errors.count - 1);
   }
 
@@ -679,40 +568,22 @@ class QuoteStore {
 
   bool addPaymentMethod(String name) {
     if (!_validName(name)) return _fail(errInvalidInput, "Payment method name required");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(paymentMethodsNotifier, (Database db) {
       db.execute("INSERT INTO payment_methods (name) VALUES (?)", [name]);
-      paymentMethodsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   bool updatePaymentMethod(int id, String name) {
     if (!_validName(name)) return _fail(errInvalidInput, "Payment method name required");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(paymentMethodsNotifier, (Database db) {
       db.execute("UPDATE payment_methods SET name = ? WHERE id = ?", [name, id]);
-      paymentMethodsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   bool deletePaymentMethod(int id) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(paymentMethodsNotifier, (Database db) {
       db.execute("DELETE FROM payment_methods WHERE id = ?", [id]);
-      paymentMethodsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   // ── SETTINGS WRITERS ─────────────────────────────────────────────────────────
@@ -727,9 +598,7 @@ class QuoteStore {
     String email,
     Uint8List logo,
   ) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(settingsNotifier, (Database db) {
       db.execute(
         "INSERT OR REPLACE INTO business_info (id, name, cnpj, address, city, state, phone, email, logo) VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)",
         [name, cnpj, address, city, state, phone, email, logo],
@@ -743,17 +612,11 @@ class QuoteStore {
       businessInfo.phone = phone;
       businessInfo.email = email;
       businessInfo.logo = logo;
-      settingsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   bool saveQuoteDefaults(String paymentMethod, String validity, String warranty, String terms) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(settingsNotifier, (Database db) {
       db.execute(
         "INSERT OR REPLACE INTO quote_defaults (id, payment_method, validity, warranty, terms) VALUES (1, ?, ?, ?, ?)",
         [paymentMethod, validity, warranty, terms],
@@ -763,27 +626,17 @@ class QuoteStore {
       quoteDefaults.validity = validity;
       quoteDefaults.warranty = warranty;
       quoteDefaults.terms = terms;
-      settingsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   bool savePdfSettings(String accentColour) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(settingsNotifier, (Database db) {
       db.execute("INSERT OR REPLACE INTO pdf_settings (id, accent_colour) VALUES (1, ?)", [
         accentColour,
       ]);
       pdfSettings.id = 1;
       pdfSettings.accentColour = accentColour;
-      settingsNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   // ── INTERNAL ──────────────────────────────────────────────────────────────
@@ -804,34 +657,43 @@ class QuoteStore {
     final Database? db = _db;
     if (db == null) return 0;
     final ResultSet rows = db.select("SELECT MAX(id) AS m FROM $table");
-    final Object? value = rows.isEmpty ? null : rows.first["m"];
-    return value is int ? value : 0;
+    if (rows.isEmpty) return 0;
+    final Object? value = rows.first["m"];
+    if (value is! int) return 0;
+    return value;
   }
 
-  void _touchQuote(Database db, int quoteId) {
-    db.execute("UPDATE quotes SET updated_at = ? WHERE id = ?", [_nowMillis(), quoteId]);
-  }
+  void _touchQuote(Database db, int quoteId) =>
+      db.execute("UPDATE quotes SET updated_at = ? WHERE id = ?", [_nowMillis(), quoteId]);
 
   int _lineQuantity(Database db, int quoteId, CatalogItemType type, int refId) {
     final ResultSet rows = db.select(
       "SELECT quantity FROM quote_lines WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
       [quoteId, type.index, refId],
     );
-    return rows.isEmpty ? -1 : rows.first["quantity"] as int;
+    if (rows.isEmpty) return -1;
+    return rows.first["quantity"] as int;
   }
 
-  int _sumSubtotals({required Database? db, required int quoteId, CatalogItemType? type}) {
+  int _sumSubtotals(int quoteId, [CatalogItemType? type]) {
+    final Database? db = _db;
     if (db == null) return 0;
-    final ResultSet rows = type == null
-        ? db.select(
-            "SELECT COALESCE(SUM(subtotal_cents), 0) AS s FROM quote_lines WHERE quote_id = ?",
-            [quoteId],
-          )
-        : db.select(
-            "SELECT COALESCE(SUM(subtotal_cents), 0) AS s FROM quote_lines WHERE quote_id = ? AND line_type = ?",
-            [quoteId, type.index],
-          );
-    return rows.isEmpty ? 0 : rows.first["s"] as int;
+    final ResultSet rows;
+    if (type == null) {
+      rows = db.select(
+        "SELECT COALESCE(SUM(subtotal_cents), 0) AS s "
+        "FROM quote_lines WHERE quote_id = ?",
+        [quoteId],
+      );
+    } else {
+      rows = db.select(
+        "SELECT COALESCE(SUM(subtotal_cents), 0) AS s "
+        "FROM quote_lines WHERE quote_id = ? AND line_type = ?",
+        [quoteId, type.index],
+      );
+    }
+    if (rows.isEmpty) return 0;
+    return rows.first["s"] as int;
   }
 
   List<Client> _queryClients(String sql, [List<Object?> params = const []]) {
@@ -881,17 +743,25 @@ class QuoteStore {
     ];
   }
 
-  String _quoteSummarySql(String where, String tail) {
-    return "SELECT q.id, q.client_id, q.status, COALESCE(SUM(l.subtotal_cents), 0) AS total_cents, q.updated_at, "
-        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.service.index} THEN l.quantity ELSE 0 END), 0) AS service_count, "
-        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.equipment.index} THEN l.quantity ELSE 0 END), 0) AS equipment_count "
-        "FROM quotes q LEFT JOIN quote_lines l ON l.quote_id = q.id "
-        "$where GROUP BY q.id $tail";
-  }
-
-  List<QuoteSummary> _queryQuotes(String sql, [List<Object?> params = const []]) {
+  List<QuoteSummary> _queryQuotes({String? status, int? limit}) {
     final Database? db = _db;
     if (db == null) return const <QuoteSummary>[];
+    var sql =
+        "SELECT q.id, q.client_id, q.status, "
+        "COALESCE(SUM(l.subtotal_cents), 0) AS total_cents, q.updated_at, "
+        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.service.index} THEN 1 ELSE 0 END), 0) AS service_count, "
+        "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.equipment.index} THEN 1 ELSE 0 END), 0) AS equipment_count "
+        "FROM quotes q LEFT JOIN quote_lines l ON l.quote_id = q.id ";
+    final List<Object?> params = [];
+    if (status != null) {
+      sql += "WHERE q.status = ? ";
+      params.add(status);
+    }
+    sql += "GROUP BY q.id ORDER BY updated_at DESC";
+    if (limit != null) {
+      sql += " LIMIT ?";
+      params.add(limit);
+    }
     final ResultSet rows = db.select(sql, params);
     return [
       for (final Row row in rows)
@@ -907,6 +777,23 @@ class QuoteStore {
     ];
   }
 
+  bool _write(
+    StoreNotifier notifier,
+    void Function(Database db) action, [
+    StoreNotifier? alsoNotify,
+  ]) {
+    final Database? db = _db;
+    if (db == null) return _fail(errDbOpen, "DB not open");
+    try {
+      action(db);
+      notifier.markChanged();
+      alsoNotify?.markChanged();
+      return true;
+    } catch (error) {
+      return _fail(errSqlWrite, error.toString());
+    }
+  }
+
   bool _addCatalog(
     CatalogItemType type,
     String name,
@@ -916,18 +803,12 @@ class QuoteStore {
   ) {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(_catalogNotifier(type), (Database db) {
       db.execute(
         "INSERT INTO ${_catalogTable(type)} (name, description, price_cents, unit_id) VALUES (?, ?, ?, ?)",
         [name, description, priceCents, unitId],
       );
-      _catalogNotifier(type).markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    });
   }
 
   bool _updateCatalog(
@@ -940,9 +821,7 @@ class QuoteStore {
   ) {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(_catalogNotifier(type), (Database db) {
       db.execute(
         "UPDATE ${_catalogTable(type)} SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?",
         [name, description, priceCents, unitId, id],
@@ -953,18 +832,11 @@ class QuoteStore {
         "WHERE line_type = ? AND ref_id = ? AND quote_id IN (SELECT id FROM quotes WHERE status = 'draft')",
         [priceCents, priceCents, type.index, id],
       );
-      _catalogNotifier(type).markChanged();
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    }, quotesNotifier);
   }
 
   bool _deleteCatalog(CatalogItemType type, int id) {
-    final Database? db = _db;
-    if (db == null) return _fail(errDbOpen, "DB not open");
-    try {
+    return _write(_catalogNotifier(type), (Database db) {
       db.execute("DELETE FROM ${_catalogTable(type)} WHERE id = ?", [id]);
       // Drop matching lines from open drafts.
       db.execute(
@@ -972,18 +844,13 @@ class QuoteStore {
         "AND quote_id IN (SELECT id FROM quotes WHERE status = 'draft')",
         [type.index, id],
       );
-      _catalogNotifier(type).markChanged();
-      quotesNotifier.markChanged();
-      return true;
-    } catch (error) {
-      return _fail(errSqlWrite, error.toString());
-    }
+    }, quotesNotifier);
   }
 
   bool _migrate(Database db) {
     try {
       final ResultSet versionRows = db.select("PRAGMA user_version");
-      var version = versionRows.first["user_version"] as int;
+      final int version = versionRows.first["user_version"] as int;
       if (version < 1) {
         db.execute("""
 CREATE TABLE clients (
@@ -1062,7 +929,6 @@ INSERT INTO quote_defaults (id) VALUES (1);
 INSERT INTO pdf_settings (id) VALUES (1);
 PRAGMA user_version = 1;
 """);
-        version = 1;
       }
       return true;
     } catch (error) {
@@ -1072,9 +938,45 @@ PRAGMA user_version = 1;
 
   bool _loadSettings(Database db) {
     try {
-      _loadBusinessInfo(db);
-      _loadQuoteDefaults(db);
-      _loadPdfSettings(db);
+      final ResultSet businessRows = db.select(
+        "SELECT id, name, cnpj, address, city, state, phone, email, logo "
+        "FROM business_info WHERE id = 1",
+      );
+      if (businessRows.isNotEmpty) {
+        final Row row = businessRows.first;
+        businessInfo.id = row["id"] as int;
+        businessInfo.name = row["name"] as String;
+        businessInfo.cnpj = row["cnpj"] as String;
+        businessInfo.address = row["address"] as String;
+        businessInfo.city = row["city"] as String;
+        businessInfo.state = row["state"] as String;
+        businessInfo.phone = row["phone"] as String;
+        businessInfo.email = row["email"] as String;
+        final Object? logo = row["logo"];
+        if (logo is List<int>) businessInfo.logo = Uint8List.fromList(logo);
+      }
+
+      final ResultSet defaultsRows = db.select(
+        "SELECT id, payment_method, validity, warranty, terms FROM quote_defaults WHERE id = 1",
+      );
+      if (defaultsRows.isNotEmpty) {
+        final Row row = defaultsRows.first;
+        quoteDefaults.id = row["id"] as int;
+        quoteDefaults.paymentMethod = row["payment_method"] as String;
+        quoteDefaults.validity = row["validity"] as String;
+        quoteDefaults.warranty = row["warranty"] as String;
+        quoteDefaults.terms = row["terms"] as String;
+      }
+
+      final ResultSet pdfRows = db.select(
+        "SELECT id, accent_colour FROM pdf_settings WHERE id = 1",
+      );
+      if (pdfRows.isNotEmpty) {
+        final Row row = pdfRows.first;
+        pdfSettings.id = row["id"] as int;
+        pdfSettings.accentColour = row["accent_colour"] as String;
+      }
+
       settingsNotifier.markChanged();
       return true;
     } catch (error) {
@@ -1082,50 +984,7 @@ PRAGMA user_version = 1;
     }
   }
 
-  void _loadBusinessInfo(Database db) {
-    final ResultSet rows = db.select(
-      "SELECT id, name, cnpj, address, city, state, phone, email, logo FROM business_info WHERE id = 1",
-    );
-    if (rows.isEmpty) return;
-    final Row row = rows.first;
-    businessInfo.id = row["id"] as int;
-    businessInfo.name = row["name"] as String;
-    businessInfo.cnpj = row["cnpj"] as String;
-    businessInfo.address = row["address"] as String;
-    businessInfo.city = row["city"] as String;
-    businessInfo.state = row["state"] as String;
-    businessInfo.phone = row["phone"] as String;
-    businessInfo.email = row["email"] as String;
-    final Object? logo = row["logo"];
-    if (logo is List<int>) {
-      businessInfo.logo = Uint8List.fromList(logo);
-    }
-  }
-
-  void _loadQuoteDefaults(Database db) {
-    final ResultSet rows = db.select(
-      "SELECT id, payment_method, validity, warranty, terms FROM quote_defaults WHERE id = 1",
-    );
-    if (rows.isEmpty) return;
-    final Row row = rows.first;
-    quoteDefaults.id = row["id"] as int;
-    quoteDefaults.paymentMethod = row["payment_method"] as String;
-    quoteDefaults.validity = row["validity"] as String;
-    quoteDefaults.warranty = row["warranty"] as String;
-    quoteDefaults.terms = row["terms"] as String;
-  }
-
-  void _loadPdfSettings(Database db) {
-    final ResultSet rows = db.select("SELECT id, accent_colour FROM pdf_settings WHERE id = 1");
-    if (rows.isEmpty) return;
-    final Row row = rows.first;
-    pdfSettings.id = row["id"] as int;
-    pdfSettings.accentColour = row["accent_colour"] as String;
-  }
-
-  bool _validName(String value) {
-    return value.trim().isNotEmpty;
-  }
+  bool _validName(String value) => value.trim().isNotEmpty;
 
   bool _fail(int code, String message) {
     errors.add(code, message);
