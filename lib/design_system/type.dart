@@ -24,7 +24,13 @@ abstract final class VigilType {
     FontWeight weight = FontWeight.w600,
     double size = 14,
   }) {
-    return TextStyle(color: color, fontSize: size, fontWeight: weight, height: 1.25);
+    return TextStyle(
+      color: color,
+      fontFamily: fontFamily,
+      fontSize: size,
+      fontWeight: weight,
+      height: 1.25,
+    );
   }
 
   static TextStyle small({
@@ -32,7 +38,13 @@ abstract final class VigilType {
     FontWeight weight = FontWeight.w600,
     double size = 11,
   }) {
-    return TextStyle(color: color, fontSize: size, fontWeight: weight, height: 1.25);
+    return TextStyle(
+      color: color,
+      fontFamily: fontFamily,
+      fontSize: size,
+      fontWeight: weight,
+      height: 1.25,
+    );
   }
 
   static TextStyle mono({
