@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vigil · Delforte</title>
+<style>
+:root {
+  --color-ink: #080F26;
+  --color-ink-elevated: #101D40;
+  --color-primary: #1E66E1;
+  --color-primary-pressed: #1559C4;
+  --color-primary-soft: #EEF4FF;
+  --color-success: #0DBE84;
+  --color-success-soft: #E7F8F3;
+  --color-danger: #E54040;
+  --color-danger-soft: #FFF5F5;
+  --color-canvas: #F3F5FB;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #080F26;
+  --color-text-secondary: #5A6480;
+  --color-text-muted: #9AA3BA;
+  --color-border: #101D4017;
+  --color-border-strong: #101D4029;
+  --color-paper: #E8EBF2;
+  --color-blue-m: #5499EE;
+  --color-pin: #F2542D;
+  --radius-chip: 6px;
+  --radius-input: 14px;
+  --radius-card: 16px;
+  --radius-feature: 20px;
+  --radius-app-frame: 28px;
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 10px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 20px;
+  --space-xxl: 24px;
+  --space-page: 16px;
+  --stroke: 1.5px;
+  --gradient-app-backdrop: linear-gradient(to bottom right, #060D22, #142354, #1A2E6B);
+  --gradient-primary-action: linear-gradient(to bottom right, var(--color-primary), var(--color-primary-pressed));
+  --shadow-primary-lift: 0 8px 24px color-mix(in srgb, var(--color-primary) 28%, transparent);
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+}
+
+/* ---------- Fontes (offline, de assets/fonts) ---------- */
+@font-face { font-family: "DM Sans"; font-weight: 400; src: url("../assets/fonts/DMSans-Regular.ttf") format("truetype"); }
+@font-face { font-family: "DM Sans"; font-weight: 500; src: url("../assets/fonts/DMSans-Medium.ttf") format("truetype"); }
+@font-face { font-family: "DM Sans"; font-weight: 600; src: url("../assets/fonts/DMSans-SemiBold.ttf") format("truetype"); }
+@font-face { font-family: "DM Sans"; font-weight: 700; src: url("../assets/fonts/DMSans-Bold.ttf") format("truetype"); }
+@font-face { font-family: "DM Sans"; font-weight: 800; src: url("../assets/fonts/DMSans-ExtraBold.ttf") format("truetype"); }
+@font-face { font-family: "DM Sans"; font-weight: 900; src: url("../assets/fonts/DMSans-Black.ttf") format("truetype"); }
+@font-face { font-family: "DM Mono"; font-weight: 400; src: url("../assets/fonts/DMMono-Regular.ttf") format("truetype"); }
+@font-face { font-family: "DM Mono"; font-weight: 500; src: url("../assets/fonts/DMMono-Medium.ttf") format("truetype"); }
+@font-face { font-family: "Material Icons"; font-weight: 400; src: url("../assets/fonts/MaterialIcons-Regular.otf") format("opentype"); }
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  /* Derivadas: branco com alfa (cabeçalhos navy) e linha do botão destrutivo. */
+  --white-95: color-mix(in srgb, var(--color-surface) 95%, transparent);
+  --white-85: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  --white-80: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  --white-70: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  --white-60: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  --white-50: color-mix(in srgb, var(--color-surface) 50%, transparent);
+  --white-45: color-mix(in srgb, var(--color-surface) 45%, transparent);
+  --white-42: color-mix(in srgb, var(--color-surface) 42%, transparent);
+  --white-40: color-mix(in srgb, var(--color-surface) 40%, transparent);
+  --white-35: color-mix(in srgb, var(--color-surface) 35%, transparent);
+  --white-28: color-mix(in srgb, var(--color-surface) 28%, transparent);
+  --white-25: color-mix(in srgb, var(--color-surface) 25%, transparent);
+  --white-18: color-mix(in srgb, var(--color-surface) 18%, transparent);
+  --white-14: color-mix(in srgb, var(--color-surface) 14%, transparent);
+  --white-13: color-mix(in srgb, var(--color-surface) 13%, transparent);
+  --white-08: color-mix(in srgb, var(--color-surface) 8%, transparent);
+  --white-07: color-mix(in srgb, var(--color-surface) 7%, transparent);
+  --white-06: color-mix(in srgb, var(--color-surface) 6%, transparent);
+  --danger-line: color-mix(in srgb, var(--color-danger) 25%, var(--color-surface));
+  --pdf-text: color-mix(in srgb, var(--color-ink) 50%, var(--color-text-secondary));
+}
+.mi {
+  font-family: "Material Icons";
+  font-weight: 400;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  width: 1em;
+  height: 1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* ---------- Galeria (moldura do documento) ---------- */
+.layout { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+.side {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: var(--color-ink); color: var(--white-60);
+  padding: 28px 20px 40px;
+}
+.side .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; color: var(--color-surface); }
+.side .logo b { font-weight: 800; font-size: 20px; letter-spacing: -0.2px; }
+.side .logo b { display: block; }
+.side .logo span { display: block; font-size: 11px; color: var(--white-45); font-weight: 600; }
+.side .logo .mark {
+  width: 34px; height: 34px; border-radius: 11px; display: flex; align-items: center; justify-content: center;
+  background: var(--gradient-primary-action); box-shadow: var(--shadow-primary-lift);
+}
+.side h4 { font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--white-35); margin: 22px 0 8px; }
+.side a { display: block; color: var(--white-70); text-decoration: none; font-size: 13px; font-weight: 500; padding: 5px 8px; border-radius: var(--radius-chip); }
+.side a:hover { background: var(--white-07); color: var(--color-surface); }
+.side a.top { font-weight: 700; color: var(--color-surface); font-size: 14px; }
+main { padding: 48px 56px 140px; min-width: 0; }
+.hero { margin-bottom: 56px; max-width: 760px; }
+.hero .eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 0.9px; text-transform: uppercase; color: var(--color-primary); }
+.hero h1 { font-size: 40px; font-weight: 800; line-height: 1.08; margin: 8px 0 12px; letter-spacing: -0.6px; }
+.hero p { font-size: 15px; line-height: 1.55; color: var(--color-text-secondary); font-weight: 500; }
+.hero p + p { margin-top: 8px; }
+section.part { margin-bottom: 80px; }
+section.part > h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.3px; margin-bottom: 6px; scroll-margin-top: 24px; }
+section.part > .lead { font-size: 14px; color: var(--color-text-secondary); font-weight: 500; margin-bottom: 28px; max-width: 760px; line-height: 1.5; }
+h3.sub { font-size: 18px; font-weight: 700; margin: 40px 0 14px; scroll-margin-top: 24px; display: flex; align-items: baseline; gap: 10px; }
+h3.sub small { font-family: var(--font-mono); font-size: 12px; font-weight: 400; color: var(--color-text-muted); }
+code, .code { font-family: var(--font-mono); font-size: 12px; }
+
+.spec { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-feature); overflow: hidden; margin-bottom: 24px; scroll-margin-top: 24px; }
+.stage { background: var(--color-canvas); padding: 24px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.stage.ink { background: var(--color-ink); }
+.state { width: 358px; max-width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.state.auto { width: auto; }
+.state > .lbl { font-size: 10px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--color-text-muted); }
+.stage.ink .state > .lbl { color: var(--white-45); }
+.cap { padding: 14px 20px 16px; border-top: var(--stroke) solid var(--color-border); }
+.cap .cls { font-family: var(--font-mono); font-size: 14px; font-weight: 500; color: var(--color-primary); }
+.cap .path { font-family: var(--font-mono); font-size: 11px; color: var(--color-text-muted); margin-left: 10px; }
+.cap p { font-size: 12.5px; line-height: 1.5; color: var(--color-text-secondary); font-weight: 500; margin-top: 6px; max-width: 860px; }
+.cap p code { color: var(--color-text-primary); }
+.novo { display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-surface); background: var(--color-pin); border-radius: var(--radius-chip); padding: 2px 6px; vertical-align: middle; }
+.gap-note { display: inline-block; font-size: 9px; font-weight: 900; letter-spacing: 0.4px; text-transform: uppercase; color: var(--color-text-secondary); background: var(--color-paper); border-radius: var(--radius-chip); padding: 2px 6px; vertical-align: middle; }
+
+/* Fundações */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.sw { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); overflow: hidden; }
+.sw .chip {
+  height: 84px; border-bottom: var(--stroke) solid var(--color-border); position: relative;
+  background-image:
+    linear-gradient(45deg, var(--color-paper) 25%, transparent 25%, transparent 75%, var(--color-paper) 75%),
+    linear-gradient(45deg, var(--color-paper) 25%, var(--color-surface) 25%, var(--color-surface) 75%, var(--color-paper) 75%);
+  background-size: 12px 12px; background-position: 0 0, 6px 6px;
+}
+.sw .chip i { position: absolute; inset: 0; }
+.sw .meta { padding: 10px 12px 12px; }
+.sw .meta b { display: block; font-size: 13px; font-weight: 700; }
+.sw .meta code { display: block; color: var(--color-text-secondary); font-size: 11px; margin-top: 3px; }
+.sw .meta .hex { color: var(--color-text-muted); }
+.sw .meta p { font-size: 11px; color: var(--color-text-muted); margin-top: 6px; line-height: 1.4; font-weight: 500; }
+
+.table { width: 100%; border-collapse: collapse; background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); overflow: hidden; }
+.tbl-wrap { border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); overflow-x: auto; background: var(--color-surface); }
+.tbl-wrap table { width: 100%; border-collapse: collapse; }
+.tbl-wrap th { text-align: left; font-size: 10px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--color-text-muted); padding: 12px 16px; border-bottom: var(--stroke) solid var(--color-border); white-space: nowrap; }
+.tbl-wrap td { padding: 12px 16px; border-bottom: 1px solid var(--color-border); vertical-align: middle; font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+.tbl-wrap tr:last-child td { border-bottom: none; }
+.tbl-wrap td code { color: var(--color-text-primary); white-space: nowrap; }
+.weights { display: flex; flex-wrap: wrap; gap: 10px 24px; padding: 20px; background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); margin-top: 14px; }
+.weights span { font-size: 22px; }
+.weights small { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--color-text-muted); font-weight: 400; }
+
+.scale-row { display: flex; align-items: center; gap: 16px; padding: 10px 16px; border-bottom: 1px solid var(--color-border); }
+.scale-row:last-child { border-bottom: none; }
+.scale-row code { width: 150px; flex: none; color: var(--color-text-primary); }
+.scale-row .bar { height: 14px; background: var(--color-primary); border-radius: 3px; }
+.scale-row .v { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-muted); }
+.tokens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.tok { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); padding: 16px; }
+.tok .demo { height: 72px; background: var(--color-primary-soft); border: var(--stroke) solid var(--color-primary); margin-bottom: 12px; }
+.tok b { display: block; font-size: 13px; font-weight: 700; }
+.tok code { display: block; font-size: 11px; color: var(--color-text-muted); margin-top: 3px; }
+.grad { height: 120px; border-radius: var(--radius-card); margin-bottom: 12px; }
+
+/* ---------- Primitivos ---------- */
+.surface { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); }
+.pill { display: inline-block; padding: var(--space-xxs) var(--space-xs); border-radius: var(--radius-chip); font-size: 10px; font-weight: 900; line-height: 1.25; white-space: nowrap; }
+.pill.draft, .pill.qty { color: var(--color-text-muted); background: var(--color-canvas); }
+.pill.saved { color: var(--color-success); background: var(--color-success-soft); }
+.pill.chip { color: var(--color-primary); background: var(--color-primary-soft); }
+.ibox { width: 36px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex: none; background: var(--color-canvas); color: var(--color-text-muted); }
+.ibox .mi { font-size: 18.72px; }
+.ibox.lg { width: 48px; height: 48px; border-radius: 13px; }
+.ibox.lg .mi { font-size: 24.96px; }
+.ibox.on { color: var(--color-primary); }
+.ibox.sec { color: var(--color-text-secondary); }
+.ibox.add { background: var(--color-border); }
+
+/* ---------- Botões ---------- */
+.btn-primary, .btn-secondary, .btn-fill, .btn-danger {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: var(--radius-card); font-family: var(--font-sans); font-size: 15px; line-height: 1.25; cursor: pointer;
+}
+.btn-primary { padding: 15px 0; background: var(--color-primary); color: var(--color-surface); border: none; font-weight: 600; }
+.btn-primary .mi { font-size: 19px; }
+.btn-primary.pressed { background: color-mix(in srgb, var(--color-primary), var(--color-surface) 10%); }
+.btn-secondary { padding: 13px 0; background: var(--color-surface); color: var(--color-text-primary); border: var(--stroke) solid var(--color-border-strong); font-weight: 500; }
+.btn-secondary .mi { font-size: 19px; color: var(--color-text-secondary); }
+.btn-secondary.pressed { background: color-mix(in srgb, var(--color-surface), var(--color-text-primary) 10%); }
+.btn-fill { padding: 13px 0; background: var(--color-primary); color: var(--color-surface); border: none; font-weight: 600; flex: 1; width: auto; }
+.btn-danger { padding: 15px 0; background: var(--color-danger); color: var(--color-surface); border: none; font-weight: 600; }
+.btn-danger .mi { font-size: 18px; }
+.btn-text { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 8px 12px; border: none; background: none; border-radius: 999px; color: var(--color-primary); font: 600 13px/1.25 var(--font-sans); cursor: pointer; }
+.btn-text .mi { font-size: 15px; }
+.btn-text.wide { width: 100%; }
+.dbtn { width: 44px; height: 44px; flex: none; border-radius: var(--radius-card); background: var(--color-danger-soft); border: var(--stroke) solid var(--danger-line); color: var(--color-danger); display: flex; align-items: center; justify-content: center; }
+.dbtn .mi { font-size: 18px; }
+.rbtn { width: 36px; height: 36px; flex: none; border-radius: 12px; border: var(--stroke) solid var(--color-border-strong); background: var(--color-surface); color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; }
+.rbtn.add { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-surface); }
+.rbtn .mi { font-size: 18px; }
+.ibtn { width: 48px; height: 48px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); border-radius: 50%; }
+.ibtn .mi { font-size: 18px; }
+
+/* ---------- Cabeçalhos navy ---------- */
+.hdr { background: var(--color-ink); color: var(--color-surface); flex: none; }
+.hdr-row { display: flex; align-items: center; padding: 14px 20px; }
+.hdr-row.has-steps { padding-bottom: 0; }
+.hdr-icon { width: 34px; height: 34px; flex: none; border-radius: 11px; background: var(--white-08); color: var(--white-80); border: 1px solid var(--white-08); display: flex; align-items: center; justify-content: center; margin-right: 10px; }
+.hdr-icon .mi { font-size: 17px; }
+.hdr-title { flex: 1; min-width: 0; font-size: 19px; font-weight: 700; line-height: 1.12; color: var(--color-surface); white-space: nowrap; overflow: hidden; }
+.hdr-action { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 8px 16px; border-radius: 999px; background: var(--color-primary); color: var(--color-surface); font: 600 13px/1.25 var(--font-sans); flex: none; }
+.hdr-action .mi { font-size: 15px; }
+.steps { display: flex; gap: 5px; padding: 14px 20px 18px; }
+.step { flex: 1; min-width: 0; text-align: center; }
+.step .bar { height: 3px; border-radius: 2px; background: var(--white-13); margin-bottom: 7px; }
+.step span { display: block; font-size: 10px; font-weight: 400; letter-spacing: 0.3px; line-height: 1.25; color: var(--white-25); white-space: nowrap; overflow: hidden; }
+.step.done .bar { background: var(--color-primary); }
+.step.done span { color: var(--white-50); }
+.step.cur .bar { background: var(--color-blue-m); }
+.step.cur span { color: var(--white-95); font-weight: 600; }
+.step span.fit { font-size: 9.4px; line-height: 12.5px; }
+.step.cur span.fit { font-size: 9px; } /* HeaderFittedText: scaleDown */
+.state.full { width: 390px; }
+.hdr-total { display: flex; align-items: center; justify-content: space-between; background: var(--white-06); padding: 12px 20px 14px; }
+.hdr-total span { font-size: 12px; font-weight: 500; line-height: 1.25; color: var(--white-45); }
+.hdr-total b { font-family: var(--font-mono); font-size: 15px; font-weight: 500; line-height: 1.2; color: var(--white-85); }
+.tabs { margin: 0 16px 16px; padding: 3px; background: var(--white-06); border-radius: 12px; display: flex; }
+.tab { flex: 1; padding: 9px 0; text-align: center; border-radius: 10px; font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--white-45); }
+.tab.on { background: var(--color-surface); color: var(--color-text-primary); }
+
+/* ---------- Campos ---------- */
+.search { display: flex; align-items: center; height: 48px; background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-input); padding-right: 14px; }
+.search.focus, .ff-input.focus { border-color: var(--color-primary); }
+.search .mi { width: 42px; font-size: 18px; color: var(--color-text-muted); }
+.search .txt { font-size: 14px; font-weight: 500; line-height: 1.25; color: var(--color-text-primary); }
+.search .txt.hint { font-weight: 400; color: var(--color-text-muted); }
+.caret { display: inline-block; width: 2px; height: 18px; background: var(--color-primary); vertical-align: middle; margin-left: 1px; }
+.ff { display: flex; flex-direction: column; min-width: 0; }
+.ff-label { display: block; font-size: 11px; font-weight: 700; line-height: 1.25; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 7px; }
+.ff-input { min-height: 48px; padding: 12px 14px; background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-input); font-size: 16px; font-weight: 400; line-height: 1.5; color: var(--color-text-primary); display: flex; align-items: center; }
+.ff-input.hint { font-size: 14px; line-height: 1.25; color: var(--color-text-muted); }
+.ff-input.multi2 { min-height: 72px; align-items: flex-start; }
+.ff-input.multi3 { min-height: 96px; align-items: flex-start; }
+.ff-input.dd { justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 600; line-height: 1.25; }
+.ff-input.dd.hint { font-weight: 400; }
+.ff-input.dd .mi { color: var(--color-text-muted); }
+.ff-row { display: flex; gap: 10px; }
+.ff-row > .ff { flex: 1; }
+.fdiv { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 700; line-height: 1.25; color: var(--color-text-muted); text-transform: uppercase; white-space: nowrap; }
+.fdiv::before, .fdiv::after { content: ""; flex: 1; height: 1px; background: var(--color-border); }
+
+/* ---------- Cartões ---------- */
+.add-card { display: flex; align-items: center; gap: 12px; padding: 13px 15px; background: var(--color-canvas); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); font-size: 14px; font-weight: 600; line-height: 1.25; color: var(--color-text-secondary); }
+.avatar { width: 40px; height: 40px; flex: none; border-radius: 13px; background: var(--color-ink-elevated); color: var(--color-surface); font-size: 13px; font-weight: 900; line-height: 1.25; display: flex; align-items: center; justify-content: center; }
+.avatar.sel { background: var(--color-primary); }
+.qcard { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); padding: 14px 16px; margin-bottom: 8px; }
+.qcard .r1 { display: flex; align-items: flex-start; }
+.qcard .r1 b { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; line-height: 1.25; }
+.qcard .r1 span { font-family: var(--font-mono); font-size: 13px; font-weight: 500; line-height: 1.2; }
+.qcard .r2 { display: flex; align-items: center; margin-top: 8px; }
+.qcard .r2 > span:first-child { flex: 1; min-width: 0; font-size: 11px; font-weight: 600; line-height: 1.25; color: var(--color-text-muted); }
+.ccard { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); margin-bottom: 10px; }
+.ccard.pb { padding-bottom: 10px; }
+.ccard.sel { border-color: var(--color-primary); }
+.ccard.open { background: var(--color-primary-soft); }
+.ccard-head { display: flex; align-items: center; padding: 13px 15px; }
+.ccard-text { flex: 1; min-width: 0; margin-left: 10px; }
+.ccard-text.w12 { margin-left: 12px; }
+.ccard-text b { display: block; font-size: 14px; font-weight: 700; line-height: 1.25; }
+.ccard-text span { display: block; margin-top: 2px; font-size: 11px; font-weight: 600; line-height: 1.25; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ccard-price { font-size: 11px; font-weight: 700; line-height: 1.25; color: var(--color-text-secondary); white-space: nowrap; }
+.ccard-price.g8 { margin-left: 8px; }
+.ccard-head > .mi:last-child { margin-left: 6px; color: var(--color-text-muted); }
+.ccard-head > .mi.check { color: var(--color-primary); margin-left: 0; }
+.ccard-body { border-top: 1px solid var(--color-border); padding: 11px 15px 14px; display: flex; align-items: flex-end; gap: 8px; }
+.ccard-body > .ff { flex: 1; }
+.ccard-edit { border-top: 1px solid var(--color-border); padding: 14px 15px 15px; display: flex; flex-direction: column; gap: 12px; }
+.ccard-edit .actions { display: flex; gap: 8px; margin-top: 2px; }
+.qty { display: flex; align-items: center; }
+.qty b { padding: 0 8px; font-size: 14px; font-weight: 800; line-height: 1.25; }
+.panel { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); padding: 15px 16px; }
+.panel-head { display: flex; align-items: center; margin-bottom: 4px; }
+.panel-head span { flex: 1; font-size: 10px; font-weight: 900; line-height: 1.25; color: var(--color-text-muted); text-transform: uppercase; }
+.panel .empty-line { font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--color-text-muted); }
+.panel-client { display: flex; align-items: center; }
+.panel-client .ccard-text span { color: var(--color-text-secondary); white-space: normal; }
+.lrow { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid transparent; }
+.lrow.div { border-bottom-color: var(--color-border); }
+.lrow .l { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.lrow .l span { min-width: 0; font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow > b { font-size: 11px; font-weight: 800; line-height: 1.25; color: var(--color-text-primary); }
+.tbanner { background: var(--color-ink); border-radius: var(--radius-card); padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; color: var(--color-surface); }
+.tbanner span { font-size: 15px; font-weight: 600; line-height: 1.25; }
+.tbanner b { font-family: var(--font-mono); font-size: 26px; font-weight: 800; line-height: 1.2; }
+.ready { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-feature); padding: 26px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.ready .ok { width: 62px; height: 62px; border-radius: 20px; background: var(--color-success-soft); color: var(--color-success); display: flex; align-items: center; justify-content: center; }
+.ready .ok .mi { font-size: 34px; }
+.ready h5 { margin-top: 13px; font-size: 18px; font-weight: 700; line-height: 1.12; }
+.ready p { margin-top: 5px; font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--color-text-secondary); }
+.ready .chips { margin-top: 16px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.empty { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.empty > .mi { color: var(--color-text-muted); }
+.empty b { margin-top: 8px; font-size: 14px; font-weight: 800; line-height: 1.25; }
+.empty span { margin-top: 4px; font-size: 11px; font-weight: 600; line-height: 1.25; color: var(--color-text-muted); }
+.snack { background: var(--color-ink); color: var(--color-surface); border-radius: var(--radius-input); padding: 14px 16px; font-size: 14px; font-weight: 600; line-height: 1.25; }
+.dialog { background: var(--color-surface); border-radius: var(--radius-feature); padding: 22px; }
+.dialog h5 { font-size: 18px; font-weight: 700; line-height: 1.12; }
+.dialog p { margin-top: 8px; font-size: 14px; font-weight: 600; line-height: 1.25; color: var(--color-text-secondary); }
+.dialog .row { margin-top: 22px; display: flex; gap: 10px; }
+
+/* ---------- Início ---------- */
+.brand { background: var(--color-ink); padding: 20px 20px 34px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.brand b { font-size: 22px; font-weight: 700; line-height: 1.12; color: var(--color-surface); }
+.brand .set { width: 36px; height: 36px; border-radius: 12px; background: var(--white-07); color: var(--white-60); border: 1px solid var(--white-08); display: flex; align-items: center; justify-content: center; }
+.brand .set .mi { font-size: 18px; }
+.nq { margin: 0 14px; transform: translateY(-16px); border-radius: var(--radius-feature); background: var(--gradient-primary-action); box-shadow: var(--shadow-primary-lift); padding: 20px; display: flex; align-items: center; color: var(--color-surface); }
+.nq .t { flex: 1; }
+.nq b { display: block; font-size: 19px; font-weight: 700; line-height: 1.12; }
+.nq span { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; line-height: 1.25; color: var(--white-70); }
+.nq .plus { width: 48px; height: 48px; border-radius: var(--radius-card); background: var(--white-14); display: flex; align-items: center; justify-content: center; }
+.nq .plus .mi { font-size: 30px; }
+.home-body { padding: 0 14px 20px; }
+.qa-row { display: flex; gap: 10px; margin-top: 12px; }
+.qa { flex: 1; min-width: 0; padding: 14px; background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); }
+.qa b { display: block; margin-top: 10px; font-size: 14px; font-weight: 600; line-height: 1.25; }
+.qa span { display: block; margin-top: 3px; font-size: 11px; font-weight: 500; line-height: 1.25; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sec-title { display: flex; align-items: center; margin: 12px 0; }
+.sec-title b { flex: 1; font-size: 14px; font-weight: 800; line-height: 1.25; }
+
+/* ---------- Configurações ---------- */
+.set-label { padding: 4px 0 8px 4px; font-size: 11px; font-weight: 700; line-height: 1.25; letter-spacing: 0.7px; color: var(--color-text-muted); text-transform: uppercase; }
+.set-card { background: var(--color-surface); border: var(--stroke) solid var(--color-border); border-radius: var(--radius-card); overflow: hidden; margin-bottom: 18px; }
+.set-row { display: flex; align-items: center; padding: 12px 15px; border-top: 1px solid var(--color-border); }
+.set-row:first-child { border-top: none; }
+.set-row.multi { align-items: flex-start; }
+.set-row > .mi { font-size: 17px; color: var(--color-text-muted); }
+.set-row.multi > .mi { margin-top: 2px; }
+.set-row.tall { padding: 14px 15px; }
+.set-row.tall > .mi { font-size: 18px; }
+.set-text { flex: 1; min-width: 0; margin-left: 11px; }
+.set-text .cap2 { display: block; font-size: 10px; font-weight: 700; line-height: 1.25; letter-spacing: 0.5px; color: var(--color-text-muted); text-transform: uppercase; }
+.set-text .val { display: block; margin-top: 3px; font-size: 14px; font-weight: 500; line-height: 1.25; }
+.set-text .val.two { min-height: 35px; }
+.set-text .val.hint { font-weight: 400; color: var(--color-text-muted); }
+.set-text b { display: block; font-size: 13px; font-weight: 600; line-height: 1.25; }
+.set-text small { display: block; margin-top: 2px; font-size: 11px; font-weight: 600; line-height: 1.25; color: var(--color-text-muted); }
+.logo-box { width: 48px; height: 48px; flex: none; border-radius: 13px; background: var(--color-ink-elevated); color: var(--white-40); display: flex; align-items: center; justify-content: center; }
+.logo-box .mi { font-size: 22px; }
+.set-row .btn-text { padding: 6px 8px; font-size: 12px; margin-left: 10px; }
+.set-row .btn-text .mi { font-size: 16px; }
+.footer-prev { background: var(--color-ink-elevated); border: var(--stroke) solid var(--white-06); border-radius: var(--radius-card); padding: 16px 18px; }
+.footer-prev .top { display: flex; align-items: center; gap: 11px; }
+.footer-prev .lb { width: 36px; height: 36px; border-radius: 10px; background: var(--white-07); color: var(--white-35); display: flex; align-items: center; justify-content: center; }
+.footer-prev .lb .mi { font-size: 18px; }
+.footer-prev .top b { display: block; font-size: 13px; font-weight: 700; line-height: 1.12; color: var(--color-surface); }
+.footer-prev .top span { display: block; margin-top: 1px; font-size: 10px; font-weight: 600; line-height: 1.25; color: var(--white-35); }
+.footer-prev hr { border: none; height: 1px; background: var(--white-08); margin: 12px 0; }
+.footer-prev hr.b { background: var(--white-07); margin-bottom: 10px; }
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px; }
+.fgrid div { display: flex; align-items: flex-start; gap: 5px; font-size: 10px; font-weight: 600; line-height: 1.25; color: var(--white-42); }
+.fgrid .mi { font-size: 11px; margin-top: 1.5px; color: var(--white-28); }
+.footer-prev p { font-size: 9px; font-weight: 600; line-height: 1.25; color: var(--white-25); }
+.foot-note { margin-top: 7px; text-align: center; font-size: 11px; font-weight: 600; line-height: 1.25; color: var(--color-text-muted); }
+
+/* ---------- PDF (pdf/quote_pdf.dart, página de 414 pt) ---------- */
+.pdf-bg { background: var(--color-paper); padding: 16px 12px 24px; }
+.pdf-page { width: 414px; zoom: 0.8841; background: var(--color-surface); box-shadow: 0 4px 24px color-mix(in srgb, black 12%, transparent); }
+.pdf-head { background: var(--color-ink); padding: 26px 28px 24px; display: flex; align-items: center; gap: 12px; color: var(--color-surface); }
+.pdf-head .brandname { flex: 1; min-width: 0; font-size: 22px; font-weight: 700; white-space: nowrap; overflow: hidden; }
+.pdf-head .right { text-align: right; }
+.pdf-head .q { font-size: 9px; font-weight: 400; letter-spacing: 0.5px; color: var(--white-35); }
+.pdf-head .code { margin-top: 2px; font-family: var(--font-mono); font-size: 14px; font-weight: 500; }
+.pdf-head .meta { margin-top: 12px; display: flex; gap: 18px; font-size: 9px; color: var(--white-50); white-space: nowrap; }
+.pdf-accent { height: 3px; background: linear-gradient(to right, var(--color-primary), var(--color-blue-m)); }
+.pdf-body { padding: 24px 28px; }
+.pdf-label { font-size: 9px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--color-text-muted); }
+.pdf-label.ink { color: var(--color-ink); }
+.pdf-bill { display: flex; gap: 16px; }
+.pdf-bill > div { flex: 1; }
+.pdf-bill .r { text-align: right; }
+.pdf-bill b { display: block; margin-top: 6px; font-size: 12px; font-weight: 700; color: var(--color-ink); }
+.pdf-bill span { display: block; margin-top: 2px; font-size: 10px; color: var(--color-text-secondary); }
+.pdf-bill .r span { margin-top: 6px; color: var(--pdf-text); }
+.pdf-div { height: 1px; background: var(--color-paper); margin: 14px 0; }
+.pdf-tbl { margin-top: 8px; display: grid; grid-template-columns: 4fr 1fr 1fr 2fr 2fr; }
+.pdf-tbl > div { padding: 6px 0; font-size: 10px; border-bottom: 1px solid var(--color-paper); }
+.pdf-tbl > .th { padding: 5px 0; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--color-ink); border-bottom: var(--stroke) solid var(--color-ink); white-space: nowrap; }
+.pdf-tbl > .last { border-bottom-color: var(--color-surface); }
+.pdf-tbl .rt { text-align: right; }
+.pdf-tbl .nm { color: var(--pdf-text); padding-right: 6px; }
+.pdf-tbl .mn { font-family: var(--font-mono); color: var(--color-text-secondary); }
+.pdf-tbl .un { color: var(--color-text-muted); }
+.pdf-tbl .tt { font-family: var(--font-mono); font-weight: 500; color: var(--color-ink); }
+.pdf-sub { border-top: 1px solid var(--color-paper); padding-top: 6px; text-align: right; font-family: var(--font-mono); font-size: 10px; color: var(--color-text-secondary); white-space: pre; }
+.pdf-sub b { font-weight: 500; color: var(--color-ink); }
+.pdf-total { background: var(--color-ink); border-radius: 10px; padding: 13px 16px; display: flex; justify-content: space-between; align-items: center; }
+.pdf-total span { font-size: 11px; font-weight: 600; color: var(--white-70); }
+.pdf-total b { font-family: var(--font-mono); font-size: 18px; font-weight: 500; color: var(--color-surface); }
+.pdf-terms { margin-top: 12px; background: var(--color-canvas); border-radius: 8px; padding: 10px 12px; }
+.pdf-terms p { margin-top: 4px; font-size: 9px; line-height: 1.5; color: var(--color-text-secondary); }
+.pdf-foot { background: var(--color-ink); padding: 14px 28px; }
+.pdf-foot .row { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-bottom: 5px; }
+.pdf-foot .it { display: flex; align-items: flex-start; padding-right: 10px; font-size: 8.5px; line-height: 1.45; color: var(--white-35); }
+.pdf-foot .it::before { content: ""; width: 3px; height: 3px; flex: none; border-radius: 50%; background: var(--white-25); margin: 3.5px 5px 0 0; }
+.pdf-foot .gen { margin-top: 10px; text-align: center; font-size: 8px; color: var(--white-18); }
+
+/* ---------- Aparelho (AppShell) ---------- */
+.phones { display: flex; flex-wrap: wrap; gap: 44px 36px; align-items: flex-start; }
+.phone-wrap { display: flex; flex-direction: column; gap: 14px; scroll-margin-top: 24px; }
+.phone-wrap .pcap b { display: block; font-size: 15px; font-weight: 700; }
+.phone-wrap .pcap > code { display: block; margin-top: 2px; font-size: 11px; color: var(--color-text-muted); }
+.phone-wrap .pcap p { margin-top: 6px; max-width: 390px; font-size: 12px; line-height: 1.45; font-weight: 500; color: var(--color-text-secondary); }
+.phone { width: 390px; height: 844px; flex: none; border-radius: var(--radius-app-frame); overflow: hidden; background: var(--gradient-app-backdrop); display: flex; flex-direction: column; box-shadow: 0 24px 60px color-mix(in srgb, var(--color-ink) 22%, transparent); }
+.status { height: 34px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; color: var(--color-surface); font-size: 13px; font-weight: 600; }
+.status .ic { display: flex; gap: 4px; }
+.status .mi { font-size: 15px; }
+.app { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--color-canvas); }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.scroll::-webkit-scrollbar { display: none; }
+.list { padding: var(--space-page); }
+.list > .search, .list > .add-card { margin-bottom: 10px; }
+.stack16 > * + * { margin-top: 16px; }
+.stack16 > .gap24 { margin-top: 24px; }
+.stack10 > * + * { margin-top: 10px; }
+.mini-shell { width: 220px; border-radius: 14px; overflow: hidden; background: var(--gradient-app-backdrop); padding: 14px 0 0; }
+.mini-shell .slot { margin: 0 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; padding: 10px; }
+.mini-shell .h { background: var(--color-ink); color: var(--white-60); border: 1px dashed var(--white-25); }
+.mini-shell .b { background: var(--color-canvas); color: var(--color-text-muted); height: 150px; border: 1px dashed var(--color-border-strong); }
+.mini-shell .safe { color: var(--white-45); font-size: 9px; font-weight: 600; margin: 0 12px 8px; }
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; }
+  .side { position: sticky; top: 0; z-index: 20; height: auto; padding: 10px 16px; display: flex; gap: 4px; overflow-x: auto; white-space: nowrap; align-items: center; }
+  .side .logo { margin: 0 12px 0 0; }
+  .side .logo span, .side h4, .side a:not(.top) { display: none; }
+  main { padding: 28px 16px 100px; }
+  .stage { padding: 16px; }
+  .hero h1 { font-size: 32px; }
+}
+@media (max-width: 440px) {
+  .phone { zoom: 0.86; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="side" aria-label="Seções">
+  <div class="logo">
+    <div class="mark"><i class="mi" style="font-size:18px">&#xf5ca;</i></div>
+    <div><b>Vigil</b><span>Design system · Delforte</span></div>
+  </div>
+  <a class="top" href="#fundacoes">Fundações</a>
+  <h4>Fundações</h4>
+  <a href="#cores">Cores</a>
+  <a href="#tipografia">Tipografia</a>
+  <a href="#espacamento">Espaçamento</a>
+  <a href="#raios">Raios</a>
+  <a href="#tracos">Traços</a>
+  <a href="#sombras">Sombras</a>
+  <a href="#gradientes">Gradientes</a>
+  <a class="top" href="#componentes">Componentes</a>
+  <h4>Primitivos</h4>
+  <a href="#c-surface">VigilSurface</a>
+  <a href="#c-pill">VigilPill</a>
+  <a href="#c-iconbox">VigilIconBox</a>
+  <h4>Ações</h4>
+  <a href="#c-primary">PrimaryButton</a>
+  <a href="#c-secondary">SecondaryButton</a>
+  <a href="#c-round">RoundButton</a>
+  <a href="#c-destructive">DestructiveIconButton</a>
+  <h4>Cabeçalhos</h4>
+  <a href="#c-flow">FlowHeader</a>
+  <a href="#c-header-parts">HeaderIconButton · HeaderActionButton</a>
+  <a href="#c-manager">ManagerHeader</a>
+  <h4>Campos</h4>
+  <a href="#c-search">SearchField</a>
+  <a href="#c-formfield">FormFieldWidget</a>
+  <a href="#c-dropdown">UnitDropdownWidget</a>
+  <a href="#c-divider">FormSectionDivider</a>
+  <a href="#c-itemform">CatalogItemForm</a>
+  <h4>Cartões e painéis</h4>
+  <a href="#c-quote">QuoteCard</a>
+  <a href="#c-catalog">CatalogCard</a>
+  <a href="#c-add">AddCard</a>
+  <a href="#c-avatar">InitialsAvatar</a>
+  <a href="#c-panel">Panel</a>
+  <a href="#c-linegroup">LineGroup · LineRow</a>
+  <a href="#c-total">TotalBanner</a>
+  <a href="#c-ready">ReadyCard</a>
+  <a href="#c-empty">EmptyPanel</a>
+  <h4>Estrutura</h4>
+  <a href="#c-shell">AppShell</a>
+  <a href="#c-step">QuoteCatalogStep</a>
+  <a href="#c-theme">VigilTheme</a>
+  <a class="top" href="#telas">Telas</a>
+  <h4>Gerenciar</h4>
+  <a href="#t-inicio">Início</a>
+  <a href="#t-orcamentos">Orçamentos</a>
+  <a href="#t-clientes">Clientes</a>
+  <a href="#t-catalogo">Catálogo</a>
+  <a href="#t-config">Configurações</a>
+  <a href="#t-pdf">PDF</a>
+  <a href="#t-modelos">Modelos</a>
+  <h4>Assistente de orçamento</h4>
+  <a href="#t-cliente">1 · Cliente</a>
+  <a href="#t-novo-cliente">1 · Novo Cliente</a>
+  <a href="#t-servicos">2 · Serviços</a>
+  <a href="#t-novo-servico">2 · Novo Serviço</a>
+  <a href="#t-equipamentos">3 · Equipamentos</a>
+  <a href="#t-novo-equip">3 · Novo Equipamento</a>
+  <a href="#t-revisao">4 · Revisão</a>
+  <a href="#t-enviar">5 · Enviar</a>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="eyebrow">Delforte · lib/design_system</div>
+  <h1>Vigil</h1>
+  <p>Galeria do design system do Delforte, o app de orçamentos para instaladores de cerca elétrica. Fundações, componentes e telas, desenhados em HTML/CSS a partir do código Flutter atual.</p>
+  <p>O bloco <code>:root</code> deste arquivo é o contrato de tokens: um teste Dart compara cada <code>--color-*</code> com <code>VigilColors</code>. Funciona offline; as fontes vêm de <code>assets/fonts</code>.</p>
+</header>
+
+<!-- ======================================================= -->
+<section class="part" id="fundacoes">
+<h2>Fundações</h2>
+<p class="lead">Valores de <code>colors.dart</code>, <code>type.dart</code>, <code>space.dart</code>, <code>radius.dart</code>, <code>stroke.dart</code>, <code>shadow.dart</code> e <code>gradients.dart</code>.</p>
+
+<h3 class="sub" id="cores">Cores <small>VigilColors</small></h3>
+<div class="swatches">
+  <div class="sw"><div class="chip"><i style="background:var(--color-ink)"></i></div><div class="meta"><b>ink</b><code>--color-ink</code><code class="hex">#080F26</code><p>Cabeçalhos, banner de total, SnackBar.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-ink-elevated)"></i></div><div class="meta"><b>inkElevated</b><code>--color-ink-elevated</code><code class="hex">#101D40</code><p>Avatar não selecionado, logo, prévia do rodapé.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-primary)"></i></div><div class="meta"><b>primary</b><code>--color-primary</code><code class="hex">#1E66E1</code><p>Ações, seleção, foco.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-primary-pressed)"></i></div><div class="meta"><b>primaryPressed</b><code>--color-primary-pressed</code><code class="hex">#1559C4</code><p>Fim do gradiente <code>primaryAction</code>.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-primary-soft)"></i></div><div class="meta"><b>primarySoft</b><code>--color-primary-soft</code><code class="hex">#EEF4FF</code><p>Fundo de cartão expandido/selecionado, chips.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-success)"></i></div><div class="meta"><b>success</b><code>--color-success</code><code class="hex">#0DBE84</code><p>Status Salvo, orçamento pronto.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-success-soft)"></i></div><div class="meta"><b>successSoft</b><code>--color-success-soft</code><code class="hex">#E7F8F3</code><p>Fundo do status Salvo.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-danger)"></i></div><div class="meta"><b>danger</b><code>--color-danger</code><code class="hex">#E54040</code><p>Excluir, descartar, substituir dados.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-danger-soft)"></i></div><div class="meta"><b>dangerSoft</b><code>--color-danger-soft</code><code class="hex">#FFF5F5</code><p>Fundo do botão de excluir.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-canvas)"></i></div><div class="meta"><b>canvas</b><code>--color-canvas</code><code class="hex">#F3F5FB</code><p>Fundo das telas (<code>scaffoldBackgroundColor</code>).</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-surface)"></i></div><div class="meta"><b>surface</b><code>--color-surface</code><code class="hex">#FFFFFF</code><p>Cartões, campos, texto sobre navy.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-text-primary)"></i></div><div class="meta"><b>textPrimary</b><code>--color-text-primary</code><code class="hex">#080F26</code><p>Texto principal.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-text-secondary)"></i></div><div class="meta"><b>textSecondary</b><code>--color-text-secondary</code><code class="hex">#5A6480</code><p>Rótulos de campo, linhas da revisão.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-text-muted)"></i></div><div class="meta"><b>textMuted</b><code>--color-text-muted</code><code class="hex">#9AA3BA</code><p>Dicas, metadados, ícones neutros.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-border)"></i></div><div class="meta"><b>border</b><code>--color-border</code><code class="hex">#101D4017</code><p>Borda padrão · inkElevated a 9% (Dart <code>0x17101D40</code>).</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-border-strong)"></i></div><div class="meta"><b>borderStrong</b><code>--color-border-strong</code><code class="hex">#101D4029</code><p>Botão secundário, botão de diminuir · 16% (Dart <code>0x29101D40</code>).</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-paper)"></i></div><div class="meta"><b>paper <span class="novo">novo</span></b><code>--color-paper</code><code class="hex">#E8EBF2</code><p>Ainda não está em <code>VigilColors</code>. Hoje aparece como literal no fundo do visualizador de PDF e nos divisores do PDF.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-blue-m)"></i></div><div class="meta"><b>blueM <span class="novo">novo</span></b><code>--color-blue-m</code><code class="hex">#5499EE</code><p>Ainda não está em <code>VigilColors</code>. Hoje é literal na etapa atual da barra de passos e no filete do PDF.</p></div></div>
+  <div class="sw"><div class="chip"><i style="background:var(--color-pin)"></i></div><div class="meta"><b>pin <span class="novo">novo</span></b><code>--color-pin</code><code class="hex">#F2542D</code><p>Ainda não está em <code>VigilColors</code> e ainda não é usado em nenhuma tela.</p></div></div>
+</div>
+
+<h3 class="sub" id="tipografia">Tipografia <small>VigilType</small></h3>
+<div class="tbl-wrap">
+<table>
+  <thead><tr><th>Estilo</th><th>Família</th><th>Padrão</th><th>Amostra</th><th>Variações em uso</th></tr></thead>
+  <tbody>
+    <tr><td><code>VigilType.title()</code></td><td>DM Sans</td><td>20 · 700 · altura 1.12 · textPrimary</td><td><span style="font-size:20px;font-weight:700;line-height:1.12;color:var(--color-text-primary)">Novo Orçamento</span></td><td>22 marca · 19 cabeçalhos · 18 ReadyCard/diálogos · 13 prévia do rodapé</td></tr>
+    <tr><td><code>VigilType.body()</code></td><td>DM Sans</td><td>14 · 600 · altura 1.25 · textPrimary</td><td><span style="font-size:14px;font-weight:600;line-height:1.25;color:var(--color-text-primary)">Residencial Oliveira</span></td><td>15/600 botões · 15/500 secundário · 14/700–800 nomes · 13 abas · 12/500 total do cabeçalho</td></tr>
+    <tr><td><code>VigilType.small()</code></td><td>DM Sans</td><td>11 · 600 · altura 1.25 · textMuted</td><td><span style="font-size:11px;font-weight:600;line-height:1.25;color:var(--color-text-muted)">2 serviços · 3 equipamentos</span></td><td>10/900 pílulas e títulos de painel · 11/700 rótulos de campo · 13 linhas · 10 passos</td></tr>
+    <tr><td><code>VigilType.mono()</code></td><td>DM Mono</td><td>13 · 500 · altura 1.2 · textPrimary</td><td><span style="font-family:var(--font-mono);font-size:13px;font-weight:500;line-height:1.2;color:var(--color-text-primary)">R$ 1.627,90</span></td><td>26/800 TotalBanner · 15/500 total do cabeçalho · 13/500 QuoteCard</td></tr>
+  </tbody>
+</table>
+</div>
+<div class="weights">
+  <span style="font-weight:400">Aa<small>DM Sans 400</small></span>
+  <span style="font-weight:500">Aa<small>500</small></span>
+  <span style="font-weight:600">Aa<small>600</small></span>
+  <span style="font-weight:700">Aa<small>700</small></span>
+  <span style="font-weight:800">Aa<small>800</small></span>
+  <span style="font-weight:900">Aa<small>900</small></span>
+  <span style="font-family:var(--font-mono);font-weight:400">R$ 0,00<small>DM Mono 400</small></span>
+  <span style="font-family:var(--font-mono);font-weight:500">R$ 0,00<small>DM Mono 500</small></span>
+</div>
+
+<h3 class="sub" id="espacamento">Espaçamento <small>VigilSpace</small></h3>
+<div class="surface">
+  <div class="scale-row"><code>--space-xxs</code><div class="bar" style="width:var(--space-xxs)"></div><span class="v">4 · xxs</span></div>
+  <div class="scale-row"><code>--space-xs</code><div class="bar" style="width:var(--space-xs)"></div><span class="v">8 · xs</span></div>
+  <div class="scale-row"><code>--space-sm</code><div class="bar" style="width:var(--space-sm)"></div><span class="v">10 · sm</span></div>
+  <div class="scale-row"><code>--space-md</code><div class="bar" style="width:var(--space-md)"></div><span class="v">12 · md</span></div>
+  <div class="scale-row"><code>--space-lg</code><div class="bar" style="width:var(--space-lg)"></div><span class="v">16 · lg</span></div>
+  <div class="scale-row"><code>--space-xl</code><div class="bar" style="width:var(--space-xl)"></div><span class="v">20 · xl</span></div>
+  <div class="scale-row"><code>--space-xxl</code><div class="bar" style="width:var(--space-xxl)"></div><span class="v">24 · xxl</span></div>
+  <div class="scale-row"><code>--space-page</code><div class="bar" style="width:var(--space-page)"></div><span class="v">16 · page (margem das listas)</span></div>
+</div>
+
+<h3 class="sub" id="raios">Raios <small>VigilRadius</small></h3>
+<div class="tokens-grid">
+  <div class="tok"><div class="demo" style="border-radius:var(--radius-chip)"></div><b>chip · 6</b><code>--radius-chip</code></div>
+  <div class="tok"><div class="demo" style="border-radius:var(--radius-input)"></div><b>input · 14</b><code>--radius-input</code></div>
+  <div class="tok"><div class="demo" style="border-radius:var(--radius-card)"></div><b>card · 16</b><code>--radius-card</code></div>
+  <div class="tok"><div class="demo" style="border-radius:var(--radius-feature)"></div><b>feature · 20</b><code>--radius-feature</code></div>
+  <div class="tok"><div class="demo" style="border-radius:var(--radius-app-frame)"></div><b>appFrame · 28</b><code>--radius-app-frame</code></div>
+</div>
+<p class="cap" style="border:none;padding:10px 2px 0"><span class="gap-note">fora da escala</span> <span style="font-size:12px;color:var(--color-text-secondary);font-weight:500">literais no código: 11/13 (<code>VigilIconBox</code>, avatar, logo), 12 (<code>RoundButton</code>, abas), 10/8 (PDF), 2 (barra de passos).</span></p>
+
+<h3 class="sub" id="tracos">Traços <small>VigilStroke</small></h3>
+<div class="tokens-grid">
+  <div class="tok"><div class="demo" style="background:var(--color-surface);border:var(--stroke) solid var(--color-border);border-radius:var(--radius-card)"></div><b>subtle</b><code>1.5 · --color-border</code></div>
+  <div class="tok"><div class="demo" style="background:var(--color-surface);border:var(--stroke) solid var(--color-border-strong);border-radius:var(--radius-card)"></div><b>strong</b><code>1.5 · --color-border-strong</code></div>
+  <div class="tok"><div class="demo" style="background:var(--color-surface);border:var(--stroke) solid var(--color-primary);border-radius:var(--radius-card)"></div><b>primary</b><code>1.5 · --color-primary</code></div>
+</div>
+
+<h3 class="sub" id="sombras">Sombras <small>VigilShadow</small></h3>
+<div class="tokens-grid">
+  <div class="tok"><div class="demo" style="background:var(--gradient-primary-action);border:none;border-radius:var(--radius-feature);box-shadow:var(--shadow-primary-lift)"></div><b>primaryLift</b><code>0 8 24 · primary 28%</code></div>
+</div>
+
+<h3 class="sub" id="gradientes">Gradientes <small>VigilGradients</small></h3>
+<div class="tokens-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+  <div class="tok"><div class="grad" style="background:var(--gradient-app-backdrop)"></div><b>appBackdrop</b><code>topLeft → bottomRight · #060D22 · #142354 · #1A2E6B</code></div>
+  <div class="tok"><div class="grad" style="background:var(--gradient-primary-action)"></div><b>primaryAction</b><code>topLeft → bottomRight · primary → primaryPressed</code></div>
+</div>
+</section>
+
+<!-- ======================================================= -->
+<section class="part" id="componentes">
+<h2>Componentes</h2>
+<p class="lead">Cada widget de <code>lib/design_system/</code>, com os estados que o código permite. Os palcos têm 358 px, a largura útil de uma tela de 390 px com margem de 16.</p>
+
+<!-- VigilSurface -->
+<article class="spec" id="c-surface">
+  <div class="stage">
+    <div class="state"><span class="lbl">Padrão · surface, stroke subtle, raio card</span><div class="surface" style="padding:16px;font-size:13px;font-weight:600;color:var(--color-text-secondary)">Conteúdo</div></div>
+    <div class="state"><span class="lbl">background: canvas</span><div class="surface" style="padding:16px;background:var(--color-canvas);font-size:13px;font-weight:600;color:var(--color-text-secondary)">Conteúdo</div></div>
+    <div class="state"><span class="lbl">background: primarySoft · border: primary</span><div class="surface" style="padding:16px;background:var(--color-primary-soft);border-color:var(--color-primary);font-size:13px;font-weight:600;color:var(--color-text-secondary)">Conteúdo</div></div>
+  </div>
+  <div class="cap"><span class="cls">VigilSurface</span><span class="path">surface.dart</span><p>Caixa decorada com <code>padding</code>, <code>radius</code>, <code>background</code> e <code>border</code> opcionais. Com <code>onTap</code> ganha um <code>InkWell</code> (ripple), sem mudar a aparência em repouso.</p></div>
+</article>
+
+<!-- VigilPill -->
+<article class="spec" id="c-pill">
+  <div class="stage">
+    <div class="state auto"><span class="lbl">Rascunho</span><div><span class="pill draft">RASCUNHO</span></div></div>
+    <div class="state auto"><span class="lbl">Salvo</span><div><span class="pill saved">SALVO</span></div></div>
+    <div class="state auto"><span class="lbl">Chip (ReadyCard)</span><div><span class="pill chip">2 serviços</span></div></div>
+    <div class="state auto"><span class="lbl">Quantidade (LineRow)</span><div><span class="pill qty">4x</span></div></div>
+  </div>
+  <div class="cap"><span class="cls">VigilPill</span><span class="path">pill.dart</span><p>Rótulo 10/900 com padding <code>xs</code>×<code>xxs</code> e raio <code>chip</code>. Cor e fundo vêm de quem usa.</p></div>
+</article>
+
+<!-- VigilIconBox -->
+<article class="spec" id="c-iconbox">
+  <div class="stage">
+    <div class="state auto"><span class="lbl">36 · raio 11 · muted</span><div class="ibox"><i class="mi">&#xf7cc;</i></div></div>
+    <div class="state auto"><span class="lbl">36 · ativo</span><div class="ibox on"><i class="mi">&#xf822;</i></div></div>
+    <div class="state auto"><span class="lbl">36 · secundário</span><div class="ibox sec"><i class="mi">&#xf005c;</i></div></div>
+    <div class="state auto"><span class="lbl">36 · adicionar</span><div class="ibox add"><i class="mi">&#xf537;</i></div></div>
+    <div class="state auto"><span class="lbl">48 · raio 13</span><div class="ibox lg on"><i class="mi">&#xf014c;</i></div></div>
+  </div>
+  <div class="stage" style="border-top:var(--stroke) solid var(--color-border);background:var(--color-surface)">
+    <div class="state" style="width:100%">
+      <span class="lbl">catalogItemIcon(nome, fallback) · por palavra no nome</span>
+      <div style="display:flex;flex-wrap:wrap;gap:14px 22px;font-size:12px;font-weight:600;color:var(--color-text-secondary)">
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf027e;</i></span>camera · cctv</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf552;</i></span>alarm</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf7ac;</i></span>gate · motor</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf703;</i></span>panel</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf889;</i></span>lock</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf014c;</i></span>sensor</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf5f2;</i></span>maint · install</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf7cc;</i></span>fallback serviço</span>
+        <span style="display:flex;align-items:center;gap:8px"><span class="ibox"><i class="mi">&#xf822;</i></span>fallback equipamento</span>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">VigilIconBox</span><span class="path">icon_box.dart</span><p>Quadrado com ícone a 52% do tamanho; raio 11 até 40 px, 13 acima disso. <code>catalogItemIcon</code> procura palavras em inglês, então nomes em português como “Instalação” ou “Câmera” caem no ícone padrão; “Sensor” coincide.</p></div>
+</article>
+
+<!-- PrimaryButton -->
+<article class="spec" id="c-primary">
+  <div class="stage">
+    <div class="state"><span class="lbl">Habilitado</span><button class="btn-primary"><i class="mi">&#xf636;</i>Salvar Cliente</button></div>
+    <div class="state"><span class="lbl">Pressionado · camada branca 10% (M3)</span><button class="btn-primary pressed"><i class="mi">&#xf016a;</i>Compartilhar via WhatsApp</button></div>
+  </div>
+  <div class="cap"><span class="cls">PrimaryButton</span><span class="path">widgets/primary_button_widget.dart</span><p><code>FilledButton.icon</code> de largura total, primary, padding vertical 15, raio card, texto 15/600, ícone 19. <code>onPressed</code> é obrigatório, então <b>não existe estado desabilitado</b>.</p></div>
+</article>
+
+<!-- SecondaryButton -->
+<article class="spec" id="c-secondary">
+  <div class="stage">
+    <div class="state"><span class="lbl">Habilitado</span><button class="btn-secondary"><i class="mi">&#xf0096;</i>Exportar PDF</button></div>
+    <div class="state"><span class="lbl">Pressionado · camada textPrimary 10%</span><button class="btn-secondary pressed"><i class="mi">&#xf85a;</i>Copiar Link</button></div>
+  </div>
+  <div class="cap"><span class="cls">SecondaryButton</span><span class="path">widgets/secondary_button_widget.dart</span><p><code>OutlinedButton.icon</code> de largura total: fundo surface, traço strong, padding vertical 13, texto 15/500, ícone 19 em textSecondary. Também sem estado desabilitado.</p></div>
+</article>
+
+<!-- RoundButton -->
+<article class="spec" id="c-round">
+  <div class="stage">
+    <div class="state auto"><span class="lbl">Diminuir</span><div class="rbtn"><i class="mi">&#xf00f1;</i></div></div>
+    <div class="state auto"><span class="lbl">Aumentar</span><div class="rbtn add"><i class="mi">&#xf537;</i></div></div>
+    <div class="state auto"><span class="lbl">Em uso</span><div class="qty"><div class="rbtn"><i class="mi">&#xf00f1;</i></div><b>4</b><div class="rbtn add"><i class="mi">&#xf537;</i></div></div></div>
+  </div>
+  <div class="cap"><span class="cls">RoundButton</span><span class="path">widgets/round_button_widget.dart</span><p>36×36, raio 12, traço 1.5, ícone 18. Com <code>Icons.add_rounded</code> vira primary e a dica diz “Aumentar”; qualquer outro ícone fica surface com “Diminuir”.</p></div>
+</article>
+
+<!-- DestructiveIconButton -->
+<article class="spec" id="c-destructive">
+  <div class="stage">
+    <div class="state auto"><span class="lbl">Padrão</span><div class="dbtn"><i class="mi">&#xf696;</i></div></div>
+    <div class="state"><span class="lbl">Ao lado de “Salvar Alterações”</span><div style="display:flex;gap:8px"><button class="btn-fill">Salvar Alterações</button><div class="dbtn"><i class="mi">&#xf696;</i></div></div></div>
+  </div>
+  <div class="cap"><span class="cls">DestructiveIconButton</span><span class="path">widgets/destructive_icon_button.dart</span><p>44×44, raio card, fundo dangerSoft, ícone danger 18. <span class="gap-note">sem token</span> A borda é o literal <code>0xFFFFD0D0</code>; aqui ela é aproximada com <code>color-mix(danger 25%, surface)</code>.</p></div>
+</article>
+
+<!-- FlowHeader -->
+<article class="spec" id="c-flow">
+  <div class="stage">
+    <div class="state full"><span class="lbl">Só título e voltar</span>
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Orçamentos</div></div></div>
+    </div>
+    <div class="state full"><span class="lbl">Ação personalizada (continueLabel/continueIcon)</span>
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Configurações</div><span class="hdr-action">Salvar<i class="mi">&#xf636;</i></span></div></div>
+    </div>
+    <div class="state full"><span class="lbl">Passo 0 · sem onContinue (botão some)</span>
+      <div class="hdr">
+        <div class="hdr-row has-steps"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Selecionar Cliente</div></div>
+        <div class="steps"><div class="step cur"><div class="bar"></div><span>Cliente</span></div><div class="step"><div class="bar"></div><span>Serviços</span></div><div class="step"><div class="bar"></div><span class="fit">Equipamentos</span></div><div class="step"><div class="bar"></div><span>Revisão</span></div><div class="step"><div class="bar"></div><span>Enviar</span></div></div>
+      </div>
+    </div>
+    <div class="state full"><span class="lbl">Passo 1 · com total</span>
+      <div class="hdr">
+        <div class="hdr-row has-steps"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Serviços</div><span class="hdr-action">Continuar<i class="mi">&#xf57a;</i></span></div>
+        <div class="steps"><div class="step done"><div class="bar"></div><span>Cliente</span></div><div class="step cur"><div class="bar"></div><span>Serviços</span></div><div class="step"><div class="bar"></div><span class="fit">Equipamentos</span></div><div class="step"><div class="bar"></div><span>Revisão</span></div><div class="step"><div class="bar"></div><span>Enviar</span></div></div>
+        <div class="hdr-total"><span>Total de Serviços</span><b>R$ 770,00</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">FlowHeader</span><span class="path">widgets/flow_header_widget.dart</span><p>Faixa ink com título 19/700. Os opcionais aparecem só quando passados: voltar (<code>onBack</code>), ação azul (<code>onContinue</code>; com <code>null</code> o botão some, não fica desabilitado), barra de 5 passos (<code>stepIndex</code>: feitos em primary, atual em blueM, futuros em branco 13%) e faixa de total (<code>total</code> + <code>totalLabel</code>, branco 6%).</p></div>
+</article>
+
+<!-- Header parts -->
+<article class="spec" id="c-header-parts">
+  <div class="stage ink">
+    <div class="state auto"><span class="lbl">HeaderIconButton</span><div class="hdr-icon" style="margin:0"><i class="mi">&#xf572;</i></div></div>
+    <div class="state auto"><span class="lbl">HeaderActionButton · Continuar</span><div><span class="hdr-action">Continuar<i class="mi">&#xf57a;</i></span></div></div>
+    <div class="state auto"><span class="lbl">HeaderActionButton · Novo</span><div><span class="hdr-action">Novo<i class="mi">&#xf537;</i></span></div></div>
+    <div class="state auto"><span class="lbl">HeaderActionButton · Compartilhar</span><div><span class="hdr-action">Compartilhar<i class="mi">&#xf826;</i></span></div></div>
+    <div class="state auto"><span class="lbl">HeaderFittedText</span><div class="hdr-title" style="width:180px">Selecionar Cliente</div></div>
+  </div>
+  <div class="cap"><span class="cls">HeaderIconButton · HeaderActionButton · HeaderFittedText</span><span class="path">widgets/flow_header_widget.dart</span><p>Botão de ícone 34×34, raio 11, fundo e borda branco 8%, ícone 17 em branco 80%. Ação: pílula primary com altura mínima 34, padding 16×8, texto 13/600 e ícone 15. <code>HeaderFittedText</code> reduz o texto (<code>BoxFit.scaleDown</code>) para caber em uma linha; o HTML apenas corta.</p></div>
+</article>
+
+<!-- ManagerHeader -->
+<article class="spec" id="c-manager">
+  <div class="stage">
+    <div class="state full"><span class="lbl">Sem bottom</span>
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Clientes</div><span class="hdr-action">Novo<i class="mi">&#xf537;</i></span></div></div>
+    </div>
+    <div class="state full"><span class="lbl">Com bottom (abas do Catálogo)</span>
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Catálogo</div><span class="hdr-action">Novo<i class="mi">&#xf537;</i></span></div>
+        <div class="tabs"><div class="tab on">Serviços</div><div class="tab">Equipamentos</div></div></div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">ManagerHeader</span><span class="path">widgets/manager_header_widget.dart</span><p>Mesma linha do <code>FlowHeader</code> com voltar e ação “Novo”, mais um <code>bottom</code> opcional. No Catálogo o bottom é um seletor de abas (branco 6%, raio 12; aba ativa surface, raio 10).</p></div>
+</article>
+
+<!-- SearchField -->
+<article class="spec" id="c-search">
+  <div class="stage">
+    <div class="state"><span class="lbl">Vazio</span><div class="search"><i class="mi">&#xf013d;</i><span class="txt hint">Buscar...</span></div></div>
+    <div class="state"><span class="lbl">Focado · digitando</span><div class="search focus"><i class="mi">&#xf013d;</i><span class="txt">hast</span><span class="caret"></span></div></div>
+    <div class="state"><span class="lbl">Preenchido</span><div class="search"><i class="mi">&#xf013d;</i><span class="txt">Oliveira</span></div></div>
+    <div class="state"><span class="lbl">Dica do assistente</span><div class="search"><i class="mi">&#xf013d;</i><span class="txt hint">Busque para adicionar no orçamento...</span></div></div>
+  </div>
+  <div class="cap"><span class="cls">SearchField</span><span class="path">widgets/search_field_widget.dart</span><p><code>TextField</code> com o <code>inputDecorationTheme</code>: fundo surface, raio input, traço subtle (primary com foco), lupa 18 em muted numa faixa de 42. Texto 14/500, dica 14/400. <code>onChanged</code> espera 300 ms depois da última tecla.</p></div>
+</article>
+
+<!-- FormFieldWidget -->
+<article class="spec" id="c-formfield">
+  <div class="stage">
+    <div class="state"><span class="lbl">Vazio com dica</span><div class="ff"><span class="ff-label">Nome Completo</span><div class="ff-input hint">ex. João da Silva</div></div></div>
+    <div class="state"><span class="lbl">Preenchido</span><div class="ff"><span class="ff-label">Telefone</span><div class="ff-input">+55 (19) 99812-3344</div></div></div>
+    <div class="state"><span class="lbl">Focado</span><div class="ff"><span class="ff-label">E-mail</span><div class="ff-input focus">contato@oliveira.com.br<span class="caret"></span></div></div></div>
+    <div class="state"><span class="lbl">Multilinha (minLines 3)</span><div class="ff"><span class="ff-label">Descrição</span><div class="ff-input hint multi3">Especificações técnicas, notas de compatibilidade…</div></div></div>
+  </div>
+  <div class="cap"><span class="cls">FormFieldWidget</span><span class="path">widgets/form_field_widget.dart</span><p>Rótulo em maiúsculas 11/700 textSecondary, 7 px acima de um <code>TextField</code> com <code>formFieldDecoration()</code>: surface, raio input, padding 14×12, traço subtle (primary com foco). O texto digitado não recebe estilo e usa o padrão do tema (16/400), enquanto a dica é 14/400. <b>Não há estado de erro</b>: <code>formFieldDecoration</code> não define <code>errorBorder</code>, e a validação aparece como SnackBar (ver <a href="#c-theme">VigilTheme</a>).</p></div>
+</article>
+
+<!-- UnitDropdownWidget -->
+<article class="spec" id="c-dropdown">
+  <div class="stage">
+    <div class="state"><span class="lbl">Com unidades · selecionada</span><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd">un<i class="mi">&#xf720;</i></div></div></div>
+    <div class="state"><span class="lbl">Com unidades · nenhuma escolhida</span><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd hint">Selecionar…<i class="mi">&#xf720;</i></div></div></div>
+    <div class="state"><span class="lbl">Sem unidades · desabilitado</span><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd hint">Sem unidades<i class="mi">&#xf720;</i></div></div></div>
+    <div class="state"><span class="lbl">Menu aberto</span>
+      <div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd focus">un<i class="mi">&#xf720;</i></div>
+        <div class="surface" style="margin-top:6px;border-radius:4px;box-shadow:0 4px 16px color-mix(in srgb, var(--color-ink) 14%, transparent);border:none;padding:8px 0;font-size:14px;font-weight:600">
+          <div style="padding:12px 16px;background:var(--color-canvas)">un</div><div style="padding:12px 16px">m</div><div style="padding:12px 16px">cx</div><div style="padding:12px 16px">kit</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">UnitDropdownWidget</span><span class="path">widgets/unit_dropdown_widget.dart</span><p>Mesmo rótulo e decoração do <code>FormFieldWidget</code>. Lista as abreviações de <code>store.listUnits()</code>; texto 14/600, seta <code>expand_more</code> em muted. Sem unidades, <code>onChanged</code> é <code>null</code> e a dica vira “Sem unidades” (a borda desabilitada é a mesma subtle). O menu aberto é o padrão do Material 3 com fundo surface.</p></div>
+</article>
+
+<!-- FormSectionDivider -->
+<article class="spec" id="c-divider">
+  <div class="stage">
+    <div class="state"><span class="lbl">Contato</span><div class="fdiv">Contato</div></div>
+    <div class="state"><span class="lbl">Preço</span><div class="fdiv">Preço</div></div>
+  </div>
+  <div class="cap"><span class="cls">FormSectionDivider</span><span class="path">widgets/form_section_divider.dart</span><p>Rótulo em maiúsculas 11/700 muted entre duas linhas de 1 px na cor border, com 10 px de cada lado.</p></div>
+</article>
+
+<!-- CatalogItemForm -->
+<article class="spec" id="c-itemform">
+  <div class="stage">
+    <div class="state"><span class="lbl">Serviço · vazio</span>
+      <div class="stack16">
+        <div class="fdiv">Identificação</div>
+        <div class="ff"><span class="ff-label">Nome do Serviço</span><div class="ff-input hint">ex. Instalação de CFTV</div></div>
+        <div class="ff"><span class="ff-label">Descrição</span><div class="ff-input hint multi3">Breve descrição do que este serviço inclui…</div></div>
+        <div class="fdiv gap24">Preço</div>
+        <div class="ff-row"><div class="ff"><span class="ff-label">Preço Padrão</span><div class="ff-input hint">0,00</div></div><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd hint">Selecionar…<i class="mi">&#xf720;</i></div></div></div>
+        <button class="btn-primary gap24"><i class="mi">&#xf636;</i>Salvar Serviço</button>
+      </div>
+    </div>
+    <div class="state"><span class="lbl">Equipamento · preenchido</span>
+      <div class="stack16">
+        <div class="fdiv">Produto</div>
+        <div class="ff"><span class="ff-label">Nome do Equipamento</span><div class="ff-input">Haste de canto</div></div>
+        <div class="ff"><span class="ff-label">Descrição</span><div class="ff-input multi3">Alumínio 1", com 4 isoladores</div></div>
+        <div class="fdiv gap24">Preço</div>
+        <div class="ff-row"><div class="ff"><span class="ff-label">Preço Unitário</span><div class="ff-input">R$ 32,00</div></div><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd">un<i class="mi">&#xf720;</i></div></div></div>
+        <button class="btn-primary gap24"><i class="mi">&#xf636;</i>Salvar Equipamento</button>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">CatalogItemForm</span><span class="path">widgets/catalog_item_form_widget.dart</span><p>Formulário de Novo Serviço e Novo Equipamento: divisores, nome, descrição (3 linhas), preço com <code>UnitDropdownWidget</code> ao lado, e <code>PrimaryButton</code>. O preço é reformatado a cada tecla com <code>formatMoney</code>.</p></div>
+</article>
+
+<!-- QuoteCard -->
+<article class="spec" id="c-quote">
+  <div class="stage">
+    <div class="state"><span class="lbl">Rascunho · toque retoma o assistente</span>
+      <div class="qcard"><div class="r1"><b>Condomínio Vila Verde</b><span>R$ 3.412,40</span></div><div class="r2"><span>2 serviços · 5 equipamentos</span><span class="pill draft">RASCUNHO</span></div></div>
+    </div>
+    <div class="state"><span class="lbl">Salvo · toque abre o PDF (só no Início)</span>
+      <div class="qcard"><div class="r1"><b>Residencial Oliveira</b><span>R$ 1.627,90</span></div><div class="r2"><span>2 serviços · 3 equipamentos</span><span class="pill saved">SALVO</span></div></div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">QuoteCard</span><span class="path">widgets/quote_card_widget.dart</span><p>Surface com raio 16, padding 16×14 e 8 px abaixo. Nome 14/700, total em mono 13/500, metadados 11/600 muted e status em <code>VigilPill</code>. Só tem dois estados, rascunho e salvo; <b>não expande e não tem destaque</b>. Em Orçamentos, o salvo fica com <code>onTap: null</code>.</p></div>
+</article>
+
+<!-- CatalogCard -->
+<article class="spec" id="c-catalog">
+  <div class="stage">
+    <div class="state"><span class="lbl">Fora do orçamento</span>
+      <div class="ccard pb"><div class="ccard-head"><div class="ibox"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Sirene 120dB</b><span>Sirene piezoelétrica para área externa</span></div><span class="ccard-price">R$ 54,00</span><i class="mi">&#xf720;</i></div></div>
+    </div>
+    <div class="state"><span class="lbl">No orçamento (selectedQuantity &gt; 0)</span>
+      <div class="ccard pb sel"><div class="ccard-head"><div class="ibox on"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Central de choque 12.000V</b><span>Eletrificador com bateria de backup</span></div><span class="ccard-price">1 x R$ 489,90</span><i class="mi">&#xf720;</i></div></div>
+    </div>
+    <div class="state"><span class="lbl">Expandido · destacado</span>
+      <div class="ccard pb sel open"><div class="ccard-head"><div class="ibox on"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Haste de canto</b><span>Alumínio 1", com 4 isoladores</span></div><i class="mi">&#xf71f;</i></div>
+        <div class="ccard-body"><div class="ff"><span class="ff-label">Unit Price</span><div class="ff-input">R$ 32,00</div></div><div class="qty"><div class="rbtn"><i class="mi">&#xf00f1;</i></div><b>4</b><div class="rbtn add"><i class="mi">&#xf537;</i></div></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">CatalogCard</span><span class="path">widgets/catalog_card_widget.dart</span><p>Item do catálogo nos passos Serviços e Equipamentos. Borda primary quando está no orçamento; fundo primarySoft só quando expandido; ícone primary em qualquer dos dois. Fechado, mostra o preço (ou <code>qtd x preço</code>); aberto, mostra o preço unitário editável e os <code>RoundButton</code>. Tem 10 px extras no pé. <span class="gap-note">texto fixo</span> O rótulo do preço é a string fixa <code>"Unit Price"</code>, sem tradução.</p></div>
+</article>
+
+<!-- AddCard -->
+<article class="spec" id="c-add">
+  <div class="stage">
+    <div class="state"><span class="lbl">Cliente</span><div class="add-card"><div class="ibox add"><i class="mi">&#xf537;</i></div>Criar novo cliente</div></div>
+    <div class="state"><span class="lbl">Equipamento</span><div class="add-card"><div class="ibox add"><i class="mi">&#xf537;</i></div>Criar novo equipamento</div></div>
+  </div>
+  <div class="cap"><span class="cls">AddCard</span><span class="path">widgets/add_card_widget.dart</span><p><code>VigilSurface</code> com fundo canvas e padding 15×13, contendo um <code>VigilIconBox</code> de “+” (muted sobre border) e o rótulo 14/600 textSecondary.</p></div>
+</article>
+
+<!-- InitialsAvatar -->
+<article class="spec" id="c-avatar">
+  <div class="stage">
+    <div class="state auto"><span class="lbl">Não selecionado</span><div class="avatar">RO</div></div>
+    <div class="state auto"><span class="lbl">Selecionado</span><div class="avatar sel">RO</div></div>
+    <div class="state auto"><span class="lbl">Sem cliente</span><div class="avatar">--</div></div>
+  </div>
+  <div class="cap"><span class="cls">InitialsAvatar</span><span class="path">widgets/initials_avatar_widget.dart</span><p>40×40, raio 13, iniciais 13/900 em surface. Fundo inkElevated, ou primary quando selecionado. As iniciais vêm de <code>initials()</code>: primeira letra da primeira e da última palavra.</p></div>
+</article>
+
+<!-- Panel -->
+<article class="spec" id="c-panel">
+  <div class="stage">
+    <div class="state"><span class="lbl">Com trailing (Revisão · Cliente)</span>
+      <div class="panel"><div class="panel-head"><span>Cliente</span></div>
+        <div class="panel-client"><div class="avatar">RO</div><div class="ccard-text"><b>Residencial Oliveira</b><span>Rua das Acácias, 210</span></div><div class="ibtn"><i class="mi">&#xf6fb;</i></div></div>
+      </div>
+    </div>
+    <div class="state"><span class="lbl">Sem cliente</span>
+      <div class="panel"><div class="panel-head"><span>Cliente</span></div>
+        <div class="panel-client"><div class="avatar">--</div><div class="ccard-text"><b>Nenhum cliente selecionado</b><span>Voltar à etapa do cliente</span></div><div class="ibtn"><i class="mi">&#xf6fb;</i></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">Panel</span><span class="path">widgets/panel_widget.dart</span><p>Caixa branca (literal <code>Colors.white</code>) com borda border de 1.5, raio 16 e padding 16×15. Título em maiúsculas 10/900 muted, <code>trailing</code> opcional e 4 px até o conteúdo.</p></div>
+</article>
+
+<!-- LineGroup / LineRow -->
+<article class="spec" id="c-linegroup">
+  <div class="stage">
+    <div class="state"><span class="lbl">Com linhas</span>
+      <div class="panel"><div class="panel-head"><span>Equipamentos</span><div class="ibtn"><i class="mi">&#xf6fb;</i></div></div>
+        <div class="lrow div"><div class="l"><span>Central de choque 12.000V</span><span class="pill qty">1x</span></div><b>R$ 489,90</b></div>
+        <div class="lrow div"><div class="l"><span>Haste de canto</span><span class="pill qty">4x</span></div><b>R$ 128,00</b></div>
+        <div class="lrow"><div class="l"><span>Fio de aço inox 0,45mm</span><span class="pill qty">200x</span></div><b>R$ 240,00</b></div>
+      </div>
+    </div>
+    <div class="state"><span class="lbl">Vazio</span>
+      <div class="panel"><div class="panel-head"><span>Serviços</span><div class="ibtn"><i class="mi">&#xf6fb;</i></div></div><div class="empty-line">Nenhum item adicionado</div></div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">LineGroup · LineRow · DraftLineView</span><span class="path">widgets/line_group_widget.dart · line_row_widget.dart</span><p><code>LineGroup</code> é um <code>Panel</code> com botão de editar (dica “Editar Serviços”) e uma <code>LineRow</code> por item. Cada linha tem nome 13/600 textSecondary cortado com reticências, pílula <code>Nx</code> e subtotal 11/800, com divisor de 1 px em todas menos a última.</p></div>
+</article>
+
+<!-- TotalBanner -->
+<article class="spec" id="c-total">
+  <div class="stage">
+    <div class="state"><span class="lbl">Padrão</span><div class="tbanner"><span>Total</span><b>R$ 1.627,90</b></div></div>
+  </div>
+  <div class="cap"><span class="cls">TotalBanner</span><span class="path">widgets/total_banner_widget.dart</span><p>Fundo ink, raio 16, padding 20×18. Rótulo 15/600 e valor em DM Mono 26/800. A DM Mono só tem os pesos 400 e 500, então o 800 sai com negrito sintético, no Flutter e no navegador.</p></div>
+</article>
+
+<!-- ReadyCard -->
+<article class="spec" id="c-ready">
+  <div class="stage">
+    <div class="state"><span class="lbl">Padrão</span>
+      <div class="ready"><div class="ok"><i class="mi">&#xf635;</i></div><h5>Orçamento Pronto</h5><p>Salvo localmente - Residencial Oliveira - R$ 1.627,90</p><div class="chips"><span class="pill chip">2 serviços</span><span class="pill chip">3 equipamentos</span><span class="pill chip">R$ 1.627,90</span></div></div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">ReadyCard</span><span class="path">widgets/ready_card_widget.dart</span><p>Raio feature (20), padding 20×26. Selo 62×62 successSoft com <code>check_circle</code> 34, título 18/700, subtítulo 13/600 textSecondary e chips <code>VigilPill</code> primary sobre primarySoft.</p></div>
+</article>
+
+<!-- EmptyPanel -->
+<article class="spec" id="c-empty">
+  <div class="stage">
+    <div class="state"><span class="lbl">Início sem orçamentos</span><div class="empty"><i class="mi">&#xf00e1;</i><b>Nenhum orçamento ainda</b><span>Comece um novo orçamento — rascunhos e orçamentos salvos aparecem aqui.</span></div></div>
+    <div class="state"><span class="lbl">Catálogo vazio</span><div class="empty"><i class="mi">&#xf822;</i><b>Nenhum equipamento ainda</b><span>Toque em Novo para adicionar seu primeiro item.</span></div></div>
+    <div class="state"><span class="lbl">Modelos</span><div class="empty"><i class="mi">&#xf5be;</i><b>Página indisponível</b><span>Use o fluxo de orçamento para adicionar clientes, serviços e equipamentos salvos.</span></div></div>
+  </div>
+  <div class="cap"><span class="cls">EmptyPanel</span><span class="path">widgets/empty_panel.dart</span><p>Caixa branca, raio 16, padding 20, centralizada. Ícone 24 muted, título 14/800 e subtítulo 11/600 muted.</p></div>
+</article>
+
+<!-- AppShell -->
+<article class="spec" id="c-shell">
+  <div class="stage">
+    <div class="state auto"><span class="lbl">Estrutura</span>
+      <div class="mini-shell">
+        <div class="safe">SafeArea · fundo appBackdrop</div>
+        <div class="slot h">header? + faixa de 28 (appFrame)</div>
+        <div class="slot b">body · canvas</div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">AppShell</span><span class="path">widgets/app_shell.dart</span><p>Scaffold com gradiente <code>appBackdrop</code>, <code>SafeArea</code> e coluna centralizada de no máximo 430 px. O <code>header</code> opcional ganha uma faixa ink de 28 px acima, mas hoje nenhuma tela usa esse parâmetro: todas põem o cabeçalho dentro do <code>body</code>. Nas Telas, a moldura arredondada usa <code>--radius-app-frame</code>.</p></div>
+</article>
+
+<!-- QuoteCatalogStep -->
+<article class="spec" id="c-step">
+  <div class="stage">
+    <div class="state"><span class="lbl">Composição</span>
+      <div style="font-size:12.5px;line-height:1.55;font-weight:500;color:var(--color-text-secondary)">
+        <code>FlowHeader</code> (passo 1 ou 2, com total) → <code>SearchField</code> → <code>AddCard</code> → <code>CatalogCard</code>s.<br>
+        Busca vazia: só itens já no rascunho. Com busca: todo o catálogo filtrado.<br>
+        Desenhado em <a href="#t-servicos">Telas · Serviços</a> e <a href="#t-equipamentos">Telas · Equipamentos</a>.
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">QuoteCatalogStep</span><span class="path">widgets/quote_catalog_step_widget.dart</span><p>Passo do assistente que serve tanto para serviços quanto para equipamentos (<code>CatalogItemType</code>). Mudar a quantidade limpa a busca e tira o foco; erros do store aparecem em SnackBar.</p></div>
+</article>
+
+<!-- VigilTheme -->
+<article class="spec" id="c-theme">
+  <div class="stage">
+    <div class="state"><span class="lbl">SnackBar (flutuante)</span><div class="snack">O nome do cliente é obrigatório</div></div>
+    <div class="state auto"><span class="lbl">TextButton</span><div><button class="btn-text">Ver todos<i class="mi">&#xf57a;</i></button></div></div>
+    <div class="state"><span class="lbl">Diálogo de confirmação (Configurações)</span>
+      <div class="dialog" style="box-shadow:0 12px 40px color-mix(in srgb, var(--color-ink) 18%, transparent)">
+        <h5>Descartar alterações?</h5>
+        <p>Você tem alterações não salvas. Se voltar agora, elas serão perdidas.</p>
+        <div class="row"><button class="btn-danger"><i class="mi">&#xf696;</i>Descartar</button><button class="btn-secondary"><i class="mi">&#xf647;</i>Cancelar</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="cls">VigilTheme.light()</span><span class="path">theme.dart</span><p>Material 3 com semente primary, fonte DM Sans e fundo canvas. Define o <code>FilledButton</code> (primary, raio card, 15/600), o <code>OutlinedButton</code> (traço strong, 15/500), o <code>TextButton</code> (primary, 13/600), o <code>inputDecorationTheme</code> (surface, raio input, foco primary) e a <code>SnackBar</code> (ink, flutuante, raio input). O diálogo é o <code>_DiscardDialog</code>, privado das Configurações, com raio feature; o <code>_ImportBackupDialog</code> segue o mesmo modelo.</p></div>
+</article>
+</section>
+
+<!-- ======================================================= -->
+<section class="part" id="telas">
+<h2>Telas</h2>
+<p class="lead">As telas como estão hoje em <code>lib/pages/</code>, montadas com os componentes acima. Moldura de 390 px com raio <code>--radius-app-frame</code>; a área abaixo do cabeçalho rola, como no app.</p>
+
+<div class="phones">
+
+<!-- Início -->
+<div class="phone-wrap" id="t-inicio">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="scroll">
+        <div class="brand"><b>Delforte</b><div class="set"><i class="mi">&#xf0164;</i></div></div>
+        <div class="nq"><div class="t"><b>Novo Orçamento</b><span>Monte um orçamento passo a passo</span></div><div class="plus"><i class="mi">&#xf537;</i></div></div>
+        <div class="home-body">
+          <div class="qa-row">
+            <div class="qa"><div class="ibox sec"><i class="mi">&#xf005c;</i></div><b>Clientes</b><span>Ver e editar clientes</span></div>
+            <div class="qa"><div class="ibox sec"><i class="mi">&#xf847;</i></div><b>Modelos</b><span>Começar de um modelo</span></div>
+            <div class="qa"><div class="ibox sec"><i class="mi">&#xf822;</i></div><b>Catálogo</b><span>Serviços e itens</span></div>
+          </div>
+          <div class="sec-title"><b>Orçamentos Recentes</b><button class="btn-text">Ver todos<i class="mi">&#xf57a;</i></button></div>
+          <div class="qcard"><div class="r1"><b>Residencial Oliveira</b><span>R$ 1.627,90</span></div><div class="r2"><span>2 serviços · 3 equipamentos</span><span class="pill saved">SALVO</span></div></div>
+          <div class="qcard"><div class="r1"><b>Condomínio Vila Verde</b><span>R$ 3.412,40</span></div><div class="r2"><span>2 serviços · 5 equipamentos</span><span class="pill draft">RASCUNHO</span></div></div>
+          <div class="qcard"><div class="r1"><b>Marcos Pereira</b><span>R$ 958,00</span></div><div class="r2"><span>2 serviços · 2 equipamentos</span><span class="pill saved">SALVO</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pcap"><b>Início</b><code>HomePage · home_page.dart</code><p>Cabeçalho da marca, cartão “Novo Orçamento” (gradiente primaryAction + primaryLift, subido 16 px), três atalhos e os 3 orçamentos mais recentes. Sem orçamentos, aparece o <code>EmptyPanel</code>.</p></div>
+</div>
+
+<!-- Orçamentos -->
+<div class="phone-wrap" id="t-orcamentos">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Orçamentos</div></div></div>
+      <div class="scroll"><div class="list">
+        <div class="search"><i class="mi">&#xf013d;</i><span class="txt hint">Buscar...</span></div>
+        <div class="qcard"><div class="r1"><b>Residencial Oliveira</b><span>R$ 1.627,90</span></div><div class="r2"><span>2 serviços · 3 equipamentos</span><span class="pill saved">SALVO</span></div></div>
+        <div class="qcard"><div class="r1"><b>Condomínio Vila Verde</b><span>R$ 3.412,40</span></div><div class="r2"><span>2 serviços · 5 equipamentos</span><span class="pill draft">RASCUNHO</span></div></div>
+        <div class="qcard"><div class="r1"><b>Marcos Pereira</b><span>R$ 958,00</span></div><div class="r2"><span>2 serviços · 2 equipamentos</span><span class="pill saved">SALVO</span></div></div>
+        <div class="qcard"><div class="r1"><b>Padaria Pão de Mel</b><span>R$ 2.145,70</span></div><div class="r2"><span>3 serviços · 4 equipamentos</span><span class="pill saved">SALVO</span></div></div>
+        <div class="qcard"><div class="r1"><b>Chácara Santa Luzia</b><span>R$ 4.880,00</span></div><div class="r2"><span>3 serviços · 6 equipamentos</span><span class="pill draft">RASCUNHO</span></div></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>Orçamentos</b><code>QuotesListPage · quotes_list_page.dart</code><p>Lista completa com busca por nome do cliente. Rascunhos retomam o assistente em Serviços; os salvos não respondem ao toque nesta tela.</p></div>
+</div>
+
+<!-- Clientes -->
+<div class="phone-wrap" id="t-clientes">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Clientes</div><span class="hdr-action">Novo<i class="mi">&#xf537;</i></span></div></div>
+      <div class="scroll"><div class="list">
+        <div class="search"><i class="mi">&#xf013d;</i><span class="txt hint">Buscar...</span></div>
+        <div class="ccard"><div class="ccard-head"><div class="avatar">CV</div><div class="ccard-text w12"><b>Condomínio Vila Verde</b><span>Av. Norte-Sul, 1800</span></div><i class="mi">&#xf720;</i></div></div>
+        <div class="ccard"><div class="ccard-head"><div class="avatar">MP</div><div class="ccard-text w12"><b>Marcos Pereira</b><span>Rua Itália, 45</span></div><i class="mi">&#xf720;</i></div></div>
+        <div class="ccard"><div class="ccard-head"><div class="avatar">PM</div><div class="ccard-text w12"><b>Padaria Pão de Mel</b><span>Rua Barão de Jaguara, 932</span></div><i class="mi">&#xf720;</i></div></div>
+        <div class="ccard sel open"><div class="ccard-head"><div class="avatar sel">RO</div><div class="ccard-text w12"><b>Residencial Oliveira</b><span>Rua das Acácias, 210</span></div><i class="mi">&#xf71f;</i></div>
+          <div class="ccard-edit">
+            <div class="ff"><span class="ff-label">Nome Completo</span><div class="ff-input">Residencial Oliveira</div></div>
+            <div class="ff"><span class="ff-label">Telefone</span><div class="ff-input">+55 (19) 99812-3344</div></div>
+            <div class="ff"><span class="ff-label">E-mail</span><div class="ff-input">sindico@oliveira.com.br</div></div>
+            <div class="ff"><span class="ff-label">Endereço</span><div class="ff-input">Rua das Acácias, 210</div></div>
+            <div class="ff"><span class="ff-label">Cidade</span><div class="ff-input">Campinas</div></div>
+            <div class="actions"><button class="btn-fill">Salvar Alterações</button><div class="dbtn"><i class="mi">&#xf696;</i></div></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>Clientes</b><code>ClientsPage · clients_page.dart</code><p>Gerenciador com <code>ManagerHeader</code>. Só um cartão expande por vez e é ele que ganha o destaque (primarySoft, borda e avatar primary); a edição acontece ali mesmo. Excluir pede confirmação.</p></div>
+</div>
+
+<!-- Catálogo -->
+<div class="phone-wrap" id="t-catalogo">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Catálogo</div><span class="hdr-action">Novo<i class="mi">&#xf537;</i></span></div>
+        <div class="tabs"><div class="tab">Serviços</div><div class="tab on">Equipamentos</div></div></div>
+      <div class="scroll"><div class="list">
+        <div class="search"><i class="mi">&#xf013d;</i><span class="txt hint">Buscar...</span></div>
+        <div class="ccard"><div class="ccard-head"><div class="ibox"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Central de choque 12.000V</b><span>Eletrificador com bateria de backup</span></div><span class="ccard-price g8">R$ 489,90</span><i class="mi">&#xf720;</i></div></div>
+        <div class="ccard"><div class="ccard-head"><div class="ibox"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Fio de aço inox 0,45mm</b><span>Vendido por metro</span></div><span class="ccard-price g8">R$ 1,20</span><i class="mi">&#xf720;</i></div></div>
+        <div class="ccard sel open"><div class="ccard-head"><div class="ibox on"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Haste de canto</b><span>Alumínio 1", com 4 isoladores</span></div><i class="mi">&#xf71f;</i></div>
+          <div class="ccard-edit">
+            <div class="ff"><span class="ff-label">Nome do Equipamento</span><div class="ff-input">Haste de canto</div></div>
+            <div class="ff"><span class="ff-label">Descrição</span><div class="ff-input multi2">Alumínio 1", com 4 isoladores</div></div>
+            <div class="ff-row"><div class="ff"><span class="ff-label">Preço Unitário</span><div class="ff-input">R$ 32,00</div></div><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd">un<i class="mi">&#xf720;</i></div></div></div>
+            <div class="actions"><button class="btn-fill">Salvar Alterações</button><div class="dbtn"><i class="mi">&#xf696;</i></div></div>
+          </div>
+        </div>
+        <div class="ccard"><div class="ccard-head"><div class="ibox"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Isolador roldana</b><span>Polipropileno com proteção UV</span></div><span class="ccard-price g8">R$ 0,85</span><i class="mi">&#xf720;</i></div></div>
+        <div class="ccard"><div class="ccard-head"><div class="ibox"><i class="mi">&#xf014c;</i></div><div class="ccard-text"><b>Sensor de abertura</b><span>Magnético, sem fio</span></div><span class="ccard-price g8">R$ 45,00</span><i class="mi">&#xf720;</i></div></div>
+        <div class="ccard"><div class="ccard-head"><div class="ibox"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Sirene 120dB</b><span>Sirene piezoelétrica para área externa</span></div><span class="ccard-price g8">R$ 54,00</span><i class="mi">&#xf720;</i></div></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>Catálogo</b><code>CatalogPage · catalog_page.dart</code><p>Abas Serviços/Equipamentos; trocar de aba fecha o cartão aberto e limpa a busca. O cartão expandido edita nome, descrição, preço e unidade ali mesmo; “Novo” abre a tela de cadastro da aba atual.</p></div>
+</div>
+
+<!-- Configurações -->
+<div class="phone-wrap" id="t-config">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Configurações</div><span class="hdr-action">Salvar<i class="mi">&#xf636;</i></span></div></div>
+      <div class="scroll"><div class="list" style="padding-bottom:24px">
+        <div class="set-label">Empresa</div>
+        <div class="set-card">
+          <div class="set-row tall"><div class="logo-box"><i class="mi">&#xf5f8;</i></div><div class="set-text" style="margin-left:12px"><b>Logo da Empresa</b><small>Exibido no cabeçalho do PDF · PNG ou SVG</small></div><button class="btn-text" style="padding:4px 8px;margin-left:0">Alterar</button></div>
+          <div class="set-row"><i class="mi">&#xf01e1;</i><div class="set-text"><span class="cap2">Nome da Empresa</span><span class="val">Volt Cercas</span></div></div>
+          <div class="set-row"><i class="mi">&#xf5a5;</i><div class="set-text"><span class="cap2">CNPJ</span><span class="val">12.345.678/0001-90</span></div></div>
+          <div class="set-row"><i class="mi">&#xf884;</i><div class="set-text"><span class="cap2">Endereço</span><span class="val">Av. Brasil, 1500</span></div></div>
+          <div class="set-row"><i class="mi">&#xf881;</i><div class="set-text"><span class="cap2">Cidade e Estado</span><span class="val">Campinas</span></div></div>
+          <div class="set-row"><i class="mi">&#xf0083;</i><div class="set-text"><span class="cap2">Telefone</span><span class="val">+55 (19) 3232-1100</span></div></div>
+          <div class="set-row"><i class="mi">&#xf89b;</i><div class="set-text"><span class="cap2">E-mail</span><span class="val">contato@voltcercas.com.br</span></div></div>
+        </div>
+        <div class="set-label">Padrões do Orçamento</div>
+        <div class="set-card">
+          <div class="set-row"><i class="mi">&#xf719;</i><div class="set-text"><span class="cap2">Validade do Orçamento</span><span class="val">30 dias</span></div></div>
+          <div class="set-row multi"><i class="mi">&#xf0058;</i><div class="set-text"><span class="cap2">Forma de Pagamento</span><span class="val two">PIX ou cartão em até 3x</span></div></div>
+          <div class="set-row multi"><i class="mi">&#xf026f;</i><div class="set-text"><span class="cap2">Garantia</span><span class="val two">90 dias</span></div></div>
+          <div class="set-row multi"><i class="mi">&#xf7ad;</i><div class="set-text"><span class="cap2">Termos e Condições</span><span class="val two">Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção.</span></div></div>
+        </div>
+        <div class="set-label">Backup</div>
+        <div class="set-card">
+          <div class="set-row tall"><i class="mi">&#xf826;</i><div class="set-text"><b>Exportar backup</b><small>Salve clientes, catálogo, orçamentos e configurações</small></div><button class="btn-text"><i class="mi">&#xf026a;</i>Exportar</button></div>
+          <div class="set-row tall"><i class="mi">&#xf010b;</i><div class="set-text"><b>Importar backup</b><small>Substitua os dados deste aparelho por um backup salvo</small></div><button class="btn-text"><i class="mi">&#xf748;</i>Importar</button></div>
+        </div>
+        <div class="set-label">Pré-visualização do Rodapé do PDF</div>
+        <div class="footer-prev">
+          <div class="top"><div class="lb"><i class="mi">&#xf5f8;</i></div><div><b>Volt Cercas</b><span>CNPJ 12.345.678/0001-90</span></div></div>
+          <hr>
+          <div class="fgrid">
+            <div><i class="mi">&#xf884;</i>Av. Brasil, 1500 — SP</div>
+            <div><i class="mi">&#xf0083;</i>+55 (19) 3232-1100</div>
+            <div><i class="mi">&#xf89b;</i>contato@voltcercas.com.br</div>
+            <div><i class="mi">&#xf0058;</i>PIX ou cartão em até 3x</div>
+            <div><i class="mi">&#xf026f;</i>90 dias</div>
+            <div><i class="mi">&#xf719;</i>30 dias</div>
+          </div>
+          <hr class="b">
+          <p>Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção.</p>
+        </div>
+        <div class="foot-note">Este rodapé aparece no final de cada PDF gerado</div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>Configurações</b><code>SettingsPage · settings_page.dart</code><p>Cartões de linhas com ícone, legenda e campo sem borda; os campos vazios mostram a dica em muted. Sair com alterações não salvas abre “Descartar alterações?”. A prévia do rodapé lê o que já está salvo no store e mostra só o estado (“SP”) depois do endereço.</p></div>
+</div>
+
+<!-- PDF -->
+<div class="phone-wrap" id="t-pdf">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">PDF</div><span class="hdr-action">Compartilhar<i class="mi">&#xf826;</i></span></div></div>
+      <div class="scroll pdf-bg">
+        <div class="pdf-page">
+          <div class="pdf-head">
+            <div class="brandname">VOLT CERCAS</div>
+            <div class="right"><div class="q">ORÇAMENTO</div><div class="code">#42</div><div class="meta"><span>23 nov. 2026</span><span>30 dias</span><span>90 dias</span></div></div>
+          </div>
+          <div class="pdf-accent"></div>
+          <div class="pdf-body">
+            <div class="pdf-bill">
+              <div><div class="pdf-label">Cliente</div><b>Residencial Oliveira</b><span>Rua das Acácias, 210</span></div>
+              <div class="r"><div class="pdf-label">Pagamento</div><span>PIX ou cartão em até 3x</span></div>
+            </div>
+            <div class="pdf-div"></div>
+            <div class="pdf-label ink">Serviços</div>
+            <div class="pdf-tbl">
+              <div class="th">Descrição</div><div class="th">Qtd</div><div class="th rt">Unidade</div><div class="th rt">Preço</div><div class="th rt">Total</div>
+              <div class="nm">Instalação de cerca elétrica</div><div class="mn rt">1</div><div class="un rt">un</div><div class="mn rt">R$ 650,00</div><div class="tt rt">R$ 650,00</div>
+              <div class="nm last">Visita técnica</div><div class="mn rt last">1</div><div class="un rt last">un</div><div class="mn rt last">R$ 120,00</div><div class="tt rt last">R$ 120,00</div>
+            </div>
+            <div class="pdf-sub">Subtotal  <b>R$ 770,00</b></div>
+            <div class="pdf-div"></div>
+            <div class="pdf-label ink">Equipamentos</div>
+            <div class="pdf-tbl">
+              <div class="th">Descrição</div><div class="th">Qtd</div><div class="th rt">Unidade</div><div class="th rt">Preço</div><div class="th rt">Total</div>
+              <div class="nm">Central de choque 12.000V</div><div class="mn rt">1</div><div class="un rt">un</div><div class="mn rt">R$ 489,90</div><div class="tt rt">R$ 489,90</div>
+              <div class="nm">Haste de canto</div><div class="mn rt">4</div><div class="un rt">un</div><div class="mn rt">R$ 32,00</div><div class="tt rt">R$ 128,00</div>
+              <div class="nm last">Fio de aço inox 0,45mm</div><div class="mn rt last">200</div><div class="un rt last">m</div><div class="mn rt last">R$ 1,20</div><div class="tt rt last">R$ 240,00</div>
+            </div>
+            <div class="pdf-sub">Subtotal  <b>R$ 857,90</b></div>
+            <div class="pdf-div"></div>
+            <div class="pdf-total"><span>Total</span><b>R$ 1.627,90</b></div>
+            <div class="pdf-terms"><div class="pdf-label">Termos e Condições</div><p>Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção.</p></div>
+          </div>
+          <div class="pdf-foot">
+            <div class="row"><div class="it">Av. Brasil, 1500 — Campinas — SP</div><div class="it">+55 (19) 3232-1100</div><div class="it">contato@voltcercas.com.br</div></div>
+            <div class="row"><div class="it">PIX ou cartão em até 3x</div><div class="it">90 dias</div><div class="it">CNPJ 12.345.678/0001-90</div></div>
+            <div class="gen">Gerado por Volt Cercas · #42 · 23 nov. 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pcap"><b>PDF</b><code>PdfPreviewPage · pdf_preview_page.dart + pdf/quote_pdf.dart</code><p>Folha de 414 pt de largura, com altura que acompanha o conteúdo, sobre fundo paper. <span class="gap-note">sem token</span> O PDF usa navy <code>#0A0F2C</code> e texto <code>#2A3050</code>, que não são tokens; aqui foram desenhados com ink e com uma mistura de ink e textSecondary.</p></div>
+</div>
+
+<!-- Modelos -->
+<div class="phone-wrap" id="t-modelos">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Modelos</div></div></div>
+      <div class="list"><div class="empty"><i class="mi">&#xf5be;</i><b>Página indisponível</b><span>Use o fluxo de orçamento para adicionar clientes, serviços e equipamentos salvos.</span></div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>Modelos</b><code>TemplatesPage · templates_page.dart</code><p>Desativada. Ao abrir, um <code>AlertDialog</code> padrão diz que os modelos estão desativados e, ao confirmar com OK, volta ao Início.</p></div>
+</div>
+
+<!-- 1 · Cliente -->
+<div class="phone-wrap" id="t-cliente">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr">
+        <div class="hdr-row has-steps"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Selecionar Cliente</div><span class="hdr-action">Continuar<i class="mi">&#xf57a;</i></span></div>
+        <div class="steps"><div class="step cur"><div class="bar"></div><span>Cliente</span></div><div class="step"><div class="bar"></div><span>Serviços</span></div><div class="step"><div class="bar"></div><span class="fit">Equipamentos</span></div><div class="step"><div class="bar"></div><span>Revisão</span></div><div class="step"><div class="bar"></div><span>Enviar</span></div></div>
+      </div>
+      <div class="scroll"><div class="list">
+        <div class="search"><i class="mi">&#xf013d;</i><span class="txt hint">Buscar...</span></div>
+        <div class="ccard"><div class="ccard-head"><div class="avatar">CV</div><div class="ccard-text w12"><b>Condomínio Vila Verde</b><span>Av. Norte-Sul, 1800</span></div></div></div>
+        <div class="ccard"><div class="ccard-head"><div class="avatar">MP</div><div class="ccard-text w12"><b>Marcos Pereira</b><span>Rua Itália, 45</span></div></div></div>
+        <div class="ccard"><div class="ccard-head"><div class="avatar">PM</div><div class="ccard-text w12"><b>Padaria Pão de Mel</b><span>Rua Barão de Jaguara, 932</span></div></div></div>
+        <div class="ccard sel open"><div class="ccard-head"><div class="avatar sel">RO</div><div class="ccard-text w12"><b>Residencial Oliveira</b><span>Rua das Acácias, 210</span></div><i class="mi check">&#xf635;</i></div></div>
+        <div class="add-card"><div class="ibox add"><i class="mi">&#xf537;</i></div>Criar novo cliente</div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>1 · Selecionar Cliente</b><code>ClientSelectPage · client_select_page.dart</code><p>“Continuar” só aparece depois de escolher um cliente. O cartão escolhido fica em primarySoft, com borda primary e <code>check_circle</code>. Voltar descarta o rascunho se ele estiver vazio.</p></div>
+</div>
+
+<!-- 1 · Novo Cliente -->
+<div class="phone-wrap" id="t-novo-cliente">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Novo Cliente</div></div></div>
+      <div class="scroll"><div class="list stack16">
+        <div class="fdiv">Contato</div>
+        <div class="ff"><span class="ff-label">Nome Completo</span><div class="ff-input focus">Residencial Oliveira<span class="caret"></span></div></div>
+        <div class="ff"><span class="ff-label">Telefone</span><div class="ff-input hint">+55 (11) 99999-0000</div></div>
+        <div class="ff"><span class="ff-label">E-mail</span><div class="ff-input hint">joao@email.com</div></div>
+        <div class="fdiv gap24">Localização</div>
+        <div class="ff"><span class="ff-label">Endereço</span><div class="ff-input hint">Rua, número</div></div>
+        <div class="ff"><span class="ff-label">Cidade</span><div class="ff-input hint">São Paulo</div></div>
+        <button class="btn-primary gap24"><i class="mi">&#xf636;</i>Salvar Cliente</button>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>1 · Novo Cliente</b><code>ClientCreatePage · client_create_page.dart</code><p>Aberta pelo <code>AddCard</code> do passo 1 ou pelo “Novo” de Clientes. Salvar sem nome mostra a SnackBar “O nome do cliente é obrigatório”.</p></div>
+</div>
+
+<!-- 2 · Serviços -->
+<div class="phone-wrap" id="t-servicos">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr">
+        <div class="hdr-row has-steps"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Serviços</div><span class="hdr-action">Continuar<i class="mi">&#xf57a;</i></span></div>
+        <div class="steps"><div class="step done"><div class="bar"></div><span>Cliente</span></div><div class="step cur"><div class="bar"></div><span>Serviços</span></div><div class="step"><div class="bar"></div><span class="fit">Equipamentos</span></div><div class="step"><div class="bar"></div><span>Revisão</span></div><div class="step"><div class="bar"></div><span>Enviar</span></div></div>
+        <div class="hdr-total"><span>Total de Serviços</span><b>R$ 770,00</b></div>
+      </div>
+      <div class="scroll"><div class="list">
+        <div class="search"><i class="mi">&#xf013d;</i><span class="txt hint">Busque para adicionar no orçamento...</span></div>
+        <div class="add-card"><div class="ibox add"><i class="mi">&#xf537;</i></div>Criar novo serviço</div>
+        <div class="ccard pb sel open"><div class="ccard-head"><div class="ibox on"><i class="mi">&#xf7cc;</i></div><div class="ccard-text"><b>Instalação de cerca elétrica</b><span>Montagem completa com hastes, fios e central</span></div><i class="mi">&#xf71f;</i></div>
+          <div class="ccard-body"><div class="ff"><span class="ff-label">Unit Price</span><div class="ff-input">R$ 650,00</div></div><div class="qty"><div class="rbtn"><i class="mi">&#xf00f1;</i></div><b>1</b><div class="rbtn add"><i class="mi">&#xf537;</i></div></div></div>
+        </div>
+        <div class="ccard pb sel"><div class="ccard-head"><div class="ibox on"><i class="mi">&#xf7cc;</i></div><div class="ccard-text"><b>Visita técnica</b><span>Avaliação do local e medição do perímetro</span></div><span class="ccard-price">1 x R$ 120,00</span><i class="mi">&#xf720;</i></div></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>2 · Serviços</b><code>ServicesPage → QuoteCatalogStep</code><p>Com a busca vazia aparecem só os serviços já no rascunho; ao digitar, o catálogo inteiro é filtrado. O total do cabeçalho soma as linhas de serviço.</p></div>
+</div>
+
+<!-- 2 · Novo Serviço -->
+<div class="phone-wrap" id="t-novo-servico">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Novo Serviço</div></div></div>
+      <div class="scroll"><div class="list stack16">
+        <div class="fdiv">Identificação</div>
+        <div class="ff"><span class="ff-label">Nome do Serviço</span><div class="ff-input hint">ex. Instalação de CFTV</div></div>
+        <div class="ff"><span class="ff-label">Descrição</span><div class="ff-input hint multi3">Breve descrição do que este serviço inclui…</div></div>
+        <div class="fdiv gap24">Preço</div>
+        <div class="ff-row"><div class="ff"><span class="ff-label">Preço Padrão</span><div class="ff-input hint">0,00</div></div><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd hint">Selecionar…<i class="mi">&#xf720;</i></div></div></div>
+        <button class="btn-primary gap24"><i class="mi">&#xf636;</i>Salvar Serviço</button>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>2 · Novo Serviço</b><code>ServiceCreatePage → CatalogItemForm</code><p>Salva no catálogo e, se veio de um rascunho, já adiciona 1 unidade ao orçamento antes de voltar para Serviços. Sem rascunho, volta ao Catálogo.</p></div>
+</div>
+
+<!-- 3 · Equipamentos -->
+<div class="phone-wrap" id="t-equipamentos">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr">
+        <div class="hdr-row has-steps"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Equipamentos</div><span class="hdr-action">Continuar<i class="mi">&#xf57a;</i></span></div>
+        <div class="steps"><div class="step done"><div class="bar"></div><span>Cliente</span></div><div class="step done"><div class="bar"></div><span>Serviços</span></div><div class="step cur"><div class="bar"></div><span class="fit">Equipamentos</span></div><div class="step"><div class="bar"></div><span>Revisão</span></div><div class="step"><div class="bar"></div><span>Enviar</span></div></div>
+        <div class="hdr-total"><span>Total de Equipamentos</span><b>R$ 857,90</b></div>
+      </div>
+      <div class="scroll"><div class="list">
+        <div class="search focus"><i class="mi">&#xf013d;</i><span class="txt">has</span><span class="caret"></span></div>
+        <div class="add-card"><div class="ibox add"><i class="mi">&#xf537;</i></div>Criar novo equipamento</div>
+        <div class="ccard pb sel open"><div class="ccard-head"><div class="ibox on"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Haste de canto</b><span>Alumínio 1", com 4 isoladores</span></div><i class="mi">&#xf71f;</i></div>
+          <div class="ccard-body"><div class="ff"><span class="ff-label">Unit Price</span><div class="ff-input">R$ 32,00</div></div><div class="qty"><div class="rbtn"><i class="mi">&#xf00f1;</i></div><b>4</b><div class="rbtn add"><i class="mi">&#xf537;</i></div></div></div>
+        </div>
+        <div class="ccard pb"><div class="ccard-head"><div class="ibox"><i class="mi">&#xf822;</i></div><div class="ccard-text"><b>Haste intermediária</b><span>Alumínio 3/4", com 2 isoladores</span></div><span class="ccard-price">R$ 18,50</span><i class="mi">&#xf720;</i></div></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>3 · Equipamentos</b><code>EquipmentPage → QuoteCatalogStep</code><p>Aqui com a busca “has”: aparecem o item já no orçamento (Haste de canto, 4 un, aberto) e um item do catálogo ainda fora dele. Tocar em +/− limpa a busca.</p></div>
+</div>
+
+<!-- 3 · Novo Equipamento -->
+<div class="phone-wrap" id="t-novo-equip">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr"><div class="hdr-row"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Novo Equipamento</div></div></div>
+      <div class="scroll"><div class="list stack16">
+        <div class="fdiv">Produto</div>
+        <div class="ff"><span class="ff-label">Nome do Equipamento</span><div class="ff-input">Haste de canto</div></div>
+        <div class="ff"><span class="ff-label">Descrição</span><div class="ff-input multi3">Alumínio 1", com 4 isoladores</div></div>
+        <div class="fdiv gap24">Preço</div>
+        <div class="ff-row"><div class="ff"><span class="ff-label">Preço Unitário</span><div class="ff-input focus">R$ 32,00<span class="caret"></span></div></div><div class="ff"><span class="ff-label">Unidade</span><div class="ff-input dd">un<i class="mi">&#xf720;</i></div></div></div>
+        <button class="btn-primary gap24"><i class="mi">&#xf636;</i>Salvar Equipamento</button>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>3 · Novo Equipamento</b><code>EquipmentCreatePage → CatalogItemForm</code><p>Mesmo formulário do serviço, com textos de produto. O preço é reformatado como <code>R$ 0,00</code> enquanto se digita.</p></div>
+</div>
+
+<!-- 4 · Revisão -->
+<div class="phone-wrap" id="t-revisao">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr">
+        <div class="hdr-row has-steps"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Revisão</div><span class="hdr-action">Está Ótimo<i class="mi">&#xf57a;</i></span></div>
+        <div class="steps"><div class="step done"><div class="bar"></div><span>Cliente</span></div><div class="step done"><div class="bar"></div><span>Serviços</span></div><div class="step done"><div class="bar"></div><span class="fit">Equipamentos</span></div><div class="step cur"><div class="bar"></div><span>Revisão</span></div><div class="step"><div class="bar"></div><span>Enviar</span></div></div>
+      </div>
+      <div class="scroll"><div class="list stack10">
+        <div class="panel"><div class="panel-head"><span>Cliente</span></div>
+          <div class="panel-client"><div class="avatar">RO</div><div class="ccard-text"><b>Residencial Oliveira</b><span>Rua das Acácias, 210</span></div><div class="ibtn"><i class="mi">&#xf6fb;</i></div></div>
+        </div>
+        <div class="panel"><div class="panel-head"><span>Serviços</span><div class="ibtn"><i class="mi">&#xf6fb;</i></div></div>
+          <div class="lrow div"><div class="l"><span>Instalação de cerca elétrica</span><span class="pill qty">1x</span></div><b>R$ 650,00</b></div>
+          <div class="lrow"><div class="l"><span>Visita técnica</span><span class="pill qty">1x</span></div><b>R$ 120,00</b></div>
+        </div>
+        <div class="panel"><div class="panel-head"><span>Equipamentos</span><div class="ibtn"><i class="mi">&#xf6fb;</i></div></div>
+          <div class="lrow div"><div class="l"><span>Central de choque 12.000V</span><span class="pill qty">1x</span></div><b>R$ 489,90</b></div>
+          <div class="lrow div"><div class="l"><span>Haste de canto</span><span class="pill qty">4x</span></div><b>R$ 128,00</b></div>
+          <div class="lrow"><div class="l"><span>Fio de aço inox 0,45mm</span><span class="pill qty">200x</span></div><b>R$ 240,00</b></div>
+        </div>
+        <div class="tbanner"><span>Total</span><b>R$ 1.627,90</b></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>4 · Revisão</b><code>ReviewPage · review_page.dart</code><p>“Está Ótimo” só aparece com cliente e ao menos uma linha, e finaliza o rascunho antes de seguir. Os lápis voltam ao passo correspondente.</p></div>
+</div>
+
+<!-- 5 · Enviar -->
+<div class="phone-wrap" id="t-enviar">
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="ic"><i class="mi">&#xf017c;</i><i class="mi">&#xf02bf;</i><i class="mi">&#xf5af;</i></span></div>
+    <div class="app">
+      <div class="hdr">
+        <div class="hdr-row has-steps"><div class="hdr-icon"><i class="mi">&#xf572;</i></div><div class="hdr-title">Enviar Orçamento</div></div>
+        <div class="steps"><div class="step done"><div class="bar"></div><span>Cliente</span></div><div class="step done"><div class="bar"></div><span>Serviços</span></div><div class="step done"><div class="bar"></div><span class="fit">Equipamentos</span></div><div class="step done"><div class="bar"></div><span>Revisão</span></div><div class="step cur"><div class="bar"></div><span>Enviar</span></div></div>
+      </div>
+      <div class="scroll"><div class="list stack10" style="padding-top:20px;padding-bottom:20px">
+        <div class="ready"><div class="ok"><i class="mi">&#xf635;</i></div><h5>Orçamento Pronto</h5><p>Salvo localmente - Residencial Oliveira - R$ 1.627,90</p><div class="chips"><span class="pill chip">2 serviços</span><span class="pill chip">3 equipamentos</span><span class="pill chip">R$ 1.627,90</span></div></div>
+        <button class="btn-primary"><i class="mi">&#xf016a;</i>Compartilhar via WhatsApp</button>
+        <button class="btn-secondary"><i class="mi">&#xf0096;</i>Exportar PDF</button>
+        <button class="btn-secondary"><i class="mi">&#xf85a;</i>Copiar Link</button>
+        <button class="btn-text wide" style="margin-top:0">Voltar ao Início</button>
+      </div></div>
+    </div>
+  </div>
+  <div class="pcap"><b>5 · Enviar</b><code>SendPage · send_page.dart</code><p>WhatsApp e Copiar Link ainda só mostram uma SnackBar. Exportar PDF abre o PDF, que volta para esta tela.</p></div>
+</div>
+
+</div>
+</section>
+
+</main>
+</div>
+</body>
+</html>
