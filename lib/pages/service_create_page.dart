@@ -23,7 +23,6 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
   final TextEditingController _name = TextEditingController();
   final TextEditingController _description = TextEditingController();
   final TextEditingController _price = TextEditingController();
-  int _unitId = 0;
 
   @override
   void dispose() {
@@ -46,8 +45,8 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
               nameController: _name,
               descriptionController: _description,
               priceController: _price,
-              selectedUnitId: _unitId,
-              onUnitChanged: (value) => setState(() => _unitId = value ?? 0),
+              selectedUnitId: 0,
+              onUnitChanged: (_) {},
               onSave: _save,
             ),
           ),
@@ -63,12 +62,7 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
       return;
     }
     final int cents = moneyStringToCents(_price.text);
-    final bool catalogSaved = widget.store.addService(
-      name,
-      _description.text.trim(),
-      cents,
-      _unitId,
-    );
+    final bool catalogSaved = widget.store.addService(name, _description.text.trim(), cents);
     if (!catalogSaved) {
       _showSnack(widget.store.latestErrorMessage());
       return;

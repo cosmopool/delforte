@@ -2,7 +2,6 @@ import "dart:typed_data";
 
 import "package:delforte/l10n/localization.dart";
 import "package:delforte/store/business_info_data.dart";
-import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
 import "package:delforte/utils.dart";
 import "package:flutter/services.dart" show rootBundle;
@@ -33,27 +32,24 @@ late final pw.Font sansBold;
 late final pw.Font mono;
 late final pw.Font monoMed;
 
-class _Line {
-  _Line(this.name, this.qty, this.unit, this.priceCents, this.subtotalCents);
-  final String name;
-  final int qty;
-  final String unit;
-  final int priceCents;
-  final int subtotalCents;
+/// The single PDF entry point: draws [data] with the renderer version stored on
+/// the quote, or returns `null` when this build does not know that version.
+Future<Uint8List?> buildQuotePdf(BusinessInfoData business, QuotePdfData data) async {
+  return switch (data.rendererVersion) {
+    1 => _buildV1(business, data),
+    _ => null,
+  };
 }
 
-/// Builds the quote PDF for [quoteId], laid out like PdfPreviewScreen.
-Future<Uint8List> buildQuotePdf(
-  BusinessInfoData business,
-  QuoteDefaultsData defaults,
-  QuotePdfData data,
-  int quoteId,
-) async {
+/// Renderer v1, the single-page quote laid out like PdfPreviewScreen.
+///
+/// Never edit it: any change to what the PDF shows is a new renderer version.
+Future<Uint8List> _buildV1(BusinessInfoData business, QuotePdfData data) async {
   await _finishedLoadingFonts;
   final Client? client = data.client;
 
-  final List<_Line> services = _linesOf(data, CatalogItemType.service);
-  final List<_Line> equipment = _linesOf(data, CatalogItemType.equipment);
+  final List<QuotePdfLine> services = _linesOf(data, CatalogItemType.service);
+  final List<QuotePdfLine> equipment = _linesOf(data, CatalogItemType.equipment);
   final int subtotalServices = services.fold(0, (sum, line) => sum + line.subtotalCents);
   final int subtotalEquipment = equipment.fold(0, (sum, line) => sum + line.subtotalCents);
   final int total = subtotalServices + subtotalEquipment;
@@ -62,17 +58,11 @@ Future<Uint8List> buildQuotePdf(
       ? business.name.toUpperCase()
       : strings.appName.toUpperCase();
   final pw.MemoryImage? logo = business.logo.isNotEmpty ? pw.MemoryImage(business.logo) : null;
-  final String code = "#$quoteId";
+  final String code = "#${data.id}";
   final int createdAt = data.createdAt;
   final String date = _fmtDate(
     createdAt > 0 ? DateTime.fromMillisecondsSinceEpoch(createdAt) : DateTime.now(),
   );
-  final String validity = defaults.validity.isNotEmpty
-      ? defaults.validity
-      : strings.pdfDefaultValidity;
-  final String warranty = defaults.warranty.isNotEmpty
-      ? defaults.warranty
-      : strings.pdfDefaultWarranty;
 
   final pw.Document doc = pw.Document();
   doc.addPage(
@@ -85,7 +75,7 @@ Future<Uint8List> buildQuotePdf(
           mainAxisSize: pw.MainAxisSize.min,
           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
           children: [
-            _headerBand(brand, logo, code, date, validity, warranty),
+            _headerBand(brand, logo, code, date, data.validity, data.warranty),
             pw.Container(
               height: 3,
               decoration: const pw.BoxDecoration(
@@ -102,19 +92,25 @@ Future<Uint8List> buildQuotePdf(
                 mainAxisSize: pw.MainAxisSize.min,
                 crossAxisAlignment: pw.CrossAxisAlignment.stretch,
                 children: [
-                  _billPaymentRow(client, defaults),
+                  _billPaymentRow(client, data.payment),
                   _docDivider(),
-                  _linesSection(strings.services, services, subtotalServices),
+                  _linesSection(strings.services, services, subtotalServices, true),
                   _docDivider(),
-                  _linesSection(strings.equipment, equipment, subtotalEquipment),
+                  _linesSection(strings.equipment, equipment, subtotalEquipment, false),
                   _docDivider(),
                   _totalBox(total),
-                  pw.SizedBox(height: 12),
-                  _termsBox(defaults),
+                  if (data.terms.isNotEmpty) ...[
+                    pw.SizedBox(height: 12),
+                    _textBox(strings.termsConditions, data.terms),
+                  ],
+                  if (data.notes.isNotEmpty) ...[
+                    pw.SizedBox(height: 12),
+                    _textBox(strings.observations, data.notes),
+                  ],
                 ],
               ),
             ),
-            _footer(business, defaults, code, date),
+            _footer(business, data, code, date),
           ],
         ),
       ),
@@ -136,11 +132,10 @@ Future<void> loadPdfFonts() async {
   _finishedLoadingFonts = Future<bool>.value(true);
 }
 
-List<_Line> _linesOf(QuotePdfData data, CatalogItemType type) {
+List<QuotePdfLine> _linesOf(QuotePdfData data, CatalogItemType type) {
   return [
     for (final QuotePdfLine line in data.lines)
-      if (line.type == type)
-        _Line(line.name, line.quantity, line.unit, line.unitPriceCents, line.subtotalCents),
+      if (line.type == type) line,
   ];
 }
 
@@ -215,10 +210,8 @@ pw.Widget _headerBand(
             pw.Row(
               children: [
                 _metaItem(date),
-                pw.SizedBox(width: 18),
-                _metaItem(validity),
-                pw.SizedBox(width: 18),
-                _metaItem(warranty),
+                for (final String meta in [validity, warranty])
+                  if (meta.isNotEmpty) ...[pw.SizedBox(width: 18), _metaItem(meta)],
               ],
             ),
           ],
@@ -241,8 +234,7 @@ pw.Widget _label(String text, {PdfColor color = _textMuted}) => pw.Text(
   style: pw.TextStyle(font: sansBold, fontSize: 9, color: color, letterSpacing: 0.6),
 );
 
-pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults) {
-  final String payment = defaults.paymentMethod.isNotEmpty ? defaults.paymentMethod : "—";
+pw.Widget _billPaymentRow(Client? client, String payment) {
   return pw.Row(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
@@ -271,13 +263,15 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults) {
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.end,
           children: [
-            _label(strings.pdfPayment),
-            pw.SizedBox(height: 6),
-            pw.Text(
-              payment,
-              textAlign: pw.TextAlign.right,
-              style: pw.TextStyle(font: sans, fontSize: 10, color: _text),
-            ),
+            if (payment.isNotEmpty) ...[
+              _label(strings.pdfPayment),
+              pw.SizedBox(height: 6),
+              pw.Text(
+                payment,
+                textAlign: pw.TextAlign.right,
+                style: pw.TextStyle(font: sans, fontSize: 10, color: _text),
+              ),
+            ],
           ],
         ),
       ),
@@ -285,13 +279,16 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults) {
   );
 }
 
-pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
+/// Services print as "Serviço · Valor" with the description under the name;
+/// equipment prints as Descrição/Qtd/Un/Preço/Total.
+pw.Widget _linesSection(String title, List<QuotePdfLine> lines, int subtotalCents, bool services) {
   return pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
     children: [
       _label(title, color: _ink),
       pw.SizedBox(height: 8),
       pw.Table(
+        // Services use the first two widths only: name 4, value 1.
         columnWidths: const {
           0: pw.FlexColumnWidth(4),
           1: pw.FlexColumnWidth(1),
@@ -305,11 +302,16 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
               border: pw.Border(bottom: pw.BorderSide(color: _ink, width: 1.5)),
             ),
             children: [
-              _th(strings.description, pw.TextAlign.left),
-              _th(strings.pdfQty, pw.TextAlign.left),
-              _th(strings.unit, pw.TextAlign.right),
-              _th(strings.pdfPrice, pw.TextAlign.right),
-              _th(strings.total, pw.TextAlign.right),
+              if (services) ...[
+                _th(strings.service, pw.TextAlign.left),
+                _th(strings.pdfValue, pw.TextAlign.right),
+              ] else ...[
+                _th(strings.description, pw.TextAlign.left),
+                _th(strings.pdfQty, pw.TextAlign.left),
+                _th(strings.unit, pw.TextAlign.right),
+                _th(strings.pdfPrice, pw.TextAlign.right),
+                _th(strings.total, pw.TextAlign.right),
+              ],
             ],
           ),
           for (var i = 0; i < lines.length; i++)
@@ -323,11 +325,29 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
                 ),
               ),
               children: [
-                _td(lines[i].name, sans, _text, pw.TextAlign.left),
-                _td("${lines[i].qty}", mono, _textSec, pw.TextAlign.right),
-                _td(lines[i].unit, sans, _textMuted, pw.TextAlign.right),
-                _td(formatMoney(lines[i].priceCents), mono, _textSec, pw.TextAlign.right),
-                _td(formatMoney(lines[i].subtotalCents), monoMed, _ink, pw.TextAlign.right),
+                if (services) ...[
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      _td(lines[i].name, sans, _text, pw.TextAlign.left),
+                      if (lines[i].description.isNotEmpty)
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.only(bottom: 6),
+                          child: pw.Text(
+                            lines[i].description,
+                            style: pw.TextStyle(font: sans, fontSize: 9, color: _textSec),
+                          ),
+                        ),
+                    ],
+                  ),
+                  _td(formatMoney(lines[i].subtotalCents), monoMed, _ink, pw.TextAlign.right),
+                ] else ...[
+                  _td(lines[i].name, sans, _text, pw.TextAlign.left),
+                  _td("${lines[i].quantity}", mono, _textSec, pw.TextAlign.right),
+                  _td(lines[i].unit, sans, _textMuted, pw.TextAlign.right),
+                  _td(formatMoney(lines[i].unitPriceCents), mono, _textSec, pw.TextAlign.right),
+                  _td(formatMoney(lines[i].subtotalCents), monoMed, _ink, pw.TextAlign.right),
+                ],
               ],
             ),
         ],
@@ -406,18 +426,17 @@ pw.Widget _totalBox(int total) => pw.Container(
   ),
 );
 
-pw.Widget _termsBox(QuoteDefaultsData defaults) {
-  final String terms = defaults.terms.isNotEmpty ? defaults.terms : strings.pdfDefaultTerms;
+pw.Widget _textBox(String title, String text) {
   return pw.Container(
     decoration: pw.BoxDecoration(color: _lightBg, borderRadius: pw.BorderRadius.circular(8)),
     padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 10),
     child: pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        _label(strings.termsConditions),
+        _label(title),
         pw.SizedBox(height: 4),
         pw.Text(
-          terms,
+          text,
           style: pw.TextStyle(font: sans, fontSize: 9, color: _textSec, lineSpacing: 2),
         ),
       ],
@@ -425,7 +444,7 @@ pw.Widget _termsBox(QuoteDefaultsData defaults) {
   );
 }
 
-pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String code, String date) {
+pw.Widget _footer(BusinessInfoData business, QuotePdfData data, String code, String date) {
   final String address = [
     business.address,
     business.city,
@@ -436,8 +455,8 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String 
     if (address.isNotEmpty) address,
     if (business.phone.isNotEmpty) business.phone,
     if (business.email.isNotEmpty) business.email,
-    if (defaults.paymentMethod.isNotEmpty) defaults.paymentMethod,
-    if (defaults.warranty.isNotEmpty) defaults.warranty,
+    if (data.payment.isNotEmpty) data.payment,
+    if (data.warranty.isNotEmpty) data.warranty,
     if (business.cnpj.isNotEmpty) strings.cnpjLabel(business.cnpj),
   ];
 

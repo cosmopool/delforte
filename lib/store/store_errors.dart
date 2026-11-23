@@ -30,6 +30,9 @@ const int errQuoteEmpty = 9;
 /// Error code used when exporting or importing a database backup fails.
 const int errDbBackup = 10;
 
+/// Error code used when a backup comes from an app older than the current schema.
+const int errBackupTooOld = 11;
+
 /// Fixed-size side-channel for store errors.
 class ErrorLogBuffer {
   /// Creates an error log with [capacity] entries.

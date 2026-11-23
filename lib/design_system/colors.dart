@@ -17,6 +17,9 @@ abstract final class VigilColors {
   static const Color textMuted = Color(0xFF9AA3BA);
   static const Color border = Color(0x17101D40);
   static const Color borderStrong = Color(0x29101D40);
+  static const Color paper = Color(0xFFE8EBF2);
+  static const Color blueM = Color(0xFF5499EE);
+  static const Color pin = Color(0xFFF2542D);
 
   static const List<Color> appBackdrop = [Color(0xFF060D22), Color(0xFF142354), Color(0xFF1A2E6B)];
 }

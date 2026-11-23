@@ -188,29 +188,25 @@ class QuoteStore {
 
   /// Returns all catalog rows of [type], newest first.
   List<CatalogItem> listCatalog(CatalogItemType type) {
-    return _queryCatalog(
-      "SELECT id, name, description, price_cents, unit_id FROM ${_catalogTable(type)} ORDER BY id DESC",
-    );
+    return _queryCatalog("SELECT * FROM ${_catalogTable(type)} ORDER BY id DESC");
   }
 
-  /// Returns catalog rows of [type] whose name or description contains [query].
+  /// Returns catalog rows of [type] whose name or description contains [query],
+  /// ignoring accents and case.
   ///
   /// An empty [query] returns every row.
   List<CatalogItem> searchCatalog(CatalogItemType type, String query) {
-    final String q = query.trim();
-    if (q.isEmpty) return listCatalog(type);
-    final String like = "%${q.toLowerCase()}%";
-    return _queryCatalog(
-      "SELECT id, name, description, price_cents, unit_id FROM ${_catalogTable(type)} "
-      "WHERE lower(name) LIKE ? OR lower(description) LIKE ? ORDER BY id DESC",
-      [like, like],
-    );
+    final String q = _fold(query.trim());
+    return [
+      for (final CatalogItem item in listCatalog(type))
+        if (_fold("${item.name}\n${item.description}").contains(q)) item,
+    ];
   }
 
   /// Returns the catalog row of [type] with [id], or `null` when absent.
   CatalogItem? catalogById(CatalogItemType type, int id) {
     final List<CatalogItem> rows = _queryCatalog(
-      "SELECT id, name, description, price_cents, unit_id FROM ${_catalogTable(type)} WHERE id = ?",
+      "SELECT * FROM ${_catalogTable(type)} WHERE id = ?",
       [id],
     );
     if (rows.isEmpty) return null;
@@ -222,9 +218,9 @@ class QuoteStore {
     return _addCatalog(.equipment, name, description, priceCents, unitId);
   }
 
-  /// Inserts a service and returns whether it succeeded.
-  bool addService(String name, String description, int priceCents, int unitId) {
-    return _addCatalog(.service, name, description, priceCents, unitId);
+  /// Inserts a service (services have no unit) and returns whether it succeeded.
+  bool addService(String name, String description, int priceCents) {
+    return _addCatalog(.service, name, description, priceCents, 0);
   }
 
   /// Updates equipment by [id].
@@ -233,16 +229,16 @@ class QuoteStore {
   }
 
   /// Updates a service by [id].
-  bool updateService(int id, String name, String description, int priceCents, int unitId) {
-    return _updateCatalog(.service, id, name, description, priceCents, unitId);
+  bool updateService(int id, String name, String description, int priceCents) {
+    return _updateCatalog(.service, id, name, description, priceCents, 0);
   }
 
-  /// Deletes equipment by [id] and removes matching draft lines.
+  /// Deletes equipment by [id]; quote lines keep their own copy.
   bool deleteEquipment(int id) {
     return _deleteCatalog(.equipment, id);
   }
 
-  /// Deletes a service by [id] and removes matching draft lines.
+  /// Deletes a service by [id]; quote lines keep their own copy.
   bool deleteService(int id) {
     return _deleteCatalog(.service, id);
   }
@@ -302,66 +298,112 @@ class QuoteStore {
 
   // ── DRAFTS & QUOTES ─────────────────────────────────────────────────────────
 
-  /// Creates a draft quote for [clientId] and returns its id, or `0` on failure.
-  int createDraft(int clientId) {
-    final Database? db = _db;
-    if (db == null) {
-      _fail(errDbOpen, "DB not open");
-      return 0;
-    }
-    try {
-      final int now = _nowMillis();
+  /// Creates a draft with no client and a copy of the Padrões, and returns its
+  /// id, or `0` on failure.
+  int createDraft() {
+    final int now = _nowMillis();
+    final bool created = _write(quotesNotifier, (Database db) {
       db.execute(
-        "INSERT INTO quotes (client_id, created_at, updated_at, total_cents, status) "
-        "VALUES (?, ?, ?, 0, 'draft')",
-        [clientId, now, now],
+        "INSERT INTO quotes (created_at, updated_at, payment, warranty, validity, terms, show_unit_price) "
+        "SELECT ?, ?, payment_method, warranty, validity, terms, show_unit_price FROM quote_defaults",
+        [now, now],
       );
-      final int id = db.lastInsertRowId;
-      quotesNotifier.markChanged();
-      return id;
-    } catch (error) {
-      _fail(errSqlWrite, error.toString());
-      return 0;
-    }
+    });
+    if (!created) return 0;
+    return _db!.lastInsertRowId;
   }
 
-  /// Updates the client of a draft [quoteId].
+  /// Copies client [clientId] into draft [quoteId]; later edits to the client
+  /// do not reach the quote.
   bool setDraftClient(int quoteId, int clientId) {
-    return _write(quotesNotifier, (Database db) {
-      db.execute("UPDATE quotes SET client_id = ?, updated_at = ? WHERE id = ?", [
-        clientId,
-        _nowMillis(),
-        quoteId,
-      ]);
+    return _writeDraft(quoteId, (Database db) {
+      db.execute(
+        "UPDATE quotes SET (client_id, client_name, client_phone, client_email, client_address, client_city) = "
+        "(SELECT id, name, phone, email, address, city FROM clients WHERE id = ?) WHERE id = ?",
+        [clientId, quoteId],
+      );
     });
   }
 
-  /// Returns the client id of [quoteId], or `0` when absent.
-  int draftClientId(int quoteId) {
-    final Database? db = _db;
-    if (db == null) return 0;
-    final ResultSet rows = db.select("SELECT client_id FROM quotes WHERE id = ?", [quoteId]);
-    if (rows.isEmpty) return 0;
-    return rows.first["client_id"] as int;
+  /// Returns the client copied into [quoteId], or `null` when it has none.
+  Client? quoteClient(int quoteId) => quotePdfData(quoteId).client;
+
+  /// Sets the Condições and Observações of draft [quoteId]; a `null` text stays as it is.
+  bool setDraftTexts(
+    int quoteId, {
+    String? payment,
+    String? warranty,
+    String? validity,
+    String? terms,
+    String? notes,
+  }) {
+    return _writeDraft(quoteId, (Database db) {
+      db.execute(
+        "UPDATE quotes SET payment = COALESCE(?, payment), warranty = COALESCE(?, warranty), "
+        "validity = COALESCE(?, validity), terms = COALESCE(?, terms), notes = COALESCE(?, notes) "
+        "WHERE id = ?",
+        [payment, warranty, validity, terms, notes, quoteId],
+      );
+    });
   }
 
-  /// Adds or increments a draft line for [type] and [refId].
+  /// Adds a line to draft [quoteId] with its own copy of catalog item [refId].
+  ///
+  /// An equipment already on the quote sums [quantity] (up to 9999) and keeps its
+  /// own price; a service already on the quote is left as it is.
   bool addDraftLine(int quoteId, CatalogItemType type, int refId, int quantity) {
     if (quantity <= 0) return _fail(errInvalidInput, "Invalid quantity");
     final CatalogItem? item = catalogById(type, refId);
     if (item == null) return _fail(errMissingId, "Catalog ref missing");
-    return _write(quotesNotifier, (Database db) {
-      // Increment when the line already exists, clamped to 9999; otherwise insert.
+    final String unit = unitById(item.unitId)?.abbreviation ?? "";
+    return _writeDraft(quoteId, (Database db) {
       db.execute(
-        "INSERT INTO quote_lines (quote_id, line_type, ref_id, quantity, unit_price_cents, subtotal_cents) "
-        "VALUES (?1, ?2, ?3, ?4, ?5, ?4 * ?5) "
+        "INSERT INTO quote_lines (quote_id, line_type, ref_id, quantity, unit_price_cents, subtotal_cents, name, description, unit) "
+        "VALUES (?1, ?2, ?3, ?4, ?5, ?4 * ?5, ?6, ?7, ?8) "
         "ON CONFLICT(quote_id, line_type, ref_id) DO UPDATE SET "
         "quantity = min(9999, quote_lines.quantity + ?4), "
-        "unit_price_cents = ?5, "
-        "subtotal_cents = min(9999, quote_lines.quantity + ?4) * ?5",
-        [quoteId, type.index, refId, quantity, item.priceCents],
+        "subtotal_cents = min(9999, quote_lines.quantity + ?4) * quote_lines.unit_price_cents "
+        "WHERE quote_lines.line_type = ${CatalogItemType.equipment.index}",
+        [quoteId, type.index, refId, quantity, item.priceCents, item.name, item.description, unit],
       );
-      _touchQuote(db, quoteId);
+    });
+  }
+
+  /// Item novo: adds [name] (first letter capitalised) to the catalog and a line
+  /// for it to draft [quoteId], flagged "novo no catálogo" until the quote is saved.
+  bool addNewCatalogLine(
+    int quoteId,
+    CatalogItemType type,
+    String name,
+    String description,
+    int priceCents,
+    int unitId,
+    int quantity,
+  ) {
+    // A saved quote, or a database that rejects writes, must not grow the catalog.
+    if (!_writeDraft(quoteId, (Database db) {})) return false;
+    final String capitalised = name.trim().replaceFirstMapped(
+      RegExp("^."),
+      (Match m) => m[0]!.toUpperCase(),
+    );
+    if (!_addCatalog(type, capitalised, description, priceCents, unitId)) return false;
+    final int refId = lastCatalogId(type);
+    if (!addDraftLine(quoteId, type, refId, quantity)) return false;
+    return _writeDraft(quoteId, (Database db) {
+      db.execute(
+        "UPDATE quote_lines SET is_new = 1 WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
+        [quoteId, type.index, refId],
+      );
+    });
+  }
+
+  /// Sets the description of a draft line, on this quote only.
+  bool setDraftLineDescription(int quoteId, CatalogItemType type, int refId, String description) {
+    return _writeDraft(quoteId, (Database db) {
+      db.execute(
+        "UPDATE quote_lines SET description = ? WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
+        [description, quoteId, type.index, refId],
+      );
     });
   }
 
@@ -375,13 +417,12 @@ class QuoteStore {
     if (current < 0) return _fail(errMissingId, "Quote line missing");
     if (current + delta < 1) return removeDraftLine(quoteId, type, refId);
     final int next = math.min(9999, current + delta);
-    return _write(quotesNotifier, (Database db) {
+    return _writeDraft(quoteId, (Database db) {
       db.execute(
         "UPDATE quote_lines SET quantity = ?, subtotal_cents = unit_price_cents * ? "
         "WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
         [next, next, quoteId, type.index, refId],
       );
-      _touchQuote(db, quoteId);
     });
   }
 
@@ -390,39 +431,32 @@ class QuoteStore {
   /// A no-op (still returns `true`) when no matching line exists.
   bool setDraftLineUnitPrice(int quoteId, CatalogItemType type, int refId, int priceCents) {
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
-    return _write(quotesNotifier, (Database db) {
+    return _writeDraft(quoteId, (Database db) {
       db.execute(
         "UPDATE quote_lines SET unit_price_cents = ?, subtotal_cents = quantity * ? "
         "WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
         [priceCents, priceCents, quoteId, type.index, refId],
       );
-      _touchQuote(db, quoteId);
     });
   }
 
   /// Removes a draft line by [type] and [refId].
   bool removeDraftLine(int quoteId, CatalogItemType type, int refId) {
-    return _write(quotesNotifier, (Database db) {
+    return _writeDraft(quoteId, (Database db) {
       db.execute("DELETE FROM quote_lines WHERE quote_id = ? AND line_type = ? AND ref_id = ?", [
         quoteId,
         type.index,
         refId,
       ]);
-      _touchQuote(db, quoteId);
     });
   }
 
-  /// Returns the lines of [quoteId] with catalog names resolved.
+  /// Returns the lines of [quoteId], each with its own copy of the catalog item.
   List<QuoteLine> listQuoteLines(int quoteId) {
     final Database? db = _db;
     if (db == null) return const <QuoteLine>[];
     final ResultSet rows = db.select(
-      "SELECT l.line_type, l.ref_id, l.quantity, l.unit_price_cents, l.subtotal_cents, "
-      "COALESCE(e.name, s.name, '') AS item_name "
-      "FROM quote_lines l "
-      "LEFT JOIN equipments e ON l.line_type = 0 AND e.id = l.ref_id "
-      "LEFT JOIN services s ON l.line_type = 1 AND s.id = l.ref_id "
-      "WHERE l.quote_id = ? ORDER BY l.rowid ASC",
+      "SELECT * FROM quote_lines WHERE quote_id = ? ORDER BY rowid ASC",
       [quoteId],
     );
     return [
@@ -430,38 +464,44 @@ class QuoteStore {
         QuoteLine(
           type: CatalogItemType.values[row["line_type"] as int],
           refId: row["ref_id"] as int,
-          name: row["item_name"] as String,
+          name: row["name"] as String,
+          description: row["description"] as String,
+          unit: row["unit"] as String,
           quantity: row["quantity"] as int,
           unitPriceCents: row["unit_price_cents"] as int,
           subtotalCents: row["subtotal_cents"] as int,
+          isNew: row["is_new"] == 1,
         ),
     ];
   }
 
-  /// Gathers everything the quote PDF needs in a single query: the quote's
-  /// timestamp, its client, and every line with the catalog name and unit
-  /// abbreviation already resolved. Replaces the per-line catalog/unit fan-out.
+  /// Gathers the whole quote document in a single query: its state, client copy,
+  /// Condições, Observações, renderer version and every line copy.
   QuotePdfData quotePdfData(int quoteId) {
-    final Database? db = _db;
-    if (db == null) return const QuotePdfData(createdAt: 0, client: null, lines: []);
-    // equipments = line_type 0, services = line_type 1 (CatalogItemType order).
-    final ResultSet rows = db.select(
-      "SELECT q.created_at, "
-      "c.id AS client_id, c.name AS client_name, c.phone, c.email, c.address, c.city, "
-      "l.line_type, l.quantity, l.unit_price_cents, l.subtotal_cents, "
-      "COALESCE(e.name, s.name, '') AS item_name, "
-      "COALESCE(eu.abbreviation, su.abbreviation, '') AS unit_abbr "
-      "FROM quotes q "
-      "LEFT JOIN clients c ON c.id = q.client_id "
-      "LEFT JOIN quote_lines l ON l.quote_id = q.id "
-      "LEFT JOIN equipments e ON l.line_type = 0 AND e.id = l.ref_id "
-      "LEFT JOIN services s ON l.line_type = 1 AND s.id = l.ref_id "
-      "LEFT JOIN units eu ON eu.id = e.unit_id "
-      "LEFT JOIN units su ON su.id = s.unit_id "
+    final ResultSet? rows = _db?.select(
+      "SELECT q.*, l.* FROM quotes q LEFT JOIN quote_lines l ON l.quote_id = q.id "
       "WHERE q.id = ? ORDER BY l.rowid ASC",
       [quoteId],
     );
-    if (rows.isEmpty) return const QuotePdfData(createdAt: 0, client: null, lines: []);
+    if (rows == null || rows.isEmpty) {
+      return const QuotePdfData(
+        id: 0,
+        createdAt: 0,
+        status: "",
+        client: null,
+        payment: "",
+        warranty: "",
+        validity: "",
+        terms: "",
+        notes: "",
+        rendererVersion: newestPdfRenderer,
+        showUnitPrice: true,
+        equipmentPriceMode: 0,
+        closedTotalCents: 0,
+        markupPercent: 0,
+        lines: [],
+      );
+    }
     final Row head = rows.first;
     final Object? clientId = head["client_id"];
     Client? client;
@@ -469,10 +509,10 @@ class QuoteStore {
       client = Client(
         id: clientId as int,
         name: head["client_name"] as String,
-        phone: head["phone"] as String,
-        email: head["email"] as String,
-        address: head["address"] as String,
-        city: head["city"] as String,
+        phone: head["client_phone"] as String,
+        email: head["client_email"] as String,
+        address: head["client_address"] as String,
+        city: head["client_city"] as String,
       );
     }
     final List<QuotePdfLine> lines = [
@@ -480,14 +520,33 @@ class QuoteStore {
         if (row["line_type"] != null)
           QuotePdfLine(
             type: CatalogItemType.values[row["line_type"] as int],
-            name: row["item_name"] as String,
+            name: row["name"] as String,
+            description: row["description"] as String,
             quantity: row["quantity"] as int,
-            unit: row["unit_abbr"] as String,
+            unit: row["unit"] as String,
             unitPriceCents: row["unit_price_cents"] as int,
             subtotalCents: row["subtotal_cents"] as int,
           ),
     ];
-    return QuotePdfData(createdAt: head["created_at"] as int, client: client, lines: lines);
+    final String status = head["status"] as String;
+    return QuotePdfData(
+      id: quoteId,
+      createdAt: head["created_at"] as int,
+      status: status,
+      client: client,
+      payment: head["payment"] as String,
+      warranty: head["warranty"] as String,
+      validity: head["validity"] as String,
+      terms: head["terms"] as String,
+      notes: head["notes"] as String,
+      // A draft always renders with the newest renderer; a saved quote keeps its own.
+      rendererVersion: status == "draft" ? newestPdfRenderer : head["renderer_version"] as int,
+      showUnitPrice: head["show_unit_price"] == 1,
+      equipmentPriceMode: head["equipment_price_mode"] as int,
+      closedTotalCents: head["closed_total_cents"] as int,
+      markupPercent: head["markup_percent"] as int,
+      lines: lines,
+    );
   }
 
   /// Returns the total in cents for [quoteId].
@@ -508,18 +567,48 @@ class QuoteStore {
     return rows.first["c"] as int;
   }
 
-  /// Finalises a draft: stamps the total and flips it to a saved quote.
+  /// Saves a draft that has a client and at least one line: stamps the total and
+  /// the newest renderer version, clears the "novo no catálogo" flags and flips it
+  /// to a saved quote, which refuses every later write.
   bool finalizeDraft(int quoteId) {
-    final int clientId = draftClientId(quoteId);
-    if (clientId == 0) return _fail(errMissingId, "Client missing");
+    final QuotePdfData data = quotePdfData(quoteId);
+    if (data.client == null) return _fail(errMissingId, "Client missing");
+    if (data.lines.isEmpty) return _fail(errQuoteEmpty, "Quote empty");
     final int total = quoteTotal(quoteId);
-    if (total <= 0) return _fail(errQuoteEmpty, "Quote empty");
-    return _write(quotesNotifier, (Database db) {
+    return _writeDraft(quoteId, (Database db) {
+      db.execute("UPDATE quote_lines SET is_new = 0 WHERE quote_id = ?", [quoteId]);
       db.execute(
-        "UPDATE quotes SET total_cents = ?, status = 'saved', updated_at = ? WHERE id = ?",
-        [total, _nowMillis(), quoteId],
+        "UPDATE quotes SET total_cents = ?, status = 'saved', renderer_version = ? WHERE id = ?",
+        [total, newestPdfRenderer, quoteId],
       );
     });
+  }
+
+  /// Editar: copies [quoteId] into a new draft created now, with the same client
+  /// copy, lines (no "novo" flags), Condições, Observações and Preço dos
+  /// equipamentos fields. Returns the new id, or `0` on failure.
+  int copyQuote(int quoteId) {
+    const String copied =
+        "client_id, client_name, client_phone, client_email, client_address, client_city, "
+        "payment, warranty, validity, terms, notes, "
+        "show_unit_price, equipment_price_mode, closed_total_cents, markup_percent";
+    final int now = _nowMillis();
+    int copyId = 0;
+    _write(quotesNotifier, (Database db) {
+      db.execute(
+        "INSERT INTO quotes ($copied, created_at, updated_at) SELECT $copied, ?, ? FROM quotes WHERE id = ?",
+        [now, now, quoteId],
+      );
+      final int id = db.lastInsertRowId;
+      db.execute(
+        "INSERT INTO quote_lines (quote_id, line_type, ref_id, name, description, unit, quantity, unit_price_cents, subtotal_cents) "
+        "SELECT ?, line_type, ref_id, name, description, unit, quantity, unit_price_cents, subtotal_cents "
+        "FROM quote_lines WHERE quote_id = ? ORDER BY rowid",
+        [id, quoteId],
+      );
+      copyId = id;
+    });
+    return copyId;
   }
 
   /// Deletes a quote (and its lines) by [quoteId].
@@ -530,7 +619,7 @@ class QuoteStore {
     });
   }
 
-  /// Deletes [quoteId] only if it is still a draft with no lines.
+  /// Deletes [quoteId] only if it is still a draft with no client and no lines.
   ///
   /// Used to clean up drafts the user abandoned before adding anything.
   void deleteDraftIfEmpty(int quoteId) {
@@ -538,7 +627,7 @@ class QuoteStore {
     if (db == null) return;
     final ResultSet rows = db.select(
       "SELECT (SELECT COUNT(*) FROM quote_lines WHERE quote_id = q.id) AS lines "
-      "FROM quotes q WHERE q.id = ? AND q.status = 'draft'",
+      "FROM quotes q WHERE q.id = ? AND q.status = 'draft' AND q.client_id IS NULL",
       [quoteId],
     );
     if (rows.isEmpty) return;
@@ -582,7 +671,7 @@ class QuoteStore {
       await db.backup(backupDb, nPage: -1).drain<void>();
       backupDb.close();
       backupDb = null;
-      return File(tempPath).readAsBytes();
+      return await File(tempPath).readAsBytes();
     } catch (error) {
       _fail(errDbBackup, error.toString());
       return null;
@@ -799,7 +888,7 @@ class QuoteStore {
           name: row["name"] as String,
           description: row["description"] as String,
           priceCents: row["price_cents"] as int,
-          unitId: row["unit_id"] as int,
+          unitId: row["unit_id"] as int? ?? 0, // services have no unit
         ),
     ];
   }
@@ -822,7 +911,7 @@ class QuoteStore {
     final Database? db = _db;
     if (db == null) return const <QuoteSummary>[];
     var sql =
-        "SELECT q.id, q.client_id, q.status, "
+        "SELECT q.id, q.client_name, q.status, "
         "COALESCE(SUM(l.subtotal_cents), 0) AS total_cents, q.updated_at, "
         "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.service.index} THEN 1 ELSE 0 END), 0) AS service_count, "
         "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.equipment.index} THEN 1 ELSE 0 END), 0) AS equipment_count "
@@ -842,7 +931,7 @@ class QuoteStore {
       for (final Row row in rows)
         QuoteSummary(
           id: row["id"] as int,
-          clientId: row["client_id"] as int,
+          clientName: row["client_name"] as String,
           status: row["status"] as String,
           totalCents: row["total_cents"] as int,
           updatedAt: row["updated_at"] as int,
@@ -852,21 +941,39 @@ class QuoteStore {
     ];
   }
 
-  bool _write(
-    StoreNotifier notifier,
-    void Function(Database db) action, [
-    StoreNotifier? alsoNotify,
-  ]) {
+  bool _write(StoreNotifier notifier, void Function(Database db) action) {
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
     try {
       action(db);
       notifier.markChanged();
-      alsoNotify?.markChanged();
       return true;
     } catch (error) {
       return _fail(errSqlWrite, error.toString());
     }
+  }
+
+  /// [_write] for the content of quote [quoteId]: refused unless it is a draft,
+  /// and touches the quote.
+  bool _writeDraft(int quoteId, void Function(Database db) action) {
+    final ResultSet? draft = _db?.select("SELECT 1 FROM quotes WHERE id = ? AND status = 'draft'", [
+      quoteId,
+    ]);
+    if (draft != null && draft.isEmpty) return _fail(errInvalidInput, "Quote is not a draft");
+    return _write(quotesNotifier, (Database db) {
+      action(db);
+      _touchQuote(db, quoteId);
+    });
+  }
+
+  /// Lower-cases [value] and strips Portuguese accents, for searching.
+  String _fold(String value) {
+    const String accented = "áàâãäéèêëíìîïóòôõöúùûüç";
+    const String plain = "aaaaaeeeeiiiiooooouuuuc";
+    return value.toLowerCase().splitMapJoin(
+      RegExp("[$accented]"),
+      onMatch: (Match m) => plain[accented.indexOf(m[0]!)],
+    );
   }
 
   bool _addCatalog(
@@ -879,8 +986,16 @@ class QuoteStore {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
     return _write(_catalogNotifier(type), (Database db) {
+      if (type == .service) {
+        db.execute("INSERT INTO services (name, description, price_cents) VALUES (?, ?, ?)", [
+          name,
+          description,
+          priceCents,
+        ]);
+        return;
+      }
       db.execute(
-        "INSERT INTO ${_catalogTable(type)} (name, description, price_cents, unit_id) VALUES (?, ?, ?, ?)",
+        "INSERT INTO equipments (name, description, price_cents, unit_id) VALUES (?, ?, ?, ?)",
         [name, description, priceCents, unitId],
       );
     });
@@ -897,29 +1012,26 @@ class QuoteStore {
     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
     return _write(_catalogNotifier(type), (Database db) {
+      if (type == .service) {
+        db.execute("UPDATE services SET name = ?, description = ?, price_cents = ? WHERE id = ?", [
+          name,
+          description,
+          priceCents,
+          id,
+        ]);
+        return;
+      }
       db.execute(
-        "UPDATE ${_catalogTable(type)} SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?",
+        "UPDATE equipments SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?",
         [name, description, priceCents, unitId, id],
       );
-      // Keep open drafts in sync with the new catalog price.
-      db.execute(
-        "UPDATE quote_lines SET unit_price_cents = ?, subtotal_cents = ? * quantity "
-        "WHERE line_type = ? AND ref_id = ? AND quote_id IN (SELECT id FROM quotes WHERE status = 'draft')",
-        [priceCents, priceCents, type.index, id],
-      );
-    }, quotesNotifier);
+    });
   }
 
   bool _deleteCatalog(CatalogItemType type, int id) {
     return _write(_catalogNotifier(type), (Database db) {
       db.execute("DELETE FROM ${_catalogTable(type)} WHERE id = ?", [id]);
-      // Drop matching lines from open drafts.
-      db.execute(
-        "DELETE FROM quote_lines WHERE line_type = ? AND ref_id = ? "
-        "AND quote_id IN (SELECT id FROM quotes WHERE status = 'draft')",
-        [type.index, id],
-      );
-    }, quotesNotifier);
+    });
   }
 
   bool _validateBackup(Database backupDb) {
@@ -930,8 +1042,8 @@ class QuoteStore {
       }
 
       final ResultSet versionRows = backupDb.select("PRAGMA user_version");
-      if (versionRows.isEmpty || (versionRows.first["user_version"] as int) < 1) {
-        return _fail(errDbBackup, "Backup schema is not supported");
+      if (versionRows.isEmpty || (versionRows.first["user_version"] as int) < 2) {
+        return _fail(errBackupTooOld, "Backup comes from an older app version");
       }
 
       const List<String> requiredTables = [
@@ -963,7 +1075,13 @@ class QuoteStore {
     try {
       final ResultSet versionRows = db.select("PRAGMA user_version");
       final int version = versionRows.first["user_version"] as int;
-      if (version < 1) {
+      if (version < 2) {
+        // Older databases are wiped and recreated from scratch.
+        for (final Row table in db.select(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'",
+        )) {
+          db.execute('DROP TABLE "${table["name"]}"');
+        }
         db.execute("""
 CREATE TABLE clients (
   id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -989,24 +1107,42 @@ CREATE TABLE services (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   name         TEXT NOT NULL,
   description  TEXT NOT NULL DEFAULT '',
-  price_cents  INTEGER NOT NULL DEFAULT 0,
-  unit_id      INTEGER NOT NULL DEFAULT 0
+  price_cents  INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE quotes (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  client_id    INTEGER NOT NULL,
+  client_id    INTEGER,
+  client_name     TEXT NOT NULL DEFAULT '',
+  client_phone    TEXT NOT NULL DEFAULT '',
+  client_email    TEXT NOT NULL DEFAULT '',
+  client_address  TEXT NOT NULL DEFAULT '',
+  client_city     TEXT NOT NULL DEFAULT '',
   created_at   INTEGER NOT NULL,
   updated_at   INTEGER NOT NULL DEFAULT 0,
   total_cents  INTEGER NOT NULL DEFAULT 0,
-  status       TEXT NOT NULL DEFAULT 'draft'
+  status       TEXT NOT NULL DEFAULT 'draft',
+  payment     TEXT NOT NULL DEFAULT '',
+  warranty    TEXT NOT NULL DEFAULT '',
+  validity    TEXT NOT NULL DEFAULT '',
+  terms       TEXT NOT NULL DEFAULT '',
+  notes       TEXT NOT NULL DEFAULT '',
+  renderer_version      INTEGER NOT NULL DEFAULT 1,
+  show_unit_price       INTEGER NOT NULL DEFAULT 1,
+  equipment_price_mode  INTEGER NOT NULL DEFAULT 0,
+  closed_total_cents    INTEGER NOT NULL DEFAULT 0,
+  markup_percent        INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE quote_lines (
   quote_id         INTEGER NOT NULL,
   line_type        INTEGER NOT NULL,
   ref_id           INTEGER NOT NULL,
+  name             TEXT NOT NULL,
+  description      TEXT NOT NULL DEFAULT '',
+  unit             TEXT NOT NULL DEFAULT '',
   quantity         INTEGER NOT NULL,
   unit_price_cents INTEGER NOT NULL,
-  subtotal_cents   INTEGER NOT NULL
+  subtotal_cents   INTEGER NOT NULL,
+  is_new           INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_quote_lines_quote ON quote_lines(quote_id);
 CREATE UNIQUE INDEX idx_quote_lines_unique ON quote_lines(quote_id, line_type, ref_id);
@@ -1030,7 +1166,8 @@ CREATE TABLE quote_defaults (
   payment_method  TEXT NOT NULL DEFAULT '',
   validity        TEXT NOT NULL DEFAULT '',
   warranty        TEXT NOT NULL DEFAULT '',
-  terms           TEXT NOT NULL DEFAULT ''
+  terms           TEXT NOT NULL DEFAULT '',
+  show_unit_price INTEGER NOT NULL DEFAULT 1
 );
 CREATE TABLE pdf_settings (
   id             INTEGER PRIMARY KEY,
@@ -1039,7 +1176,9 @@ CREATE TABLE pdf_settings (
 INSERT INTO business_info (id) VALUES (1);
 INSERT INTO quote_defaults (id) VALUES (1);
 INSERT INTO pdf_settings (id) VALUES (1);
-PRAGMA user_version = 1;
+INSERT INTO units (abbreviation, description) VALUES
+  ('un', 'Unidade'), ('m', 'Metro'), ('cx', 'Caixa'), ('kit', 'Kit');
+PRAGMA user_version = 2;
 """);
       }
       return true;
@@ -1068,9 +1207,7 @@ PRAGMA user_version = 1;
         businessInfo.logo = logo is List<int> ? Uint8List.fromList(logo) : Uint8List(0);
       }
 
-      final ResultSet defaultsRows = db.select(
-        "SELECT id, payment_method, validity, warranty, terms FROM quote_defaults WHERE id = 1",
-      );
+      final ResultSet defaultsRows = db.select("SELECT * FROM quote_defaults WHERE id = 1");
       if (defaultsRows.isNotEmpty) {
         final Row row = defaultsRows.first;
         quoteDefaults.id = row["id"] as int;
@@ -1078,6 +1215,7 @@ PRAGMA user_version = 1;
         quoteDefaults.validity = row["validity"] as String;
         quoteDefaults.warranty = row["warranty"] as String;
         quoteDefaults.terms = row["terms"] as String;
+        quoteDefaults.showUnitPrice = row["show_unit_price"] == 1;
       }
 
       final ResultSet pdfRows = db.select(

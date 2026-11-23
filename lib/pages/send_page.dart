@@ -27,7 +27,7 @@ class _SendPageState extends State<SendPage> {
     final int total = widget.store.quoteTotal(widget.draftId);
     final int serviceCount = widget.store.quoteLineCount(widget.draftId, .service);
     final int equipmentCount = widget.store.quoteLineCount(widget.draftId, .equipment);
-    final Client? client = widget.store.clientById(widget.store.draftClientId(widget.draftId));
+    final Client? client = widget.store.quoteClient(widget.draftId);
     final String clientName = client?.name ?? strings.unknownClient;
 
     return AppShell(

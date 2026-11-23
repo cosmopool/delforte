@@ -12,6 +12,7 @@ import "package:delforte/store/business_info_data.dart";
 import "package:delforte/store/pdf_settings_data.dart";
 import "package:delforte/store/quote_defaults_data.dart";
 import "package:delforte/store/quote_store.dart";
+import "package:delforte/store/store_errors.dart";
 import "package:file_picker/file_picker.dart";
 import "package:flutter/material.dart";
 import "package:image_picker/image_picker.dart";
@@ -332,7 +333,8 @@ class _SettingsPageState extends State<SettingsPage> {
       final bool imported = await widget.store.importBackupBytes(bytes);
       if (!mounted) return;
       if (!imported) {
-        _showBackupMessage(strings.backupImportFailed);
+        final int code = widget.store.errors.codeAt(widget.store.errors.count - 1);
+        _showBackupMessage(code == errBackupTooOld ? strings.backupTooOld : strings.backupImportFailed);
         return;
       }
       setState(() {

@@ -26,7 +26,7 @@ class ReviewPage extends StatelessWidget {
       builder: (BuildContext context, Widget? _) {
         final List<QuoteLine> lines = store.listQuoteLines(draftId);
         final int total = store.quoteTotal(draftId);
-        final Client? client = store.clientById(store.draftClientId(draftId));
+        final Client? client = store.quoteClient(draftId);
         const FontWeight weight = FontWeight.w700;
         const Color color = VigilColors.textSecondary;
         return AppShell(

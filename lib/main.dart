@@ -71,19 +71,12 @@ class _AppMainWidgetState extends State<AppMainWidget> {
       _store.addClient("Comercio Santos", "(11) 97777-2020", "", "Av. Central, 88 - Bloco B", "");
       _store.addClient("Casa Joao Silva", "(11) 96666-3030", "", "Estrada do Morro, 55", "");
     }
-    List<Unit> units = _store.listUnits();
-    if (units.isEmpty) {
-      _store.addUnit("h", "Hour");
-      _store.addUnit("un", "Unit");
-      _store.addUnit("m", "Meter");
-      units = _store.listUnits();
-    }
-    final int unitHour = units.isNotEmpty ? units[0].id : 0;
-    final int unitUnit = units.length > 1 ? units[1].id : 0;
+    final int unitUnit =
+        _store.listUnits().where((Unit u) => u.abbreviation == "un").firstOrNull?.id ?? 0;
     if (_store.listCatalog(.service).isEmpty) {
-      _store.addService("CCTV Installation", "Camera installation and setup", 60000, unitHour);
-      _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000, unitHour);
-      _store.addService("Gate Motor Install", "Gate motor installation labor", 20000, unitHour);
+      _store.addService("CCTV Installation", "Camera installation and setup", 60000);
+      _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000);
+      _store.addService("Gate Motor Install", "Gate motor installation labor", 20000);
     }
     if (_store.listCatalog(.equipment).isEmpty) {
       _store.addEquipment("IP Camera 4MP", "Outdoor infrared camera", 35000, unitUnit);

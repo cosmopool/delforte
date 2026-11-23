@@ -215,13 +215,13 @@ class English implements Localization {
   @override
   String pdfSubtotal = "Subtotal";
   @override
-  String pdfDefaultValidity = "Valid for 30 days";
+  String service = "Service";
   @override
-  String pdfDefaultWarranty = "90-day warranty";
+  String pdfValue = "Amount";
   @override
-  String pdfDefaultTerms =
-      "Services subject to a prior technical visit. Prices may change after inspection. "
-      "Installation includes only the materials listed above.";
+  String observations = "Notes";
+  @override
+  String pdfRendererUnknown = "This quote was created by a newer version of the app";
   @override
   List<String> monthAbbreviations = const [
     "Jan",
@@ -277,7 +277,7 @@ class English implements Localization {
   @override
   String warrantyHint = "e.g. 90 days for parts & labour";
   @override
-  String termsConditions = "Terms & Conditions";
+  String termsConditions = "Terms";
   @override
   String termsHint = "Enter terms…";
   @override
@@ -330,6 +330,8 @@ class English implements Localization {
   String backupImported = "Backup imported";
   @override
   String backupImportFailed = "Could not import backup";
+  @override
+  String backupTooOld = "This backup is from an older version of the app and cannot be imported";
   @override
   String backupExportFailed = "Could not export backup";
 

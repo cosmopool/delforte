@@ -217,13 +217,13 @@ class Portuguese implements Localization {
   @override
   String pdfSubtotal = "Subtotal";
   @override
-  String pdfDefaultValidity = "Validade 30 dias";
+  String service = "Serviço";
   @override
-  String pdfDefaultWarranty = "Garantia 90 dias";
+  String pdfValue = "Valor";
   @override
-  String pdfDefaultTerms =
-      "Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção. "
-      "A instalação inclui apenas os materiais listados acima.";
+  String observations = "Observações";
+  @override
+  String pdfRendererUnknown = "Este orçamento foi criado por uma versão mais nova do app";
   @override
   List<String> monthAbbreviations = const [
     "jan.",
@@ -279,7 +279,7 @@ class Portuguese implements Localization {
   @override
   String warrantyHint = "ex. 90 dias para peças e mão de obra";
   @override
-  String termsConditions = "Termos e Condições";
+  String termsConditions = "Termos";
   @override
   String termsHint = "Digite os termos…";
   @override
@@ -333,6 +333,8 @@ class Portuguese implements Localization {
   String backupImported = "Backup importado";
   @override
   String backupImportFailed = "Não foi possível importar o backup";
+  @override
+  String backupTooOld = "Este backup é de uma versão antiga do app e não pode ser importado";
   @override
   String backupExportFailed = "Não foi possível exportar o backup";
 

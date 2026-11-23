@@ -31,8 +31,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
     super.initState();
     final int? draftId = widget.draftId;
     if (draftId != null) {
-      final int clientId = widget.store.draftClientId(draftId);
-      if (clientId != 0) _selectedClientId = clientId;
+      _selectedClientId = widget.store.quoteClient(draftId)?.id;
     }
   }
 
@@ -90,12 +89,11 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
   void _continue() {
     final int clientId = _selectedClientId!;
     final int? existing = widget.draftId;
-    final int draftId = existing ?? widget.store.createDraft(clientId);
-    if (draftId == 0) {
+    final int draftId = existing ?? widget.store.createDraft();
+    if (draftId == 0 || !widget.store.setDraftClient(draftId, clientId)) {
       _showSnack(widget.store.latestErrorMessage());
       return;
     }
-    if (existing != null) widget.store.setDraftClient(existing, clientId);
     widget.router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: draftId));
   }
 

@@ -329,15 +329,17 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: UnitDropdownWidget(
-                              store: widget.store,
-                              label: strings.unit,
-                              selectedUnitId: _unitId,
-                              onChanged: (value) => setState(() => _unitId = value ?? 0),
+                          if (!_isServices) ...[
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: UnitDropdownWidget(
+                                store: widget.store,
+                                label: strings.unit,
+                                selectedUnitId: _unitId,
+                                onChanged: (value) => setState(() => _unitId = value ?? 0),
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                       const SizedBox(height: 14),
@@ -386,7 +388,7 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
     final int cents = moneyStringToCents(_price.text);
     final String description = _description.text.trim();
     final bool saved = _isServices
-        ? widget.store.updateService(widget.item.id, name, description, cents, _unitId)
+        ? widget.store.updateService(widget.item.id, name, description, cents)
         : widget.store.updateEquipment(widget.item.id, name, description, cents, _unitId);
     if (!saved) {
       _showSnack(widget.store.latestErrorMessage());

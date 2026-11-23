@@ -134,8 +134,8 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
     // Attach the new client to the draft (creating one lazily if needed) so the
     // client step returns with it preselected.
     final int? existing = widget.draftId;
-    final int draftId = existing ?? widget.store.createDraft(newId);
-    if (existing != null) widget.store.setDraftClient(existing, newId);
+    final int draftId = existing ?? widget.store.createDraft();
+    widget.store.setDraftClient(draftId, newId);
     widget.router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: draftId == 0 ? null : draftId));
   }
 

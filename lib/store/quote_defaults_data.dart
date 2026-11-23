@@ -19,6 +19,9 @@ class QuoteDefaultsData {
   /// Default terms & conditions text.
   String terms;
 
+  /// Whether new quotes show the unit price in the PDF ("Valor unitário no PDF").
+  bool showUnitPrice = true;
+
   /// Whether this row has been loaded from the database.
   bool get hasData => id != 0;
 }

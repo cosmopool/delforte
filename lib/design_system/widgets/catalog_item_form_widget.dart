@@ -71,15 +71,17 @@ class CatalogItemForm extends StatelessWidget {
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: UnitDropdownWidget(
-                store: store,
-                label: strings.unit,
-                selectedUnitId: selectedUnitId,
-                onChanged: onUnitChanged,
+            if (!isService) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: UnitDropdownWidget(
+                  store: store,
+                  label: strings.unit,
+                  selectedUnitId: selectedUnitId,
+                  onChanged: onUnitChanged,
+                ),
               ),
-            ),
+            ],
           ],
         ),
         const SizedBox(height: 24),

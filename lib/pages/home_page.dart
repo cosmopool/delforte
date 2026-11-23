@@ -72,7 +72,7 @@ class HomePage extends StatelessWidget {
 
   Widget _quoteCard(QuoteSummary quote) {
     return QuoteCard(
-      clientName: _clientNameById(quote.clientId),
+      clientName: quote.clientName,
       meta: strings.quoteMeta(quote.serviceCount, quote.equipmentCount),
       total: formatMoney(quote.totalCents),
       status: quote.isDraft ? strings.statusDraft : strings.statusSaved,
@@ -83,10 +83,6 @@ class HomePage extends StatelessWidget {
           ? () => router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: quote.id))
           : () => router.goTo(PdfPreviewRoute(quote.id, back: const HomeRoute())),
     );
-  }
-
-  String _clientNameById(int id) {
-    return store.clientById(id)?.name ?? strings.unknownClient;
   }
 }
 

@@ -35,7 +35,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
     final String query = _searchController.text.trim().toLowerCase();
     final List<QuoteSummary> quotes = [
       for (final QuoteSummary quote in widget.store.listQuotes())
-        if (query.isEmpty || _clientNameById(quote.clientId).toLowerCase().contains(query)) quote,
+        if (query.isEmpty || quote.clientName.toLowerCase().contains(query)) quote,
     ];
 
     return AppShell(
@@ -61,7 +61,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
                 else
                   for (final QuoteSummary quote in quotes)
                     QuoteCard(
-                      clientName: _clientNameById(quote.clientId),
+                      clientName: quote.clientName,
                       meta: strings.quoteMeta(quote.serviceCount, quote.equipmentCount),
                       total: formatMoney(quote.totalCents),
                       status: quote.isDraft ? strings.statusDraft : strings.statusSaved,
@@ -79,9 +79,5 @@ class _QuotesListPageState extends State<QuotesListPage> {
         ],
       ),
     );
-  }
-
-  String _clientNameById(int id) {
-    return widget.store.clientById(id)?.name ?? strings.unknownClient;
   }
 }

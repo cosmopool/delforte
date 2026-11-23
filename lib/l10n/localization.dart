@@ -140,9 +140,10 @@ abstract class Localization {
   late final String pdfQty;
   late final String pdfPrice;
   late final String pdfSubtotal;
-  late final String pdfDefaultValidity;
-  late final String pdfDefaultWarranty;
-  late final String pdfDefaultTerms;
+  late final String service;
+  late final String pdfValue;
+  late final String observations;
+  late final String pdfRendererUnknown;
   late final List<String> monthAbbreviations;
 
   // Settings
@@ -190,6 +191,7 @@ abstract class Localization {
   late final String replaceBackup;
   late final String backupImported;
   late final String backupImportFailed;
+  late final String backupTooOld;
   late final String backupExportFailed;
 
   // Templates

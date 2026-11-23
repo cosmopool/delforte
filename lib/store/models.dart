@@ -61,7 +61,7 @@ class PaymentMethod {
 class QuoteSummary {
   const QuoteSummary({
     required this.id,
-    required this.clientId,
+    required this.clientName,
     required this.status,
     required this.totalCents,
     required this.updatedAt,
@@ -70,7 +70,9 @@ class QuoteSummary {
   });
 
   final int id;
-  final int clientId;
+
+  /// The client name copied into the quote, or `""` when it has no client.
+  final String clientName;
   final String status;
   final int totalCents;
   final int updatedAt;
@@ -80,23 +82,31 @@ class QuoteSummary {
   bool get isDraft => status == "draft";
 }
 
-/// A single line of a quote (draft or saved), with the catalog name resolved.
+/// A single line of a quote (draft or saved), holding its own copy of the catalog item.
 class QuoteLine {
   const QuoteLine({
     required this.type,
     required this.refId,
     required this.name,
+    required this.description,
+    required this.unit,
     required this.quantity,
     required this.unitPriceCents,
     required this.subtotalCents,
+    required this.isNew,
   });
 
   final CatalogItemType type;
   final int refId;
   final String name;
+  final String description;
+  final String unit;
   final int quantity;
   final int unitPriceCents;
   final int subtotalCents;
+
+  /// Whether this line created its catalog item ("novo no catálogo"); cleared on save.
+  final bool isNew;
 }
 
 /// A quote line fully resolved for PDF rendering: the catalog name and unit
@@ -105,6 +115,7 @@ class QuotePdfLine {
   const QuotePdfLine({
     required this.type,
     required this.name,
+    required this.description,
     required this.quantity,
     required this.unit,
     required this.unitPriceCents,
@@ -113,17 +124,55 @@ class QuotePdfLine {
 
   final CatalogItemType type;
   final String name;
+  final String description;
   final int quantity;
   final String unit;
   final int unitPriceCents;
   final int subtotalCents;
 }
 
-/// Everything the quote PDF reads from SQLite, gathered by a single query.
-class QuotePdfData {
-  const QuotePdfData({required this.createdAt, required this.client, required this.lines});
+/// The newest PDF renderer version: drafts render with it and saving records it.
+const int newestPdfRenderer = 1;
 
+/// The whole quote document, gathered by a single query: what the PDF prints.
+class QuotePdfData {
+  const QuotePdfData({
+    required this.id,
+    required this.createdAt,
+    required this.status,
+    required this.client,
+    required this.payment,
+    required this.warranty,
+    required this.validity,
+    required this.terms,
+    required this.notes,
+    required this.rendererVersion,
+    required this.showUnitPrice,
+    required this.equipmentPriceMode,
+    required this.closedTotalCents,
+    required this.markupPercent,
+    required this.lines,
+  });
+
+  final int id;
   final int createdAt;
+  final String status;
+
+  /// The client copied into the quote, or `null` when it has none.
   final Client? client;
+  final String payment;
+  final String warranty;
+  final String validity;
+  final String terms;
+  final String notes;
+
+  /// The stored renderer version of a saved quote; [newestPdfRenderer] for a draft.
+  final int rendererVersion;
+
+  // Preço dos equipamentos (used from part 2).
+  final bool showUnitPrice;
+  final int equipmentPriceMode;
+  final int closedTotalCents;
+  final int markupPercent;
   final List<QuotePdfLine> lines;
 }
