@@ -148,3 +148,10 @@ app.*.symbols
 .fvm/
 
 cobudget_database
+
+# Local, not part of the app
+*.jsx
+/headunit/
+/deps
+/packages
+/ux/

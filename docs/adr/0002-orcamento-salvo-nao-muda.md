@@ -1,0 +1,3 @@
+# Orçamento salvo não muda; "Editar" cria uma cópia
+
+Um orçamento salvo é o documento que o cliente pode ter recebido, então ele nunca é alterado. A ação "Editar" de um orçamento salvo cria um rascunho novo com tudo do original exatamente como está (cliente, linhas, condições, observações, preço dos equipamentos), com data e número novos e sem ligação com o original. Consideramos permitir editar o salvo com um aviso e rastrear um estado "compartilhado", e descartamos: o app não sabe se o PDF chegou ao cliente, e um documento que muda depois de enviado é pior que um orçamento a mais na lista. Para não gerar cópias por erro de digitação, ver o PDF de um rascunho não o salva; salvar é um gesto explícito (Salvar ou Compartilhar).
