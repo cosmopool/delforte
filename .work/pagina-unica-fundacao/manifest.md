@@ -20,7 +20,7 @@
   - `deleteDraftIfEmpty` checks "no client and no line" (D-15).
   - Every quote write is refused on a saved quote (AC-29).
   - `_updateCatalog` and `_deleteCatalog` lose their draft side effects (D-2, D-3).
-  - `searchCatalog` and `searchClients` ignore accents and case (S-19, AC-10).
+  - `searchCatalog` ignores accents and case (S-19, AC-10). `searchClients` stays as it is (A-7).
   - `_validateBackup` requires `user_version` 2 and logs a dedicated error code (D-11).
   - `addService` and `updateService` lose `unitId`.
 - `lib/store/models.dart` — models change in place, with no parallel classes:
@@ -41,16 +41,25 @@
     - prints Observações last.
 - `lib/pages/pdf_preview_page.dart` — calls the new entry point, and shows an error text when it returns `null` (A-3).
 - `lib/pages/settings_page.dart` — on import, `errBackupTooOld` shows its own SnackBar (D-11, D-21). The rest is unchanged.
-- Wizard adapted to the new API, with the smallest change that compiles and keeps the flow working (D-20):
-  - `client_select_page`, `client_create_page`, `review_page`, `send_page` and `app_router` move from `createDraft(clientId)` / `draftClientId` + `clientById` to `createDraft()` + `setDraftClient` / `quoteClient`.
-  - `home_page` and `quotes_list_page` show `clientName` from the summary.
-  - `service_create_page`, `catalog_page` and `catalog_item_form_widget` drop the service Unit field (S-27, AC-20).
+- Wizard adapted to the new API, with the smallest change that compiles and keeps the flow working (D-20). The pages below move from `createDraft(clientId)` / `draftClientId` + `clientById` to `createDraft()` + `setDraftClient` / `quoteClient`, or read `clientName` from the summary:
+  - `lib/pages/client_select_page.dart`
+  - `lib/pages/client_create_page.dart`
+  - `lib/pages/review_page.dart`
+  - `lib/pages/send_page.dart`
+  - `lib/router/app_router.dart`
+  - `lib/pages/home_page.dart`
+  - `lib/pages/quotes_list_page.dart`
+- The service Unit field goes (S-27, AC-20):
+  - `lib/pages/service_create_page.dart`
+  - `lib/pages/catalog_page.dart`
+  - `lib/design_system/widgets/catalog_item_form_widget.dart`
 - `lib/main.dart` — `_seedEmptyStore` stops seeding units and stops passing a unit to services (D-4).
 - `lib/design_system/colors.dart` — `paper` #E8EBF2, `blueM` #5499EE and `pin` #F2542D (S-1).
-- `lib/l10n/localization.dart`, `english.dart`, `portuguese.dart`:
-  - add `backupTooOld`, `observations` and `pdfRendererUnknown`;
-  - `termsConditions` becomes "Termos";
-  - remove `pdfDefaultValidity`, `pdfDefaultWarranty` and `pdfDefaultTerms`.
+- Localization: add `backupTooOld`, `observations`, `pdfRendererUnknown` and the PDF header words `service` / `pdfValue` ("Serviço · Valor"); `termsConditions` becomes "Termos"; remove `pdfDefaultValidity`, `pdfDefaultWarranty` and `pdfDefaultTerms`. Files:
+  - `lib/l10n/localization.dart`
+  - `lib/l10n/english.dart`
+  - `lib/l10n/portuguese.dart`
+- `test/app_test.dart` — the two widget finders fixed after the race (the uppercase FormFieldWidget label, and `scrollUntilVisible` for the lazy settings list).
 - `test/quote_store_test.dart` — rewritten for the new rules (D-18), plus the store ACs.
 
 ## New files

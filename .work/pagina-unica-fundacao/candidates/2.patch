@@ -1,0 +1,1679 @@
+diff --git a/lib/design_system/colors.dart b/lib/design_system/colors.dart
+index 3f84670..962cd5f 100644
+--- a/lib/design_system/colors.dart
++++ b/lib/design_system/colors.dart
+@@ -17,6 +17,9 @@ abstract final class VigilColors {
+   static const Color textMuted = Color(0xFF9AA3BA);
+   static const Color border = Color(0x17101D40);
+   static const Color borderStrong = Color(0x29101D40);
++  static const Color paper = Color(0xFFE8EBF2);
++  static const Color blueM = Color(0xFF5499EE);
++  static const Color pin = Color(0xFFF2542D);
+ 
+   static const List<Color> appBackdrop = [Color(0xFF060D22), Color(0xFF142354), Color(0xFF1A2E6B)];
+ }
+diff --git a/lib/design_system/widgets/catalog_item_form_widget.dart b/lib/design_system/widgets/catalog_item_form_widget.dart
+index d2ce82b..40867d6 100644
+--- a/lib/design_system/widgets/catalog_item_form_widget.dart
++++ b/lib/design_system/widgets/catalog_item_form_widget.dart
+@@ -71,15 +71,17 @@ class CatalogItemForm extends StatelessWidget {
+                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
+               ),
+             ),
+-            const SizedBox(width: 10),
+-            Expanded(
+-              child: UnitDropdownWidget(
+-                store: store,
+-                label: strings.unit,
+-                selectedUnitId: selectedUnitId,
+-                onChanged: onUnitChanged,
++            if (!isService) ...[
++              const SizedBox(width: 10),
++              Expanded(
++                child: UnitDropdownWidget(
++                  store: store,
++                  label: strings.unit,
++                  selectedUnitId: selectedUnitId,
++                  onChanged: onUnitChanged,
++                ),
+               ),
+-            ),
++            ],
+           ],
+         ),
+         const SizedBox(height: 24),
+diff --git a/lib/l10n/english.dart b/lib/l10n/english.dart
+index 3a1a7c1..251fe7d 100644
+--- a/lib/l10n/english.dart
++++ b/lib/l10n/english.dart
+@@ -106,7 +106,7 @@ class English implements Localization {
+   @override
+   String sectionIdentity = "Identity";
+   @override
+-  String serviceName = "Service Name";
++  String serviceName = "SERVICE NAME";
+   @override
+   String serviceNameHint = "e.g. CCTV Installation";
+   @override
+@@ -114,7 +114,7 @@ class English implements Localization {
+   @override
+   String sectionPricing = "Pricing";
+   @override
+-  String defaultPrice = "Default Price";
++  String defaultPrice = "DEFAULT PRICE";
+   @override
+   String priceHint = "0,00";
+   @override
+@@ -215,13 +215,13 @@ class English implements Localization {
+   @override
+   String pdfSubtotal = "Subtotal";
+   @override
+-  String pdfDefaultValidity = "Valid for 30 days";
++  String service = "Service";
+   @override
+-  String pdfDefaultWarranty = "90-day warranty";
++  String pdfValue = "Amount";
+   @override
+-  String pdfDefaultTerms =
+-      "Services subject to a prior technical visit. Prices may change after inspection. "
+-      "Installation includes only the materials listed above.";
++  String observations = "Notes";
++  @override
++  String pdfRendererUnknown = "This quote was created by a newer version of the app";
+   @override
+   List<String> monthAbbreviations = const [
+     "Jan",
+@@ -277,7 +277,7 @@ class English implements Localization {
+   @override
+   String warrantyHint = "e.g. 90 days for parts & labour";
+   @override
+-  String termsConditions = "Terms & Conditions";
++  String termsConditions = "Terms";
+   @override
+   String termsHint = "Enter terms…";
+   @override
+@@ -331,6 +331,8 @@ class English implements Localization {
+   @override
+   String backupImportFailed = "Could not import backup";
+   @override
++  String backupTooOld = "This backup is from an older version of the app and cannot be imported";
++  @override
+   String backupExportFailed = "Could not export backup";
+ 
+   @override
+diff --git a/lib/l10n/localization.dart b/lib/l10n/localization.dart
+index 6f09997..1e0ed2f 100644
+--- a/lib/l10n/localization.dart
++++ b/lib/l10n/localization.dart
+@@ -140,9 +140,10 @@ abstract class Localization {
+   late final String pdfQty;
+   late final String pdfPrice;
+   late final String pdfSubtotal;
+-  late final String pdfDefaultValidity;
+-  late final String pdfDefaultWarranty;
+-  late final String pdfDefaultTerms;
++  late final String service;
++  late final String pdfValue;
++  late final String observations;
++  late final String pdfRendererUnknown;
+   late final List<String> monthAbbreviations;
+ 
+   // Settings
+@@ -190,6 +191,7 @@ abstract class Localization {
+   late final String replaceBackup;
+   late final String backupImported;
+   late final String backupImportFailed;
++  late final String backupTooOld;
+   late final String backupExportFailed;
+ 
+   // Templates
+diff --git a/lib/l10n/portuguese.dart b/lib/l10n/portuguese.dart
+index 1e3f926..66e93f3 100644
+--- a/lib/l10n/portuguese.dart
++++ b/lib/l10n/portuguese.dart
+@@ -107,7 +107,7 @@ class Portuguese implements Localization {
+   @override
+   String sectionIdentity = "Identificação";
+   @override
+-  String serviceName = "Nome do Serviço";
++  String serviceName = "NOME DO SERVIÇO";
+   @override
+   String serviceNameHint = "ex. Instalação de CFTV";
+   @override
+@@ -115,7 +115,7 @@ class Portuguese implements Localization {
+   @override
+   String sectionPricing = "Preço";
+   @override
+-  String defaultPrice = "Preço Padrão";
++  String defaultPrice = "PREÇO PADRÃO";
+   @override
+   String priceHint = "0,00";
+   @override
+@@ -217,13 +217,13 @@ class Portuguese implements Localization {
+   @override
+   String pdfSubtotal = "Subtotal";
+   @override
+-  String pdfDefaultValidity = "Validade 30 dias";
++  String service = "Serviço";
+   @override
+-  String pdfDefaultWarranty = "Garantia 90 dias";
++  String pdfValue = "Valor";
+   @override
+-  String pdfDefaultTerms =
+-      "Serviços sujeitos a visita técnica prévia. Os preços podem variar após a inspeção. "
+-      "A instalação inclui apenas os materiais listados acima.";
++  String observations = "Observações";
++  @override
++  String pdfRendererUnknown = "Este orçamento foi criado por uma versão mais nova do app";
+   @override
+   List<String> monthAbbreviations = const [
+     "jan.",
+@@ -279,7 +279,7 @@ class Portuguese implements Localization {
+   @override
+   String warrantyHint = "ex. 90 dias para peças e mão de obra";
+   @override
+-  String termsConditions = "Termos e Condições";
++  String termsConditions = "Termos";
+   @override
+   String termsHint = "Digite os termos…";
+   @override
+@@ -334,6 +334,8 @@ class Portuguese implements Localization {
+   @override
+   String backupImportFailed = "Não foi possível importar o backup";
+   @override
++  String backupTooOld = "Este backup é de uma versão antiga do app e não pode ser importado";
++  @override
+   String backupExportFailed = "Não foi possível exportar o backup";
+ 
+   @override
+diff --git a/lib/main.dart b/lib/main.dart
+index b6b8b3e..0d480a1 100644
+--- a/lib/main.dart
++++ b/lib/main.dart
+@@ -71,19 +71,12 @@ class _AppMainWidgetState extends State<AppMainWidget> {
+       _store.addClient("Comercio Santos", "(11) 97777-2020", "", "Av. Central, 88 - Bloco B", "");
+       _store.addClient("Casa Joao Silva", "(11) 96666-3030", "", "Estrada do Morro, 55", "");
+     }
+-    List<Unit> units = _store.listUnits();
+-    if (units.isEmpty) {
+-      _store.addUnit("h", "Hour");
+-      _store.addUnit("un", "Unit");
+-      _store.addUnit("m", "Meter");
+-      units = _store.listUnits();
+-    }
+-    final int unitHour = units.isNotEmpty ? units[0].id : 0;
+-    final int unitUnit = units.length > 1 ? units[1].id : 0;
++    final int unitUnit =
++        _store.listUnits().where((Unit u) => u.abbreviation == "un").firstOrNull?.id ?? 0;
+     if (_store.listCatalog(.service).isEmpty) {
+-      _store.addService("CCTV Installation", "Camera installation and setup", 60000, unitHour);
+-      _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000, unitHour);
+-      _store.addService("Gate Motor Install", "Gate motor installation labor", 20000, unitHour);
++      _store.addService("CCTV Installation", "Camera installation and setup", 60000);
++      _store.addService("Alarm System Setup", "Panel, sensors, and configuration", 40000);
++      _store.addService("Gate Motor Install", "Gate motor installation labor", 20000);
+     }
+     if (_store.listCatalog(.equipment).isEmpty) {
+       _store.addEquipment("IP Camera 4MP", "Outdoor infrared camera", 35000, unitUnit);
+diff --git a/lib/pages/catalog_page.dart b/lib/pages/catalog_page.dart
+index 1b2fb0f..10c9782 100644
+--- a/lib/pages/catalog_page.dart
++++ b/lib/pages/catalog_page.dart
+@@ -329,15 +329,17 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
+                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                             ),
+                           ),
+-                          const SizedBox(width: 10),
+-                          Expanded(
+-                            child: UnitDropdownWidget(
+-                              store: widget.store,
+-                              label: strings.unit,
+-                              selectedUnitId: _unitId,
+-                              onChanged: (value) => setState(() => _unitId = value ?? 0),
++                          if (!_isServices) ...[
++                            const SizedBox(width: 10),
++                            Expanded(
++                              child: UnitDropdownWidget(
++                                store: widget.store,
++                                label: strings.unit,
++                                selectedUnitId: _unitId,
++                                onChanged: (value) => setState(() => _unitId = value ?? 0),
++                              ),
+                             ),
+-                          ),
++                          ],
+                         ],
+                       ),
+                       const SizedBox(height: 14),
+@@ -386,7 +388,7 @@ class _CatalogEditCardState extends State<_CatalogEditCard> {
+     final int cents = moneyStringToCents(_price.text);
+     final String description = _description.text.trim();
+     final bool saved = _isServices
+-        ? widget.store.updateService(widget.item.id, name, description, cents, _unitId)
++        ? widget.store.updateService(widget.item.id, name, description, cents)
+         : widget.store.updateEquipment(widget.item.id, name, description, cents, _unitId);
+     if (!saved) {
+       _showSnack(widget.store.latestErrorMessage());
+diff --git a/lib/pages/client_create_page.dart b/lib/pages/client_create_page.dart
+index 1db8c0a..3ae2a52 100644
+--- a/lib/pages/client_create_page.dart
++++ b/lib/pages/client_create_page.dart
+@@ -134,8 +134,8 @@ class _ClientCreatePageState extends State<ClientCreatePage> {
+     // Attach the new client to the draft (creating one lazily if needed) so the
+     // client step returns with it preselected.
+     final int? existing = widget.draftId;
+-    final int draftId = existing ?? widget.store.createDraft(newId);
+-    if (existing != null) widget.store.setDraftClient(existing, newId);
++    final int draftId = existing ?? widget.store.createDraft();
++    widget.store.setDraftClient(draftId, newId);
+     widget.router.goTo(QuoteFlowRoute(QuoteStep.client, draftId: draftId == 0 ? null : draftId));
+   }
+ 
+diff --git a/lib/pages/client_select_page.dart b/lib/pages/client_select_page.dart
+index d4dab12..10eec20 100644
+--- a/lib/pages/client_select_page.dart
++++ b/lib/pages/client_select_page.dart
+@@ -31,8 +31,7 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
+     super.initState();
+     final int? draftId = widget.draftId;
+     if (draftId != null) {
+-      final int clientId = widget.store.draftClientId(draftId);
+-      if (clientId != 0) _selectedClientId = clientId;
++      _selectedClientId = widget.store.quoteClient(draftId)?.id;
+     }
+   }
+ 
+@@ -90,12 +89,11 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
+   void _continue() {
+     final int clientId = _selectedClientId!;
+     final int? existing = widget.draftId;
+-    final int draftId = existing ?? widget.store.createDraft(clientId);
+-    if (draftId == 0) {
++    final int draftId = existing ?? widget.store.createDraft();
++    if (draftId == 0 || !widget.store.setDraftClient(draftId, clientId)) {
+       _showSnack(widget.store.latestErrorMessage());
+       return;
+     }
+-    if (existing != null) widget.store.setDraftClient(existing, clientId);
+     widget.router.goTo(QuoteFlowRoute(QuoteStep.services, draftId: draftId));
+   }
+ 
+diff --git a/lib/pages/home_page.dart b/lib/pages/home_page.dart
+index 3c46e18..a458d70 100644
+--- a/lib/pages/home_page.dart
++++ b/lib/pages/home_page.dart
+@@ -72,7 +72,7 @@ class HomePage extends StatelessWidget {
+ 
+   Widget _quoteCard(QuoteSummary quote) {
+     return QuoteCard(
+-      clientName: _clientNameById(quote.clientId),
++      clientName: quote.clientName,
+       meta: strings.quoteMeta(quote.serviceCount, quote.equipmentCount),
+       total: formatMoney(quote.totalCents),
+       status: quote.isDraft ? strings.statusDraft : strings.statusSaved,
+@@ -84,10 +84,6 @@ class HomePage extends StatelessWidget {
+           : () => router.goTo(PdfPreviewRoute(quote.id, back: const HomeRoute())),
+     );
+   }
+-
+-  String _clientNameById(int id) {
+-    return store.clientById(id)?.name ?? strings.unknownClient;
+-  }
+ }
+ 
+ class _BrandHeader extends StatelessWidget {
+diff --git a/lib/pages/pdf_preview_page.dart b/lib/pages/pdf_preview_page.dart
+index 536cd9d..ab3b4b5 100644
+--- a/lib/pages/pdf_preview_page.dart
++++ b/lib/pages/pdf_preview_page.dart
+@@ -8,7 +8,6 @@ import "package:delforte/pdf/quote_pdf.dart";
+ import "package:delforte/router/app_route_state.dart";
+ import "package:delforte/router/app_router.dart";
+ import "package:delforte/store/business_info_data.dart";
+-import "package:delforte/store/quote_defaults_data.dart";
+ import "package:delforte/store/quote_store.dart";
+ import "package:flutter/material.dart";
+ import "package:printing/printing.dart";
+@@ -40,12 +39,12 @@ class PdfPreviewPage extends StatefulWidget {
+ 
+ class _PdfPreviewPageState extends State<PdfPreviewPage> {
+   late final BusinessInfoData business = widget.store.businessInfo;
+-  late final QuoteDefaultsData defaults = widget.store.quoteDefaults;
+   late final QuotePdfData pdfData = widget.store.quotePdfData(widget.quoteId);
+-  late Future<Uint8List>? _doc = buildQuotePdf(business, defaults, pdfData, widget.quoteId);
++  late Future<Uint8List?>? _doc = buildQuotePdf(business, pdfData);
+ 
+   Future<void> _share() async {
+-    final Uint8List bytes = (await _doc)!;
++    final Uint8List? bytes = await _doc;
++    if (bytes == null) return;
+     await Printing.sharePdf(bytes: bytes, filename: "orcamento_${widget.quoteId}.pdf");
+   }
+ 
+@@ -69,7 +68,9 @@ class _PdfPreviewPageState extends State<PdfPreviewPage> {
+           ),
+           Expanded(
+             child: PdfPreview(
+-              build: (_) => _doc!,
++              // A null document means this build does not know the quote's renderer.
++              build: (_) async => (await _doc)!,
++              onError: (_, _) => Center(child: Text(strings.pdfRendererUnknown)),
+               useActions: false,
+               canChangePageFormat: false,
+               canChangeOrientation: false,
+diff --git a/lib/pages/quotes_list_page.dart b/lib/pages/quotes_list_page.dart
+index 5c94f1c..758af0e 100644
+--- a/lib/pages/quotes_list_page.dart
++++ b/lib/pages/quotes_list_page.dart
+@@ -35,7 +35,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
+     final String query = _searchController.text.trim().toLowerCase();
+     final List<QuoteSummary> quotes = [
+       for (final QuoteSummary quote in widget.store.listQuotes())
+-        if (query.isEmpty || _clientNameById(quote.clientId).toLowerCase().contains(query)) quote,
++        if (query.isEmpty || quote.clientName.toLowerCase().contains(query)) quote,
+     ];
+ 
+     return AppShell(
+@@ -61,7 +61,7 @@ class _QuotesListPageState extends State<QuotesListPage> {
+                 else
+                   for (final QuoteSummary quote in quotes)
+                     QuoteCard(
+-                      clientName: _clientNameById(quote.clientId),
++                      clientName: quote.clientName,
+                       meta: strings.quoteMeta(quote.serviceCount, quote.equipmentCount),
+                       total: formatMoney(quote.totalCents),
+                       status: quote.isDraft ? strings.statusDraft : strings.statusSaved,
+@@ -80,8 +80,4 @@ class _QuotesListPageState extends State<QuotesListPage> {
+       ),
+     );
+   }
+-
+-  String _clientNameById(int id) {
+-    return widget.store.clientById(id)?.name ?? strings.unknownClient;
+-  }
+ }
+diff --git a/lib/pages/review_page.dart b/lib/pages/review_page.dart
+index a956857..4751d92 100644
+--- a/lib/pages/review_page.dart
++++ b/lib/pages/review_page.dart
+@@ -26,7 +26,7 @@ class ReviewPage extends StatelessWidget {
+       builder: (BuildContext context, Widget? _) {
+         final List<QuoteLine> lines = store.listQuoteLines(draftId);
+         final int total = store.quoteTotal(draftId);
+-        final Client? client = store.clientById(store.draftClientId(draftId));
++        final Client? client = store.quoteClient(draftId);
+         const FontWeight weight = FontWeight.w700;
+         const Color color = VigilColors.textSecondary;
+         return AppShell(
+diff --git a/lib/pages/send_page.dart b/lib/pages/send_page.dart
+index c3f6dd2..cef611d 100644
+--- a/lib/pages/send_page.dart
++++ b/lib/pages/send_page.dart
+@@ -27,7 +27,7 @@ class _SendPageState extends State<SendPage> {
+     final int total = widget.store.quoteTotal(widget.draftId);
+     final int serviceCount = widget.store.quoteLineCount(widget.draftId, .service);
+     final int equipmentCount = widget.store.quoteLineCount(widget.draftId, .equipment);
+-    final Client? client = widget.store.clientById(widget.store.draftClientId(widget.draftId));
++    final Client? client = widget.store.quoteClient(widget.draftId);
+     final String clientName = client?.name ?? strings.unknownClient;
+ 
+     return AppShell(
+diff --git a/lib/pages/service_create_page.dart b/lib/pages/service_create_page.dart
+index 069dd54..e42d65a 100644
+--- a/lib/pages/service_create_page.dart
++++ b/lib/pages/service_create_page.dart
+@@ -23,7 +23,6 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
+   final TextEditingController _name = TextEditingController();
+   final TextEditingController _description = TextEditingController();
+   final TextEditingController _price = TextEditingController();
+-  int _unitId = 0;
+ 
+   @override
+   void dispose() {
+@@ -46,8 +45,8 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
+               nameController: _name,
+               descriptionController: _description,
+               priceController: _price,
+-              selectedUnitId: _unitId,
+-              onUnitChanged: (value) => setState(() => _unitId = value ?? 0),
++              selectedUnitId: 0,
++              onUnitChanged: (_) {},
+               onSave: _save,
+             ),
+           ),
+@@ -63,12 +62,7 @@ class _ServiceCreatePageState extends State<ServiceCreatePage> {
+       return;
+     }
+     final int cents = moneyStringToCents(_price.text);
+-    final bool catalogSaved = widget.store.addService(
+-      name,
+-      _description.text.trim(),
+-      cents,
+-      _unitId,
+-    );
++    final bool catalogSaved = widget.store.addService(name, _description.text.trim(), cents);
+     if (!catalogSaved) {
+       _showSnack(widget.store.latestErrorMessage());
+       return;
+diff --git a/lib/pages/settings_page.dart b/lib/pages/settings_page.dart
+index f0ec092..2dd9291 100644
+--- a/lib/pages/settings_page.dart
++++ b/lib/pages/settings_page.dart
+@@ -12,6 +12,7 @@ import "package:delforte/store/business_info_data.dart";
+ import "package:delforte/store/pdf_settings_data.dart";
+ import "package:delforte/store/quote_defaults_data.dart";
+ import "package:delforte/store/quote_store.dart";
++import "package:delforte/store/store_errors.dart";
+ import "package:file_picker/file_picker.dart";
+ import "package:flutter/material.dart";
+ import "package:image_picker/image_picker.dart";
+@@ -122,9 +123,10 @@ class _SettingsPageState extends State<SettingsPage> {
+           Expanded(
+             child: AnimatedBuilder(
+               animation: widget.store.settingsNotifier,
+-              builder: (context, _) {
+-                return ListView(
+-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
++              // Not a lazy ListView: every section stays built and reachable.
++              builder: (context, _) => SingleChildScrollView(
++                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
++                child: ListBody(
+                   children: [
+                     _SectionLabel(label: strings.sectionBusiness),
+                     _SettingsCard(
+@@ -238,8 +240,8 @@ class _SettingsPageState extends State<SettingsPage> {
+                       style: VigilType.small(color: VigilColors.textMuted, size: 11),
+                     ),
+                   ],
+-                );
+-              },
++                ),
++              ),
+             ),
+           ),
+         ],
+@@ -332,7 +334,10 @@ class _SettingsPageState extends State<SettingsPage> {
+       final bool imported = await widget.store.importBackupBytes(bytes);
+       if (!mounted) return;
+       if (!imported) {
+-        _showBackupMessage(strings.backupImportFailed);
++        final int code = widget.store.errors.codeAt(widget.store.errors.count - 1);
++        _showBackupMessage(
++          code == errBackupTooOld ? strings.backupTooOld : strings.backupImportFailed,
++        );
+         return;
+       }
+       setState(() {
+diff --git a/lib/pdf/quote_pdf.dart b/lib/pdf/quote_pdf.dart
+index 9d3f2d8..ca39558 100644
+--- a/lib/pdf/quote_pdf.dart
++++ b/lib/pdf/quote_pdf.dart
+@@ -2,7 +2,6 @@ import "dart:typed_data";
+ 
+ import "package:delforte/l10n/localization.dart";
+ import "package:delforte/store/business_info_data.dart";
+-import "package:delforte/store/quote_defaults_data.dart";
+ import "package:delforte/store/quote_store.dart";
+ import "package:delforte/utils.dart";
+ import "package:flutter/services.dart" show rootBundle;
+@@ -33,27 +32,24 @@ late final pw.Font sansBold;
+ late final pw.Font mono;
+ late final pw.Font monoMed;
+ 
+-class _Line {
+-  _Line(this.name, this.qty, this.unit, this.priceCents, this.subtotalCents);
+-  final String name;
+-  final int qty;
+-  final String unit;
+-  final int priceCents;
+-  final int subtotalCents;
++/// The single PDF entry point: draws [data] with the renderer version stored on
++/// the quote, or returns `null` when this build does not know that version.
++Future<Uint8List?> buildQuotePdf(BusinessInfoData business, QuotePdfData data) async {
++  return switch (data.rendererVersion) {
++    1 => _buildV1(business, data),
++    _ => null,
++  };
+ }
+ 
+-/// Builds the quote PDF for [quoteId], laid out like PdfPreviewScreen.
+-Future<Uint8List> buildQuotePdf(
+-  BusinessInfoData business,
+-  QuoteDefaultsData defaults,
+-  QuotePdfData data,
+-  int quoteId,
+-) async {
++/// Renderer v1, the single-page quote laid out like PdfPreviewScreen.
++///
++/// Never edit it: any change to what the PDF shows is a new renderer version.
++Future<Uint8List> _buildV1(BusinessInfoData business, QuotePdfData data) async {
+   await _finishedLoadingFonts;
+   final Client? client = data.client;
+ 
+-  final List<_Line> services = _linesOf(data, CatalogItemType.service);
+-  final List<_Line> equipment = _linesOf(data, CatalogItemType.equipment);
++  final List<QuotePdfLine> services = _linesOf(data, CatalogItemType.service);
++  final List<QuotePdfLine> equipment = _linesOf(data, CatalogItemType.equipment);
+   final int subtotalServices = services.fold(0, (sum, line) => sum + line.subtotalCents);
+   final int subtotalEquipment = equipment.fold(0, (sum, line) => sum + line.subtotalCents);
+   final int total = subtotalServices + subtotalEquipment;
+@@ -62,17 +58,11 @@ Future<Uint8List> buildQuotePdf(
+       ? business.name.toUpperCase()
+       : strings.appName.toUpperCase();
+   final pw.MemoryImage? logo = business.logo.isNotEmpty ? pw.MemoryImage(business.logo) : null;
+-  final String code = "#$quoteId";
++  final String code = "#${data.id}";
+   final int createdAt = data.createdAt;
+   final String date = _fmtDate(
+     createdAt > 0 ? DateTime.fromMillisecondsSinceEpoch(createdAt) : DateTime.now(),
+   );
+-  final String validity = defaults.validity.isNotEmpty
+-      ? defaults.validity
+-      : strings.pdfDefaultValidity;
+-  final String warranty = defaults.warranty.isNotEmpty
+-      ? defaults.warranty
+-      : strings.pdfDefaultWarranty;
+ 
+   final pw.Document doc = pw.Document();
+   doc.addPage(
+@@ -85,7 +75,7 @@ Future<Uint8List> buildQuotePdf(
+           mainAxisSize: pw.MainAxisSize.min,
+           crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+           children: [
+-            _headerBand(brand, logo, code, date, validity, warranty),
++            _headerBand(brand, logo, code, date, data.validity, data.warranty),
+             pw.Container(
+               height: 3,
+               decoration: const pw.BoxDecoration(
+@@ -102,19 +92,25 @@ Future<Uint8List> buildQuotePdf(
+                 mainAxisSize: pw.MainAxisSize.min,
+                 crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                 children: [
+-                  _billPaymentRow(client, defaults),
++                  _billPaymentRow(client, data.payment),
+                   _docDivider(),
+-                  _linesSection(strings.services, services, subtotalServices),
++                  _linesSection(strings.services, services, subtotalServices, true),
+                   _docDivider(),
+-                  _linesSection(strings.equipment, equipment, subtotalEquipment),
++                  _linesSection(strings.equipment, equipment, subtotalEquipment, false),
+                   _docDivider(),
+                   _totalBox(total),
+-                  pw.SizedBox(height: 12),
+-                  _termsBox(defaults),
++                  if (data.terms.isNotEmpty) ...[
++                    pw.SizedBox(height: 12),
++                    _textBox(strings.termsConditions, data.terms),
++                  ],
++                  if (data.notes.isNotEmpty) ...[
++                    pw.SizedBox(height: 12),
++                    _textBox(strings.observations, data.notes),
++                  ],
+                 ],
+               ),
+             ),
+-            _footer(business, defaults, code, date),
++            _footer(business, data, code, date),
+           ],
+         ),
+       ),
+@@ -136,11 +132,10 @@ Future<void> loadPdfFonts() async {
+   _finishedLoadingFonts = Future<bool>.value(true);
+ }
+ 
+-List<_Line> _linesOf(QuotePdfData data, CatalogItemType type) {
++List<QuotePdfLine> _linesOf(QuotePdfData data, CatalogItemType type) {
+   return [
+     for (final QuotePdfLine line in data.lines)
+-      if (line.type == type)
+-        _Line(line.name, line.quantity, line.unit, line.unitPriceCents, line.subtotalCents),
++      if (line.type == type) line,
+   ];
+ }
+ 
+@@ -215,10 +210,8 @@ pw.Widget _headerBand(
+             pw.Row(
+               children: [
+                 _metaItem(date),
+-                pw.SizedBox(width: 18),
+-                _metaItem(validity),
+-                pw.SizedBox(width: 18),
+-                _metaItem(warranty),
++                for (final String meta in [validity, warranty])
++                  if (meta.isNotEmpty) ...[pw.SizedBox(width: 18), _metaItem(meta)],
+               ],
+             ),
+           ],
+@@ -241,8 +234,7 @@ pw.Widget _label(String text, {PdfColor color = _textMuted}) => pw.Text(
+   style: pw.TextStyle(font: sansBold, fontSize: 9, color: color, letterSpacing: 0.6),
+ );
+ 
+-pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults) {
+-  final String payment = defaults.paymentMethod.isNotEmpty ? defaults.paymentMethod : "—";
++pw.Widget _billPaymentRow(Client? client, String payment) {
+   return pw.Row(
+     crossAxisAlignment: pw.CrossAxisAlignment.start,
+     children: [
+@@ -271,13 +263,15 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults) {
+         child: pw.Column(
+           crossAxisAlignment: pw.CrossAxisAlignment.end,
+           children: [
+-            _label(strings.pdfPayment),
+-            pw.SizedBox(height: 6),
+-            pw.Text(
+-              payment,
+-              textAlign: pw.TextAlign.right,
+-              style: pw.TextStyle(font: sans, fontSize: 10, color: _text),
+-            ),
++            if (payment.isNotEmpty) ...[
++              _label(strings.pdfPayment),
++              pw.SizedBox(height: 6),
++              pw.Text(
++                payment,
++                textAlign: pw.TextAlign.right,
++                style: pw.TextStyle(font: sans, fontSize: 10, color: _text),
++              ),
++            ],
+           ],
+         ),
+       ),
+@@ -285,13 +279,16 @@ pw.Widget _billPaymentRow(Client? client, QuoteDefaultsData defaults) {
+   );
+ }
+ 
+-pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
++/// Services print as "Serviço · Valor" with the description under the name;
++/// equipment prints as Descrição/Qtd/Un/Preço/Total.
++pw.Widget _linesSection(String title, List<QuotePdfLine> lines, int subtotalCents, bool services) {
+   return pw.Column(
+     crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+     children: [
+       _label(title, color: _ink),
+       pw.SizedBox(height: 8),
+       pw.Table(
++        // Services use the first two widths only: name 4, value 1.
+         columnWidths: const {
+           0: pw.FlexColumnWidth(4),
+           1: pw.FlexColumnWidth(1),
+@@ -305,11 +302,16 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
+               border: pw.Border(bottom: pw.BorderSide(color: _ink, width: 1.5)),
+             ),
+             children: [
+-              _th(strings.description, pw.TextAlign.left),
+-              _th(strings.pdfQty, pw.TextAlign.left),
+-              _th(strings.unit, pw.TextAlign.right),
+-              _th(strings.pdfPrice, pw.TextAlign.right),
+-              _th(strings.total, pw.TextAlign.right),
++              if (services) ...[
++                _th(strings.service, pw.TextAlign.left),
++                _th(strings.pdfValue, pw.TextAlign.right),
++              ] else ...[
++                _th(strings.description, pw.TextAlign.left),
++                _th(strings.pdfQty, pw.TextAlign.left),
++                _th(strings.unit, pw.TextAlign.right),
++                _th(strings.pdfPrice, pw.TextAlign.right),
++                _th(strings.total, pw.TextAlign.right),
++              ],
+             ],
+           ),
+           for (var i = 0; i < lines.length; i++)
+@@ -323,11 +325,29 @@ pw.Widget _linesSection(String title, List<_Line> lines, int subtotalCents) {
+                 ),
+               ),
+               children: [
+-                _td(lines[i].name, sans, _text, pw.TextAlign.left),
+-                _td("${lines[i].qty}", mono, _textSec, pw.TextAlign.right),
+-                _td(lines[i].unit, sans, _textMuted, pw.TextAlign.right),
+-                _td(formatMoney(lines[i].priceCents), mono, _textSec, pw.TextAlign.right),
+-                _td(formatMoney(lines[i].subtotalCents), monoMed, _ink, pw.TextAlign.right),
++                if (services) ...[
++                  pw.Column(
++                    crossAxisAlignment: pw.CrossAxisAlignment.start,
++                    children: [
++                      _td(lines[i].name, sans, _text, pw.TextAlign.left),
++                      if (lines[i].description.isNotEmpty)
++                        pw.Padding(
++                          padding: const pw.EdgeInsets.only(bottom: 6),
++                          child: pw.Text(
++                            lines[i].description,
++                            style: pw.TextStyle(font: sans, fontSize: 9, color: _textSec),
++                          ),
++                        ),
++                    ],
++                  ),
++                  _td(formatMoney(lines[i].subtotalCents), monoMed, _ink, pw.TextAlign.right),
++                ] else ...[
++                  _td(lines[i].name, sans, _text, pw.TextAlign.left),
++                  _td("${lines[i].quantity}", mono, _textSec, pw.TextAlign.right),
++                  _td(lines[i].unit, sans, _textMuted, pw.TextAlign.right),
++                  _td(formatMoney(lines[i].unitPriceCents), mono, _textSec, pw.TextAlign.right),
++                  _td(formatMoney(lines[i].subtotalCents), monoMed, _ink, pw.TextAlign.right),
++                ],
+               ],
+             ),
+         ],
+@@ -406,18 +426,17 @@ pw.Widget _totalBox(int total) => pw.Container(
+   ),
+ );
+ 
+-pw.Widget _termsBox(QuoteDefaultsData defaults) {
+-  final String terms = defaults.terms.isNotEmpty ? defaults.terms : strings.pdfDefaultTerms;
++pw.Widget _textBox(String title, String text) {
+   return pw.Container(
+     decoration: pw.BoxDecoration(color: _lightBg, borderRadius: pw.BorderRadius.circular(8)),
+     padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+     child: pw.Column(
+       crossAxisAlignment: pw.CrossAxisAlignment.start,
+       children: [
+-        _label(strings.termsConditions),
++        _label(title),
+         pw.SizedBox(height: 4),
+         pw.Text(
+-          terms,
++          text,
+           style: pw.TextStyle(font: sans, fontSize: 9, color: _textSec, lineSpacing: 2),
+         ),
+       ],
+@@ -425,7 +444,7 @@ pw.Widget _termsBox(QuoteDefaultsData defaults) {
+   );
+ }
+ 
+-pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String code, String date) {
++pw.Widget _footer(BusinessInfoData business, QuotePdfData data, String code, String date) {
+   final String address = [
+     business.address,
+     business.city,
+@@ -436,8 +455,8 @@ pw.Widget _footer(BusinessInfoData business, QuoteDefaultsData defaults, String
+     if (address.isNotEmpty) address,
+     if (business.phone.isNotEmpty) business.phone,
+     if (business.email.isNotEmpty) business.email,
+-    if (defaults.paymentMethod.isNotEmpty) defaults.paymentMethod,
+-    if (defaults.warranty.isNotEmpty) defaults.warranty,
++    if (data.payment.isNotEmpty) data.payment,
++    if (data.warranty.isNotEmpty) data.warranty,
+     if (business.cnpj.isNotEmpty) strings.cnpjLabel(business.cnpj),
+   ];
+ 
+diff --git a/lib/store/models.dart b/lib/store/models.dart
+index 2a871bd..fb17839 100644
+--- a/lib/store/models.dart
++++ b/lib/store/models.dart
+@@ -61,7 +61,7 @@ class PaymentMethod {
+ class QuoteSummary {
+   const QuoteSummary({
+     required this.id,
+-    required this.clientId,
++    required this.clientName,
+     required this.status,
+     required this.totalCents,
+     required this.updatedAt,
+@@ -70,7 +70,9 @@ class QuoteSummary {
+   });
+ 
+   final int id;
+-  final int clientId;
++
++  /// The client name copied into the quote, or `""` when it has no client.
++  final String clientName;
+   final String status;
+   final int totalCents;
+   final int updatedAt;
+@@ -80,23 +82,31 @@ class QuoteSummary {
+   bool get isDraft => status == "draft";
+ }
+ 
+-/// A single line of a quote (draft or saved), with the catalog name resolved.
++/// A single line of a quote (draft or saved), holding its own copy of the catalog item.
+ class QuoteLine {
+   const QuoteLine({
+     required this.type,
+     required this.refId,
+     required this.name,
++    required this.description,
++    required this.unit,
+     required this.quantity,
+     required this.unitPriceCents,
+     required this.subtotalCents,
++    required this.isNew,
+   });
+ 
+   final CatalogItemType type;
+   final int refId;
+   final String name;
++  final String description;
++  final String unit;
+   final int quantity;
+   final int unitPriceCents;
+   final int subtotalCents;
++
++  /// Whether this line created its catalog item ("novo no catálogo"); cleared on save.
++  final bool isNew;
+ }
+ 
+ /// A quote line fully resolved for PDF rendering: the catalog name and unit
+@@ -105,6 +115,7 @@ class QuotePdfLine {
+   const QuotePdfLine({
+     required this.type,
+     required this.name,
++    required this.description,
+     required this.quantity,
+     required this.unit,
+     required this.unitPriceCents,
+@@ -113,17 +124,55 @@ class QuotePdfLine {
+ 
+   final CatalogItemType type;
+   final String name;
++  final String description;
+   final int quantity;
+   final String unit;
+   final int unitPriceCents;
+   final int subtotalCents;
+ }
+ 
+-/// Everything the quote PDF reads from SQLite, gathered by a single query.
++/// The newest PDF renderer version: drafts render with it and saving records it.
++const int newestPdfRenderer = 1;
++
++/// The whole quote document, gathered by a single query: what the PDF prints.
+ class QuotePdfData {
+-  const QuotePdfData({required this.createdAt, required this.client, required this.lines});
++  const QuotePdfData({
++    required this.id,
++    required this.createdAt,
++    required this.status,
++    required this.client,
++    required this.payment,
++    required this.warranty,
++    required this.validity,
++    required this.terms,
++    required this.notes,
++    required this.rendererVersion,
++    required this.showUnitPrice,
++    required this.equipmentPriceMode,
++    required this.closedTotalCents,
++    required this.markupPercent,
++    required this.lines,
++  });
+ 
++  final int id;
+   final int createdAt;
++  final String status;
++
++  /// The client copied into the quote, or `null` when it has none.
+   final Client? client;
++  final String payment;
++  final String warranty;
++  final String validity;
++  final String terms;
++  final String notes;
++
++  /// The stored renderer version of a saved quote; [newestPdfRenderer] for a draft.
++  final int rendererVersion;
++
++  // Preço dos equipamentos (used from part 2).
++  final bool showUnitPrice;
++  final int equipmentPriceMode;
++  final int closedTotalCents;
++  final int markupPercent;
+   final List<QuotePdfLine> lines;
+ }
+diff --git a/lib/store/quote_defaults_data.dart b/lib/store/quote_defaults_data.dart
+index 6fc2a0e..f72378a 100644
+--- a/lib/store/quote_defaults_data.dart
++++ b/lib/store/quote_defaults_data.dart
+@@ -19,6 +19,9 @@ class QuoteDefaultsData {
+   /// Default terms & conditions text.
+   String terms;
+ 
++  /// Whether new quotes show the unit price in the PDF ("Valor unitário no PDF").
++  bool showUnitPrice = true;
++
+   /// Whether this row has been loaded from the database.
+   bool get hasData => id != 0;
+ }
+diff --git a/lib/store/quote_store.dart b/lib/store/quote_store.dart
+index bd1d8fd..f7b1e3d 100644
+--- a/lib/store/quote_store.dart
++++ b/lib/store/quote_store.dart
+@@ -188,29 +188,25 @@ class QuoteStore {
+ 
+   /// Returns all catalog rows of [type], newest first.
+   List<CatalogItem> listCatalog(CatalogItemType type) {
+-    return _queryCatalog(
+-      "SELECT id, name, description, price_cents, unit_id FROM ${_catalogTable(type)} ORDER BY id DESC",
+-    );
++    return _queryCatalog("SELECT * FROM ${_catalogTable(type)} ORDER BY id DESC");
+   }
+ 
+-  /// Returns catalog rows of [type] whose name or description contains [query].
++  /// Returns catalog rows of [type] whose name or description contains [query],
++  /// ignoring accents and case.
+   ///
+   /// An empty [query] returns every row.
+   List<CatalogItem> searchCatalog(CatalogItemType type, String query) {
+-    final String q = query.trim();
+-    if (q.isEmpty) return listCatalog(type);
+-    final String like = "%${q.toLowerCase()}%";
+-    return _queryCatalog(
+-      "SELECT id, name, description, price_cents, unit_id FROM ${_catalogTable(type)} "
+-      "WHERE lower(name) LIKE ? OR lower(description) LIKE ? ORDER BY id DESC",
+-      [like, like],
+-    );
++    final String q = _fold(query.trim());
++    return [
++      for (final CatalogItem item in listCatalog(type))
++        if (_fold("${item.name}\n${item.description}").contains(q)) item,
++    ];
+   }
+ 
+   /// Returns the catalog row of [type] with [id], or `null` when absent.
+   CatalogItem? catalogById(CatalogItemType type, int id) {
+     final List<CatalogItem> rows = _queryCatalog(
+-      "SELECT id, name, description, price_cents, unit_id FROM ${_catalogTable(type)} WHERE id = ?",
++      "SELECT * FROM ${_catalogTable(type)} WHERE id = ?",
+       [id],
+     );
+     if (rows.isEmpty) return null;
+@@ -222,9 +218,9 @@ class QuoteStore {
+     return _addCatalog(.equipment, name, description, priceCents, unitId);
+   }
+ 
+-  /// Inserts a service and returns whether it succeeded.
+-  bool addService(String name, String description, int priceCents, int unitId) {
+-    return _addCatalog(.service, name, description, priceCents, unitId);
++  /// Inserts a service (services have no unit) and returns whether it succeeded.
++  bool addService(String name, String description, int priceCents) {
++    return _addCatalog(.service, name, description, priceCents, 0);
+   }
+ 
+   /// Updates equipment by [id].
+@@ -233,16 +229,16 @@ class QuoteStore {
+   }
+ 
+   /// Updates a service by [id].
+-  bool updateService(int id, String name, String description, int priceCents, int unitId) {
+-    return _updateCatalog(.service, id, name, description, priceCents, unitId);
++  bool updateService(int id, String name, String description, int priceCents) {
++    return _updateCatalog(.service, id, name, description, priceCents, 0);
+   }
+ 
+-  /// Deletes equipment by [id] and removes matching draft lines.
++  /// Deletes equipment by [id]; quote lines keep their own copy.
+   bool deleteEquipment(int id) {
+     return _deleteCatalog(.equipment, id);
+   }
+ 
+-  /// Deletes a service by [id] and removes matching draft lines.
++  /// Deletes a service by [id]; quote lines keep their own copy.
+   bool deleteService(int id) {
+     return _deleteCatalog(.service, id);
+   }
+@@ -302,66 +298,112 @@ class QuoteStore {
+ 
+   // ── DRAFTS & QUOTES ─────────────────────────────────────────────────────────
+ 
+-  /// Creates a draft quote for [clientId] and returns its id, or `0` on failure.
+-  int createDraft(int clientId) {
+-    final Database? db = _db;
+-    if (db == null) {
+-      _fail(errDbOpen, "DB not open");
+-      return 0;
+-    }
+-    try {
+-      final int now = _nowMillis();
++  /// Creates a draft with no client and a copy of the Padrões, and returns its
++  /// id, or `0` on failure.
++  int createDraft() {
++    final int now = _nowMillis();
++    final bool created = _write(quotesNotifier, (Database db) {
+       db.execute(
+-        "INSERT INTO quotes (client_id, created_at, updated_at, total_cents, status) "
+-        "VALUES (?, ?, ?, 0, 'draft')",
+-        [clientId, now, now],
++        "INSERT INTO quotes (created_at, updated_at, payment, warranty, validity, terms, show_unit_price) "
++        "SELECT ?, ?, payment_method, warranty, validity, terms, show_unit_price FROM quote_defaults",
++        [now, now],
+       );
+-      final int id = db.lastInsertRowId;
+-      quotesNotifier.markChanged();
+-      return id;
+-    } catch (error) {
+-      _fail(errSqlWrite, error.toString());
+-      return 0;
+-    }
++    });
++    if (!created) return 0;
++    return _db!.lastInsertRowId;
+   }
+ 
+-  /// Updates the client of a draft [quoteId].
++  /// Copies client [clientId] into draft [quoteId]; later edits to the client
++  /// do not reach the quote.
+   bool setDraftClient(int quoteId, int clientId) {
+-    return _write(quotesNotifier, (Database db) {
+-      db.execute("UPDATE quotes SET client_id = ?, updated_at = ? WHERE id = ?", [
+-        clientId,
+-        _nowMillis(),
+-        quoteId,
+-      ]);
++    return _writeDraft(quoteId, (Database db) {
++      db.execute(
++        "UPDATE quotes SET (client_id, client_name, client_phone, client_email, client_address, client_city) = "
++        "(SELECT id, name, phone, email, address, city FROM clients WHERE id = ?) WHERE id = ?",
++        [clientId, quoteId],
++      );
+     });
+   }
+ 
+-  /// Returns the client id of [quoteId], or `0` when absent.
+-  int draftClientId(int quoteId) {
+-    final Database? db = _db;
+-    if (db == null) return 0;
+-    final ResultSet rows = db.select("SELECT client_id FROM quotes WHERE id = ?", [quoteId]);
+-    if (rows.isEmpty) return 0;
+-    return rows.first["client_id"] as int;
++  /// Returns the client copied into [quoteId], or `null` when it has none.
++  Client? quoteClient(int quoteId) => quotePdfData(quoteId).client;
++
++  /// Sets the Condições and Observações of draft [quoteId]; a `null` text stays as it is.
++  bool setDraftTexts(
++    int quoteId, {
++    String? payment,
++    String? warranty,
++    String? validity,
++    String? terms,
++    String? notes,
++  }) {
++    return _writeDraft(quoteId, (Database db) {
++      db.execute(
++        "UPDATE quotes SET payment = COALESCE(?, payment), warranty = COALESCE(?, warranty), "
++        "validity = COALESCE(?, validity), terms = COALESCE(?, terms), notes = COALESCE(?, notes) "
++        "WHERE id = ?",
++        [payment, warranty, validity, terms, notes, quoteId],
++      );
++    });
+   }
+ 
+-  /// Adds or increments a draft line for [type] and [refId].
++  /// Adds a line to draft [quoteId] with its own copy of catalog item [refId].
++  ///
++  /// An equipment already on the quote sums [quantity] (up to 9999) and keeps its
++  /// own price; a service already on the quote is left as it is.
+   bool addDraftLine(int quoteId, CatalogItemType type, int refId, int quantity) {
+     if (quantity <= 0) return _fail(errInvalidInput, "Invalid quantity");
+     final CatalogItem? item = catalogById(type, refId);
+     if (item == null) return _fail(errMissingId, "Catalog ref missing");
+-    return _write(quotesNotifier, (Database db) {
+-      // Increment when the line already exists, clamped to 9999; otherwise insert.
++    final String unit = unitById(item.unitId)?.abbreviation ?? "";
++    return _writeDraft(quoteId, (Database db) {
+       db.execute(
+-        "INSERT INTO quote_lines (quote_id, line_type, ref_id, quantity, unit_price_cents, subtotal_cents) "
+-        "VALUES (?1, ?2, ?3, ?4, ?5, ?4 * ?5) "
++        "INSERT INTO quote_lines (quote_id, line_type, ref_id, quantity, unit_price_cents, subtotal_cents, name, description, unit) "
++        "VALUES (?1, ?2, ?3, ?4, ?5, ?4 * ?5, ?6, ?7, ?8) "
+         "ON CONFLICT(quote_id, line_type, ref_id) DO UPDATE SET "
+         "quantity = min(9999, quote_lines.quantity + ?4), "
+-        "unit_price_cents = ?5, "
+-        "subtotal_cents = min(9999, quote_lines.quantity + ?4) * ?5",
+-        [quoteId, type.index, refId, quantity, item.priceCents],
++        "subtotal_cents = min(9999, quote_lines.quantity + ?4) * quote_lines.unit_price_cents "
++        "WHERE quote_lines.line_type = ${CatalogItemType.equipment.index}",
++        [quoteId, type.index, refId, quantity, item.priceCents, item.name, item.description, unit],
++      );
++    });
++  }
++
++  /// Item novo: adds [name] (first letter capitalised) to the catalog and a line
++  /// for it to draft [quoteId], flagged "novo no catálogo" until the quote is saved.
++  bool addNewCatalogLine(
++    int quoteId,
++    CatalogItemType type,
++    String name,
++    String description,
++    int priceCents,
++    int unitId,
++    int quantity,
++  ) {
++    // A saved quote, or a database that rejects writes, must not grow the catalog.
++    if (!_writeDraft(quoteId, (Database db) {})) return false;
++    final String capitalised = name.trim().replaceFirstMapped(
++      RegExp("^."),
++      (Match m) => m[0]!.toUpperCase(),
++    );
++    if (!_addCatalog(type, capitalised, description, priceCents, unitId)) return false;
++    final int refId = lastCatalogId(type);
++    if (!addDraftLine(quoteId, type, refId, quantity)) return false;
++    return _writeDraft(quoteId, (Database db) {
++      db.execute(
++        "UPDATE quote_lines SET is_new = 1 WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
++        [quoteId, type.index, refId],
++      );
++    });
++  }
++
++  /// Sets the description of a draft line, on this quote only.
++  bool setDraftLineDescription(int quoteId, CatalogItemType type, int refId, String description) {
++    return _writeDraft(quoteId, (Database db) {
++      db.execute(
++        "UPDATE quote_lines SET description = ? WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
++        [description, quoteId, type.index, refId],
+       );
+-      _touchQuote(db, quoteId);
+     });
+   }
+ 
+@@ -375,13 +417,12 @@ class QuoteStore {
+     if (current < 0) return _fail(errMissingId, "Quote line missing");
+     if (current + delta < 1) return removeDraftLine(quoteId, type, refId);
+     final int next = math.min(9999, current + delta);
+-    return _write(quotesNotifier, (Database db) {
++    return _writeDraft(quoteId, (Database db) {
+       db.execute(
+         "UPDATE quote_lines SET quantity = ?, subtotal_cents = unit_price_cents * ? "
+         "WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
+         [next, next, quoteId, type.index, refId],
+       );
+-      _touchQuote(db, quoteId);
+     });
+   }
+ 
+@@ -390,39 +431,32 @@ class QuoteStore {
+   /// A no-op (still returns `true`) when no matching line exists.
+   bool setDraftLineUnitPrice(int quoteId, CatalogItemType type, int refId, int priceCents) {
+     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
+-    return _write(quotesNotifier, (Database db) {
++    return _writeDraft(quoteId, (Database db) {
+       db.execute(
+         "UPDATE quote_lines SET unit_price_cents = ?, subtotal_cents = quantity * ? "
+         "WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
+         [priceCents, priceCents, quoteId, type.index, refId],
+       );
+-      _touchQuote(db, quoteId);
+     });
+   }
+ 
+   /// Removes a draft line by [type] and [refId].
+   bool removeDraftLine(int quoteId, CatalogItemType type, int refId) {
+-    return _write(quotesNotifier, (Database db) {
++    return _writeDraft(quoteId, (Database db) {
+       db.execute("DELETE FROM quote_lines WHERE quote_id = ? AND line_type = ? AND ref_id = ?", [
+         quoteId,
+         type.index,
+         refId,
+       ]);
+-      _touchQuote(db, quoteId);
+     });
+   }
+ 
+-  /// Returns the lines of [quoteId] with catalog names resolved.
++  /// Returns the lines of [quoteId], each with its own copy of the catalog item.
+   List<QuoteLine> listQuoteLines(int quoteId) {
+     final Database? db = _db;
+     if (db == null) return const <QuoteLine>[];
+     final ResultSet rows = db.select(
+-      "SELECT l.line_type, l.ref_id, l.quantity, l.unit_price_cents, l.subtotal_cents, "
+-      "COALESCE(e.name, s.name, '') AS item_name "
+-      "FROM quote_lines l "
+-      "LEFT JOIN equipments e ON l.line_type = 0 AND e.id = l.ref_id "
+-      "LEFT JOIN services s ON l.line_type = 1 AND s.id = l.ref_id "
+-      "WHERE l.quote_id = ? ORDER BY l.rowid ASC",
++      "SELECT * FROM quote_lines WHERE quote_id = ? ORDER BY rowid ASC",
+       [quoteId],
+     );
+     return [
+@@ -430,38 +464,44 @@ class QuoteStore {
+         QuoteLine(
+           type: CatalogItemType.values[row["line_type"] as int],
+           refId: row["ref_id"] as int,
+-          name: row["item_name"] as String,
++          name: row["name"] as String,
++          description: row["description"] as String,
++          unit: row["unit"] as String,
+           quantity: row["quantity"] as int,
+           unitPriceCents: row["unit_price_cents"] as int,
+           subtotalCents: row["subtotal_cents"] as int,
++          isNew: row["is_new"] == 1,
+         ),
+     ];
+   }
+ 
+-  /// Gathers everything the quote PDF needs in a single query: the quote's
+-  /// timestamp, its client, and every line with the catalog name and unit
+-  /// abbreviation already resolved. Replaces the per-line catalog/unit fan-out.
++  /// Gathers the whole quote document in a single query: its state, client copy,
++  /// Condições, Observações, renderer version and every line copy.
+   QuotePdfData quotePdfData(int quoteId) {
+-    final Database? db = _db;
+-    if (db == null) return const QuotePdfData(createdAt: 0, client: null, lines: []);
+-    // equipments = line_type 0, services = line_type 1 (CatalogItemType order).
+-    final ResultSet rows = db.select(
+-      "SELECT q.created_at, "
+-      "c.id AS client_id, c.name AS client_name, c.phone, c.email, c.address, c.city, "
+-      "l.line_type, l.quantity, l.unit_price_cents, l.subtotal_cents, "
+-      "COALESCE(e.name, s.name, '') AS item_name, "
+-      "COALESCE(eu.abbreviation, su.abbreviation, '') AS unit_abbr "
+-      "FROM quotes q "
+-      "LEFT JOIN clients c ON c.id = q.client_id "
+-      "LEFT JOIN quote_lines l ON l.quote_id = q.id "
+-      "LEFT JOIN equipments e ON l.line_type = 0 AND e.id = l.ref_id "
+-      "LEFT JOIN services s ON l.line_type = 1 AND s.id = l.ref_id "
+-      "LEFT JOIN units eu ON eu.id = e.unit_id "
+-      "LEFT JOIN units su ON su.id = s.unit_id "
++    final ResultSet? rows = _db?.select(
++      "SELECT q.*, l.* FROM quotes q LEFT JOIN quote_lines l ON l.quote_id = q.id "
+       "WHERE q.id = ? ORDER BY l.rowid ASC",
+       [quoteId],
+     );
+-    if (rows.isEmpty) return const QuotePdfData(createdAt: 0, client: null, lines: []);
++    if (rows == null || rows.isEmpty) {
++      return const QuotePdfData(
++        id: 0,
++        createdAt: 0,
++        status: "",
++        client: null,
++        payment: "",
++        warranty: "",
++        validity: "",
++        terms: "",
++        notes: "",
++        rendererVersion: newestPdfRenderer,
++        showUnitPrice: true,
++        equipmentPriceMode: 0,
++        closedTotalCents: 0,
++        markupPercent: 0,
++        lines: [],
++      );
++    }
+     final Row head = rows.first;
+     final Object? clientId = head["client_id"];
+     Client? client;
+@@ -469,10 +509,10 @@ class QuoteStore {
+       client = Client(
+         id: clientId as int,
+         name: head["client_name"] as String,
+-        phone: head["phone"] as String,
+-        email: head["email"] as String,
+-        address: head["address"] as String,
+-        city: head["city"] as String,
++        phone: head["client_phone"] as String,
++        email: head["client_email"] as String,
++        address: head["client_address"] as String,
++        city: head["client_city"] as String,
+       );
+     }
+     final List<QuotePdfLine> lines = [
+@@ -480,14 +520,33 @@ class QuoteStore {
+         if (row["line_type"] != null)
+           QuotePdfLine(
+             type: CatalogItemType.values[row["line_type"] as int],
+-            name: row["item_name"] as String,
++            name: row["name"] as String,
++            description: row["description"] as String,
+             quantity: row["quantity"] as int,
+-            unit: row["unit_abbr"] as String,
++            unit: row["unit"] as String,
+             unitPriceCents: row["unit_price_cents"] as int,
+             subtotalCents: row["subtotal_cents"] as int,
+           ),
+     ];
+-    return QuotePdfData(createdAt: head["created_at"] as int, client: client, lines: lines);
++    final String status = head["status"] as String;
++    return QuotePdfData(
++      id: quoteId,
++      createdAt: head["created_at"] as int,
++      status: status,
++      client: client,
++      payment: head["payment"] as String,
++      warranty: head["warranty"] as String,
++      validity: head["validity"] as String,
++      terms: head["terms"] as String,
++      notes: head["notes"] as String,
++      // A draft always renders with the newest renderer; a saved quote keeps its own.
++      rendererVersion: status == "draft" ? newestPdfRenderer : head["renderer_version"] as int,
++      showUnitPrice: head["show_unit_price"] == 1,
++      equipmentPriceMode: head["equipment_price_mode"] as int,
++      closedTotalCents: head["closed_total_cents"] as int,
++      markupPercent: head["markup_percent"] as int,
++      lines: lines,
++    );
+   }
+ 
+   /// Returns the total in cents for [quoteId].
+@@ -508,18 +567,48 @@ class QuoteStore {
+     return rows.first["c"] as int;
+   }
+ 
+-  /// Finalises a draft: stamps the total and flips it to a saved quote.
++  /// Saves a draft that has a client and at least one line: stamps the total and
++  /// the newest renderer version, clears the "novo no catálogo" flags and flips it
++  /// to a saved quote, which refuses every later write.
+   bool finalizeDraft(int quoteId) {
+-    final int clientId = draftClientId(quoteId);
+-    if (clientId == 0) return _fail(errMissingId, "Client missing");
++    final QuotePdfData data = quotePdfData(quoteId);
++    if (data.client == null) return _fail(errMissingId, "Client missing");
++    if (data.lines.isEmpty) return _fail(errQuoteEmpty, "Quote empty");
+     final int total = quoteTotal(quoteId);
+-    if (total <= 0) return _fail(errQuoteEmpty, "Quote empty");
+-    return _write(quotesNotifier, (Database db) {
++    return _writeDraft(quoteId, (Database db) {
++      db.execute("UPDATE quote_lines SET is_new = 0 WHERE quote_id = ?", [quoteId]);
++      db.execute(
++        "UPDATE quotes SET total_cents = ?, status = 'saved', renderer_version = ? WHERE id = ?",
++        [total, newestPdfRenderer, quoteId],
++      );
++    });
++  }
++
++  /// Editar: copies [quoteId] into a new draft created now, with the same client
++  /// copy, lines (no "novo" flags), Condições, Observações and Preço dos
++  /// equipamentos fields. Returns the new id, or `0` on failure.
++  int copyQuote(int quoteId) {
++    const String copied =
++        "client_id, client_name, client_phone, client_email, client_address, client_city, "
++        "payment, warranty, validity, terms, notes, "
++        "show_unit_price, equipment_price_mode, closed_total_cents, markup_percent";
++    final int now = _nowMillis();
++    int copyId = 0;
++    _write(quotesNotifier, (Database db) {
++      db.execute(
++        "INSERT INTO quotes ($copied, created_at, updated_at) SELECT $copied, ?, ? FROM quotes WHERE id = ?",
++        [now, now, quoteId],
++      );
++      final int id = db.lastInsertRowId;
+       db.execute(
+-        "UPDATE quotes SET total_cents = ?, status = 'saved', updated_at = ? WHERE id = ?",
+-        [total, _nowMillis(), quoteId],
++        "INSERT INTO quote_lines (quote_id, line_type, ref_id, name, description, unit, quantity, unit_price_cents, subtotal_cents) "
++        "SELECT ?, line_type, ref_id, name, description, unit, quantity, unit_price_cents, subtotal_cents "
++        "FROM quote_lines WHERE quote_id = ? ORDER BY rowid",
++        [id, quoteId],
+       );
++      copyId = id;
+     });
++    return copyId;
+   }
+ 
+   /// Deletes a quote (and its lines) by [quoteId].
+@@ -530,7 +619,7 @@ class QuoteStore {
+     });
+   }
+ 
+-  /// Deletes [quoteId] only if it is still a draft with no lines.
++  /// Deletes [quoteId] only if it is still a draft with no client and no lines.
+   ///
+   /// Used to clean up drafts the user abandoned before adding anything.
+   void deleteDraftIfEmpty(int quoteId) {
+@@ -538,7 +627,7 @@ class QuoteStore {
+     if (db == null) return;
+     final ResultSet rows = db.select(
+       "SELECT (SELECT COUNT(*) FROM quote_lines WHERE quote_id = q.id) AS lines "
+-      "FROM quotes q WHERE q.id = ? AND q.status = 'draft'",
++      "FROM quotes q WHERE q.id = ? AND q.status = 'draft' AND q.client_id IS NULL",
+       [quoteId],
+     );
+     if (rows.isEmpty) return;
+@@ -799,7 +888,7 @@ class QuoteStore {
+           name: row["name"] as String,
+           description: row["description"] as String,
+           priceCents: row["price_cents"] as int,
+-          unitId: row["unit_id"] as int,
++          unitId: row["unit_id"] as int? ?? 0, // services have no unit
+         ),
+     ];
+   }
+@@ -822,7 +911,7 @@ class QuoteStore {
+     final Database? db = _db;
+     if (db == null) return const <QuoteSummary>[];
+     var sql =
+-        "SELECT q.id, q.client_id, q.status, "
++        "SELECT q.id, q.client_name, q.status, "
+         "COALESCE(SUM(l.subtotal_cents), 0) AS total_cents, q.updated_at, "
+         "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.service.index} THEN 1 ELSE 0 END), 0) AS service_count, "
+         "COALESCE(SUM(CASE WHEN l.line_type = ${CatalogItemType.equipment.index} THEN 1 ELSE 0 END), 0) AS equipment_count "
+@@ -842,7 +931,7 @@ class QuoteStore {
+       for (final Row row in rows)
+         QuoteSummary(
+           id: row["id"] as int,
+-          clientId: row["client_id"] as int,
++          clientName: row["client_name"] as String,
+           status: row["status"] as String,
+           totalCents: row["total_cents"] as int,
+           updatedAt: row["updated_at"] as int,
+@@ -852,23 +941,41 @@ class QuoteStore {
+     ];
+   }
+ 
+-  bool _write(
+-    StoreNotifier notifier,
+-    void Function(Database db) action, [
+-    StoreNotifier? alsoNotify,
+-  ]) {
++  bool _write(StoreNotifier notifier, void Function(Database db) action) {
+     final Database? db = _db;
+     if (db == null) return _fail(errDbOpen, "DB not open");
+     try {
+       action(db);
+       notifier.markChanged();
+-      alsoNotify?.markChanged();
+       return true;
+     } catch (error) {
+       return _fail(errSqlWrite, error.toString());
+     }
+   }
+ 
++  /// [_write] for the content of quote [quoteId]: refused unless it is a draft,
++  /// and touches the quote.
++  bool _writeDraft(int quoteId, void Function(Database db) action) {
++    final ResultSet? draft = _db?.select("SELECT 1 FROM quotes WHERE id = ? AND status = 'draft'", [
++      quoteId,
++    ]);
++    if (draft != null && draft.isEmpty) return _fail(errInvalidInput, "Quote is not a draft");
++    return _write(quotesNotifier, (Database db) {
++      action(db);
++      _touchQuote(db, quoteId);
++    });
++  }
++
++  /// Lower-cases [value] and strips Portuguese accents, for searching.
++  String _fold(String value) {
++    const String accented = "áàâãäéèêëíìîïóòôõöúùûüç";
++    const String plain = "aaaaaeeeeiiiiooooouuuuc";
++    return value.toLowerCase().splitMapJoin(
++      RegExp("[$accented]"),
++      onMatch: (Match m) => plain[accented.indexOf(m[0]!)],
++    );
++  }
++
+   bool _addCatalog(
+     CatalogItemType type,
+     String name,
+@@ -879,8 +986,16 @@ class QuoteStore {
+     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
+     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
+     return _write(_catalogNotifier(type), (Database db) {
++      if (type == .service) {
++        db.execute("INSERT INTO services (name, description, price_cents) VALUES (?, ?, ?)", [
++          name,
++          description,
++          priceCents,
++        ]);
++        return;
++      }
+       db.execute(
+-        "INSERT INTO ${_catalogTable(type)} (name, description, price_cents, unit_id) VALUES (?, ?, ?, ?)",
++        "INSERT INTO equipments (name, description, price_cents, unit_id) VALUES (?, ?, ?, ?)",
+         [name, description, priceCents, unitId],
+       );
+     });
+@@ -897,29 +1012,26 @@ class QuoteStore {
+     if (!_validName(name)) return _fail(errInvalidInput, "Catalog name required");
+     if (priceCents < 0) return _fail(errInvalidInput, "Invalid price");
+     return _write(_catalogNotifier(type), (Database db) {
++      if (type == .service) {
++        db.execute("UPDATE services SET name = ?, description = ?, price_cents = ? WHERE id = ?", [
++          name,
++          description,
++          priceCents,
++          id,
++        ]);
++        return;
++      }
+       db.execute(
+-        "UPDATE ${_catalogTable(type)} SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?",
++        "UPDATE equipments SET name = ?, description = ?, price_cents = ?, unit_id = ? WHERE id = ?",
+         [name, description, priceCents, unitId, id],
+       );
+-      // Keep open drafts in sync with the new catalog price.
+-      db.execute(
+-        "UPDATE quote_lines SET unit_price_cents = ?, subtotal_cents = ? * quantity "
+-        "WHERE line_type = ? AND ref_id = ? AND quote_id IN (SELECT id FROM quotes WHERE status = 'draft')",
+-        [priceCents, priceCents, type.index, id],
+-      );
+-    }, quotesNotifier);
++    });
+   }
+ 
+   bool _deleteCatalog(CatalogItemType type, int id) {
+     return _write(_catalogNotifier(type), (Database db) {
+       db.execute("DELETE FROM ${_catalogTable(type)} WHERE id = ?", [id]);
+-      // Drop matching lines from open drafts.
+-      db.execute(
+-        "DELETE FROM quote_lines WHERE line_type = ? AND ref_id = ? "
+-        "AND quote_id IN (SELECT id FROM quotes WHERE status = 'draft')",
+-        [type.index, id],
+-      );
+-    }, quotesNotifier);
++    });
+   }
+ 
+   bool _validateBackup(Database backupDb) {
+@@ -930,8 +1042,8 @@ class QuoteStore {
+       }
+ 
+       final ResultSet versionRows = backupDb.select("PRAGMA user_version");
+-      if (versionRows.isEmpty || (versionRows.first["user_version"] as int) < 1) {
+-        return _fail(errDbBackup, "Backup schema is not supported");
++      if (versionRows.isEmpty || (versionRows.first["user_version"] as int) < 2) {
++        return _fail(errBackupTooOld, "Backup comes from an older app version");
+       }
+ 
+       const List<String> requiredTables = [
+@@ -963,7 +1075,13 @@ class QuoteStore {
+     try {
+       final ResultSet versionRows = db.select("PRAGMA user_version");
+       final int version = versionRows.first["user_version"] as int;
+-      if (version < 1) {
++      if (version < 2) {
++        // Older databases are wiped and recreated from scratch.
++        for (final Row table in db.select(
++          "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'",
++        )) {
++          db.execute('DROP TABLE "${table["name"]}"');
++        }
+         db.execute("""
+ CREATE TABLE clients (
+   id       INTEGER PRIMARY KEY AUTOINCREMENT,
+@@ -989,24 +1107,42 @@ CREATE TABLE services (
+   id           INTEGER PRIMARY KEY AUTOINCREMENT,
+   name         TEXT NOT NULL,
+   description  TEXT NOT NULL DEFAULT '',
+-  price_cents  INTEGER NOT NULL DEFAULT 0,
+-  unit_id      INTEGER NOT NULL DEFAULT 0
++  price_cents  INTEGER NOT NULL DEFAULT 0
+ );
+ CREATE TABLE quotes (
+   id           INTEGER PRIMARY KEY AUTOINCREMENT,
+-  client_id    INTEGER NOT NULL,
++  client_id    INTEGER,
++  client_name     TEXT NOT NULL DEFAULT '',
++  client_phone    TEXT NOT NULL DEFAULT '',
++  client_email    TEXT NOT NULL DEFAULT '',
++  client_address  TEXT NOT NULL DEFAULT '',
++  client_city     TEXT NOT NULL DEFAULT '',
+   created_at   INTEGER NOT NULL,
+   updated_at   INTEGER NOT NULL DEFAULT 0,
+   total_cents  INTEGER NOT NULL DEFAULT 0,
+-  status       TEXT NOT NULL DEFAULT 'draft'
++  status       TEXT NOT NULL DEFAULT 'draft',
++  payment     TEXT NOT NULL DEFAULT '',
++  warranty    TEXT NOT NULL DEFAULT '',
++  validity    TEXT NOT NULL DEFAULT '',
++  terms       TEXT NOT NULL DEFAULT '',
++  notes       TEXT NOT NULL DEFAULT '',
++  renderer_version      INTEGER NOT NULL DEFAULT 1,
++  show_unit_price       INTEGER NOT NULL DEFAULT 1,
++  equipment_price_mode  INTEGER NOT NULL DEFAULT 0,
++  closed_total_cents    INTEGER NOT NULL DEFAULT 0,
++  markup_percent        INTEGER NOT NULL DEFAULT 0
+ );
+ CREATE TABLE quote_lines (
+   quote_id         INTEGER NOT NULL,
+   line_type        INTEGER NOT NULL,
+   ref_id           INTEGER NOT NULL,
++  name             TEXT NOT NULL,
++  description      TEXT NOT NULL DEFAULT '',
++  unit             TEXT NOT NULL DEFAULT '',
+   quantity         INTEGER NOT NULL,
+   unit_price_cents INTEGER NOT NULL,
+-  subtotal_cents   INTEGER NOT NULL
++  subtotal_cents   INTEGER NOT NULL,
++  is_new           INTEGER NOT NULL DEFAULT 0
+ );
+ CREATE INDEX idx_quote_lines_quote ON quote_lines(quote_id);
+ CREATE UNIQUE INDEX idx_quote_lines_unique ON quote_lines(quote_id, line_type, ref_id);
+@@ -1030,7 +1166,8 @@ CREATE TABLE quote_defaults (
+   payment_method  TEXT NOT NULL DEFAULT '',
+   validity        TEXT NOT NULL DEFAULT '',
+   warranty        TEXT NOT NULL DEFAULT '',
+-  terms           TEXT NOT NULL DEFAULT ''
++  terms           TEXT NOT NULL DEFAULT '',
++  show_unit_price INTEGER NOT NULL DEFAULT 1
+ );
+ CREATE TABLE pdf_settings (
+   id             INTEGER PRIMARY KEY,
+@@ -1039,7 +1176,9 @@ CREATE TABLE pdf_settings (
+ INSERT INTO business_info (id) VALUES (1);
+ INSERT INTO quote_defaults (id) VALUES (1);
+ INSERT INTO pdf_settings (id) VALUES (1);
+-PRAGMA user_version = 1;
++INSERT INTO units (abbreviation, description) VALUES
++  ('un', 'Unidade'), ('m', 'Metro'), ('cx', 'Caixa'), ('kit', 'Kit');
++PRAGMA user_version = 2;
+ """);
+       }
+       return true;
+@@ -1068,9 +1207,7 @@ PRAGMA user_version = 1;
+         businessInfo.logo = logo is List<int> ? Uint8List.fromList(logo) : Uint8List(0);
+       }
+ 
+-      final ResultSet defaultsRows = db.select(
+-        "SELECT id, payment_method, validity, warranty, terms FROM quote_defaults WHERE id = 1",
+-      );
++      final ResultSet defaultsRows = db.select("SELECT * FROM quote_defaults WHERE id = 1");
+       if (defaultsRows.isNotEmpty) {
+         final Row row = defaultsRows.first;
+         quoteDefaults.id = row["id"] as int;
+@@ -1078,6 +1215,7 @@ PRAGMA user_version = 1;
+         quoteDefaults.validity = row["validity"] as String;
+         quoteDefaults.warranty = row["warranty"] as String;
+         quoteDefaults.terms = row["terms"] as String;
++        quoteDefaults.showUnitPrice = row["show_unit_price"] == 1;
+       }
+ 
+       final ResultSet pdfRows = db.select(
+diff --git a/lib/store/store_errors.dart b/lib/store/store_errors.dart
+index e838190..fea6f9d 100644
+--- a/lib/store/store_errors.dart
++++ b/lib/store/store_errors.dart
+@@ -30,6 +30,9 @@ const int errQuoteEmpty = 9;
+ /// Error code used when exporting or importing a database backup fails.
+ const int errDbBackup = 10;
+ 
++/// Error code used when a backup comes from an app older than the current schema.
++const int errBackupTooOld = 11;
++
+ /// Fixed-size side-channel for store errors.
+ class ErrorLogBuffer {
+   /// Creates an error log with [capacity] entries.
