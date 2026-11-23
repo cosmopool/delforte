@@ -64,11 +64,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byType(UnitDropdownWidget), findsNothing);
-    expect(find.text(strings.unit), findsNothing);
+    expect(find.text(strings.unit.toUpperCase()), findsNothing);
 
     await tester.enterText(
       find.descendant(
-        of: find.widgetWithText(FormFieldWidget, strings.serviceName),
+        of: find.widgetWithText(FormFieldWidget, strings.serviceName.toUpperCase()),
         matching: find.byType(TextField),
       ),
       "Instalação de câmeras",
@@ -84,9 +84,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text("Instalação de câmeras"));
     await tester.pumpAndSettle();
-    expect(find.text(strings.defaultPrice), findsOneWidget);
+    expect(find.text(strings.defaultPrice.toUpperCase()), findsOneWidget);
     expect(find.byType(UnitDropdownWidget), findsNothing);
-    expect(find.text(strings.unit), findsNothing);
+    expect(find.text(strings.unit.toUpperCase()), findsNothing);
   });
 
   testWidgets(
@@ -177,7 +177,11 @@ void main() {
       expect(store.addClient("Cliente Atual", "", "", "", ""), isTrue);
       await tester.pumpAndSettle();
 
-      await tester.ensureVisible(find.text(strings.importBackupAction));
+      await tester.scrollUntilVisible(
+        find.text(strings.importBackupAction),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text(strings.importBackupAction));
       await tester.pumpAndSettle();
