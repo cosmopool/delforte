@@ -388,7 +388,10 @@ class QuoteStore {
     );
     if (!_addCatalog(type, capitalised, description, priceCents, unitId)) return false;
     final int refId = lastCatalogId(type);
-    if (!addDraftLine(quoteId, type, refId, quantity)) return false;
+    if (!addDraftLine(quoteId, type, refId, quantity)) {
+      _deleteCatalog(type, refId);
+      return false;
+    }
     return _writeDraft(quoteId, (Database db) {
       db.execute(
         "UPDATE quote_lines SET is_new = 1 WHERE quote_id = ? AND line_type = ? AND ref_id = ?",
@@ -945,10 +948,13 @@ class QuoteStore {
     final Database? db = _db;
     if (db == null) return _fail(errDbOpen, "DB not open");
     try {
+      db.execute("BEGIN");
       action(db);
+      db.execute("COMMIT");
       notifier.markChanged();
       return true;
     } catch (error) {
+      if (!db.autocommit) db.execute("ROLLBACK");
       return _fail(errSqlWrite, error.toString());
     }
   }

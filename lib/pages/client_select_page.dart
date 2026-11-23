@@ -90,7 +90,8 @@ class _ClientSelectPageState extends State<ClientSelectPage> {
     final int clientId = _selectedClientId!;
     final int? existing = widget.draftId;
     final int draftId = existing ?? widget.store.createDraft();
-    if (draftId == 0 || !widget.store.setDraftClient(draftId, clientId)) {
+    final bool unchanged = existing != null && widget.store.quoteClient(existing)?.id == clientId;
+    if (draftId == 0 || (!unchanged && !widget.store.setDraftClient(draftId, clientId))) {
       _showSnack(widget.store.latestErrorMessage());
       return;
     }

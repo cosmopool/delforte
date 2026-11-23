@@ -114,7 +114,7 @@ class ReviewPage extends StatelessWidget {
   }
 
   void _saveAndContinue(BuildContext context) {
-    if (!store.finalizeDraft(draftId)) {
+    if (store.quotePdfData(draftId).status == "draft" && !store.finalizeDraft(draftId)) {
       final String message = store.latestErrorMessage();
       if (message.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
