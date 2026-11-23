@@ -1,0 +1,25 @@
+00:00 +0: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_5_test.dart
+test/pagina-unica-fundacao_repro_r1_5_test.dart:66:20: Error: The method 'quoteClient' isn't defined for the type 'QuoteStore'.
+ - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'quoteClient'.
+      expect(store.quoteClient(draftId)?.name, "Residencial Oliveira");
+                   ^^^^^^^^^^^
+test/pagina-unica-fundacao_repro_r1_5_test.dart:76:20: Error: The method 'quoteClient' isn't defined for the type 'QuoteStore'.
+ - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'quoteClient'.
+      expect(store.quoteClient(draftId)?.name, "Residencial Oliveira");
+                   ^^^^^^^^^^^
+00:00 +0 -1: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_5_test.dart [E]
+  Failed to load "/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_5_test.dart":
+  Compilation failed for testPath=/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_5_test.dart: test/pagina-unica-fundacao_repro_r1_5_test.dart:66:20: Error: The method 'quoteClient' isn't defined for the type 'QuoteStore'.
+   - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'quoteClient'.
+        expect(store.quoteClient(draftId)?.name, "Residencial Oliveira");
+                     ^^^^^^^^^^^
+  test/pagina-unica-fundacao_repro_r1_5_test.dart:76:20: Error: The method 'quoteClient' isn't defined for the type 'QuoteStore'.
+   - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'quoteClient'.
+        expect(store.quoteClient(draftId)?.name, "Residencial Oliveira");
+                     ^^^^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.

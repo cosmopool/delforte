@@ -1,0 +1,31 @@
+00:00 +0: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_4_test.dart
+test/pagina-unica-fundacao_repro_r1_4_test.dart:27:42: Error: Too few positional arguments: 1 required, 0 given.
+    final int savedId = store.createDraft();
+                                         ^
+test/pagina-unica-fundacao_repro_r1_4_test.dart:44:57: Error: The getter 'clientName' isn't defined for the type 'QuoteSummary'.
+ - 'QuoteSummary' is from 'package:delforte/store/models.dart' ('lib/store/models.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'clientName'.
+      .map((QuoteSummary q) => "${q.id}:${q.status}:${q.clientName}:${q.equipmentCount}")
+                                                        ^^^^^^^^^^
+test/pagina-unica-fundacao_repro_r1_4_test.dart:54:18: Error: The method 'copyQuote' isn't defined for the type 'QuoteStore'.
+ - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'copyQuote'.
+    expect(store.copyQuote(savedId), 0);
+                 ^^^^^^^^^
+00:00 +0 -1: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_4_test.dart [E]
+  Failed to load "/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_4_test.dart":
+  Compilation failed for testPath=/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_4_test.dart: test/pagina-unica-fundacao_repro_r1_4_test.dart:27:42: Error: Too few positional arguments: 1 required, 0 given.
+      final int savedId = store.createDraft();
+                                           ^
+  test/pagina-unica-fundacao_repro_r1_4_test.dart:44:57: Error: The getter 'clientName' isn't defined for the type 'QuoteSummary'.
+   - 'QuoteSummary' is from 'package:delforte/store/models.dart' ('lib/store/models.dart').
+  Try correcting the name to the name of an existing getter, or defining a getter or field named 'clientName'.
+        .map((QuoteSummary q) => "${q.id}:${q.status}:${q.clientName}:${q.equipmentCount}")
+                                                          ^^^^^^^^^^
+  test/pagina-unica-fundacao_repro_r1_4_test.dart:54:18: Error: The method 'copyQuote' isn't defined for the type 'QuoteStore'.
+   - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'copyQuote'.
+      expect(store.copyQuote(savedId), 0);
+                   ^^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.

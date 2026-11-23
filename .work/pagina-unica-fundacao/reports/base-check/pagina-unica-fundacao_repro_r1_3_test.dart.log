@@ -1,0 +1,15 @@
+00:00 +0: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_3_test.dart
+test/pagina-unica-fundacao_repro_r1_3_test.dart:84:20: Error: The method 'quoteClient' isn't defined for the type 'QuoteStore'.
+ - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+Try correcting the name to the name of an existing method, or defining a method named 'quoteClient'.
+      expect(store.quoteClient(draftId)?.name, "Casa Joao Silva");
+                   ^^^^^^^^^^^
+00:00 +0 -1: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_3_test.dart [E]
+  Failed to load "/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_3_test.dart":
+  Compilation failed for testPath=/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_3_test.dart: test/pagina-unica-fundacao_repro_r1_3_test.dart:84:20: Error: The method 'quoteClient' isn't defined for the type 'QuoteStore'.
+   - 'QuoteStore' is from 'package:delforte/store/quote_store.dart' ('lib/store/quote_store.dart').
+  Try correcting the name to the name of an existing method, or defining a method named 'quoteClient'.
+        expect(store.quoteClient(draftId)?.name, "Casa Joao Silva");
+                     ^^^^^^^^^^^
+  .
+00:00 +0 -1: Some tests failed.

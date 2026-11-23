@@ -3,10 +3,10 @@
   "branch": "feat/pagina-unica",
   "jira": "",
   "base": "d3fed83bca0e11b6941cc10e7726676686b7e7dc",
-  "stage": "build",
-  "step": "done",
-  "round": null,
-  "commit": "36aff71642f24d0375a4a7df90ecbb65e2b3860f",
+  "stage": "verify",
+  "step": "round-1",
+  "round": 1,
+  "commit": "5ff22b4013d79b652957d1854f0588a26b9ade55",
   "budget": {
     "added": 950,
     "newFiles": 0,
@@ -38,6 +38,23 @@
       "step": "done",
       "round": null,
       "commit": "36aff71642f24d0375a4a7df90ecbb65e2b3860f"
+    },
+    {
+      "stage": "verify",
+      "step": "round-1",
+      "round": 1,
+      "commit": "5ff22b4013d79b652957d1854f0588a26b9ade55"
     }
-  ]
+  ],
+  "verify": {
+    "round": 1,
+    "newCritical": 1,
+    "seen": [
+      "lib/design_system/widgets/quote_catalog_step_widget.dart: After deleting a catalog item, its draft line no longer shows on the wizard step but still counts in the total and cannot be removed there",
+      "lib/pages/review_page.dart: Wizard regression: from Enviar, going back to Revisar and pressing \"Looks good\" again now fails with \"Quote is not a draft\"",
+      "lib/pages/client_select_page.dart: The client step preselects the draft's deleted client, and Continuar then fails with a raw SQLite NOT NULL error",
+      "lib/store/quote_store.dart: Compound quote writes are not atomic: a failed copyQuote still creates a draft, and a failed deleteQuote strips a saved quote of its lines",
+      "lib/pages/client_select_page.dart: Wizard client step preselects a deleted client from the quote's copy, then Continue fails with a raw SQLite error"
+    ]
+  }
 }

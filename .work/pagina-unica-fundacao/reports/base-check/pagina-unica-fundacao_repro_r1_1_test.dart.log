@@ -1,0 +1,11 @@
+00:00 +0: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_1_test.dart
+test/pagina-unica-fundacao_repro_r1_1_test.dart:41:30: Error: Too few positional arguments: 4 required, 3 given.
+      expect(store.addService("Instalação de câmeras", "Por ponto", 28000), isTrue);
+                             ^
+00:00 +0 -1: loading /home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_1_test.dart [E]
+  Failed to load "/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_1_test.dart":
+  Compilation failed for testPath=/home/arrow/Development/delforte/.claude/worktrees/feature-pagina-unica-fundacao-base/test/pagina-unica-fundacao_repro_r1_1_test.dart: test/pagina-unica-fundacao_repro_r1_1_test.dart:41:30: Error: Too few positional arguments: 4 required, 3 given.
+        expect(store.addService("Instalação de câmeras", "Por ponto", 28000), isTrue);
+                               ^
+  .
+00:00 +0 -1: Some tests failed.
