@@ -3,10 +3,10 @@
   "branch": "feat/pagina-unica",
   "jira": "",
   "base": "e56fc4f1edba0c2867a515b71f64d2eb4787af7e",
-  "stage": "open",
-  "step": "approved",
+  "stage": "build",
+  "step": "tests",
   "round": null,
-  "commit": "5017a8c0209915a3b282a37a17983fbf9396f782",
+  "commit": "bff457e278bd5601ae5a99b08c86de15e1dbb86a",
   "budget": {
     "added": 950,
     "newFiles": 0,
@@ -20,6 +20,12 @@
       "step": "approved",
       "round": null,
       "commit": "5017a8c0209915a3b282a37a17983fbf9396f782"
+    },
+    {
+      "stage": "build",
+      "step": "tests",
+      "round": null,
+      "commit": "bff457e278bd5601ae5a99b08c86de15e1dbb86a"
     }
   ]
 }
