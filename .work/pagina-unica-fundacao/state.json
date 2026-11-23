@@ -4,9 +4,9 @@
   "jira": "",
   "base": "d3fed83bca0e11b6941cc10e7726676686b7e7dc",
   "stage": "verify",
-  "step": "round-1",
-  "round": 1,
-  "commit": "5ff22b4013d79b652957d1854f0588a26b9ade55",
+  "step": "round-2",
+  "round": 2,
+  "commit": "83294f8d3f532aecf6408d7b1dd840789b225abe",
   "budget": {
     "added": 950,
     "newFiles": 0,
@@ -44,11 +44,17 @@
       "step": "round-1",
       "round": 1,
       "commit": "5ff22b4013d79b652957d1854f0588a26b9ade55"
+    },
+    {
+      "stage": "verify",
+      "step": "round-2",
+      "round": 2,
+      "commit": "83294f8d3f532aecf6408d7b1dd840789b225abe"
     }
   ],
   "verify": {
-    "round": 1,
-    "newCritical": 1,
+    "round": 2,
+    "newCritical": 0,
     "seen": [
       "lib/design_system/widgets/quote_catalog_step_widget.dart: After deleting a catalog item, its draft line no longer shows on the wizard step but still counts in the total and cannot be removed there",
       "lib/pages/review_page.dart: Wizard regression: from Enviar, going back to Revisar and pressing \"Looks good\" again now fails with \"Quote is not a draft\"",
